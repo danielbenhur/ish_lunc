@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+.meu_ambiente/
+
+# QGIS / Geo
+*.gpkg
+*.tif
+*.tiff
+*.sqlite
+*.db
+*.shp
+*.shx
+*.dbf
+*.prj
+
+# logs, outputs, dados grandes
+logs/
+*/output/*.gpkg
+*/output/*.tif
+*/output/*
+/cnr_*/output/
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-workspace
+
+# system files
+.DS_Store
+Thumbs.db
