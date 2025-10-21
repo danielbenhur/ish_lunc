@@ -1,22 +1,22 @@
 
 # ISH Automation README
 
-Este repositório contém scripts para calcular e processar o **Índice de Segurança Hídrica (ISH)** por ottobacias e para agregar/visualizar esses resultados em unidades de apresentação (municípios, estados, regiões etc.).
+Este repositório contém scripts para calcular e processar o **Índice de Segurança Hídrica LabGest-UFES/Neades-CPID (ISH_LUNC)** por ottobacias e para agregar/visualizar esses resultados em unidades de apresentação (municípios, estados, regiões etc.).
 
 **Arquitetura de exemplo**
 ```
 ISH/
 ├─ joinISH.py
+├─ planilhas/
 ├─ scripts/
 │  ├─ aggregate_presentation.py
 │  ├─ aplica_recortes.py
 │  ├─ plot_bho.py
-│  └─ readers.py
+│  └─ interactive_map.py
 ├─ cnr_<cenario>/
 │  ├─ input/
 │  │  ├─ BHO_area.gpkg
 │  │  └─ dim_*.csv
-│  ├─ middle/
 │  └─ output/
 │     └─ ish_cnr_<cenario>.gpkg
 ├─ recortes/
@@ -65,8 +65,8 @@ source meu_ambiente/bin/activate
 
 # Agora, dentro deste ambiente, instale os pacotes desejados
 pip install geopandas pandas
-Após ativar o ambiente virtual, você pode executar seu script Python normalmente. Quando terminar, para sair do ambiente virtual, basta usar o comando:
 
+#Após ativar o ambiente virtual, você pode executar seu script Python normalmente. Quando terminar, para sair do ambiente virtual, basta usar o comando:
 bash
 deactivate
 ```
@@ -249,6 +249,60 @@ Se pedir `--agg mean median`, a camada `agg_mun_es` conterá as colunas:
 python -m scripts.plot_bho ./cnr_atlas_2035/input/BHO_area.gpkg --layer bho_area --area --output ./cnr_atlas_2035/output/bho_plot.png
 ```
 
+Também podemos plotar interativamente:
+### O que o script faz
+
+- Lista (recursivamente) arquivos .gpkg no diretório atual, caso você não passe --gpkg.
+- Lista camadas do .gpkg e permite escolher uma ou mais camadas.
+- Seleciona automaticamente o campo cs_ish (se presente) ou um ire_cs_* disponível; também permite que você escolha outro campo.
+- Gera um mapa interativo (Leaflet via folium) com cloropleta usando as cores ISH que você especificou e as faixas definidas.
+- Salva o HTML em interactive_maps/interactive_map_<gpkg_stem>.html ao lado do gpkg por padrão e abre no navegador.
+
+### Como rodar
+
+Modo interativo (prompt):
+
+```bash
+python -m scripts.interactive_map
+```
+
+Modo com argumentos:
+
+```bash
+python -m scripts.interactive_map --gpkg ./cnr_atlas_2035/input/BHO_area.gpkg --layers bho_area --field cs_ish --output /tmp/map.html
+```
+
+Dependências
+
+```bash
+#geopandas, folium, branca. Recomendo instalar via conda-forge:
+conda install -c conda-forge geopandas folium branca
+```
+
+ou pip:
+
+```bash
+pip install geopandas folium branca
+```
+
+(Geopandas funciona melhor via conda por dependências binárias.)
+
+### Como integrar ao joinISH.py
+
+Após gerar o ish_cnr_<cenario>.gpkg você pode chamar o script diretamente (subprocess) ou importá-lo. Exemplo (dentro do joinISH.py):
+
+```bash
+# após salvar output_file (caminho do gpkg)
+import subprocess, sys
+subprocess.run([sys.executable, "-m", "scripts.interactive_map", "--gpkg", output_file, "--layers", "regiao_completa", "--field", "cs_ish"])
+```
+
+Ou chamar programaticamente:
+
+```bash
+from scripts.interactive_map import run_interactive
+run_interactive(gpkg_path=output_file, chosen_layers=["regiao_completa"], field="cs_ish")
+```
 ---
 
 ## Logs e interpretação rápida
