@@ -1,5 +1,5 @@
 
-# ISH Automation README
+# Automação do ISH_LUNC ----- README
 
 Este repositório contém scripts para calcular e processar o **Índice de Segurança Hídrica LabGest-UFES/Neades-CPID (ISH_LUNC)** por ottobacias e para agregar/visualizar esses resultados em unidades de apresentação (municípios, estados, regiões etc.).
 
