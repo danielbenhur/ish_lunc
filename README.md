@@ -1,5 +1,5 @@
 
-# ISH Automation README
+# Automação do ISH_LUNC ----- README
 
 Este repositório contém scripts para calcular e processar o **Índice de Segurança Hídrica LabGest-UFES/Neades-CPID (ISH_LUNC)** por ottobacias e para agregar/visualizar esses resultados em unidades de apresentação (municípios, estados, regiões etc.).
 
@@ -7,6 +7,7 @@ Este repositório contém scripts para calcular e processar o **Índice de Segur
 ```
 ISH/
 ├─ joinISH.py
+├─ environment.yml
 ├─ planilhas/
 ├─ scripts/
 │  ├─ aggregate_presentation.py
@@ -45,8 +46,8 @@ ISH/
 1. Recomenda-se utilizar **conda** (canal `conda-forge`) para instalar dependências geoespaciais:
 
 ```bash
-conda create -n ishgeo python=3.10 -c conda-forge geopandas pandas fiona shapely pyproj rtree matplotlib
-conda activate ishgeo
+conda env create -f environment.yml
+conda activate nome_do_ambiente
 ```
 
 Verifique instalação:
