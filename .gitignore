@@ -6,11 +6,11 @@ __pycache__/
 env/
 venv/
 .meu_ambiente/
-<<<<<<< HEAD
-=======
+*.zip.extracted/
+*.zip
+*.rar
 .conda/
 miniconda3/
->>>>>>> c408c7f (Atualizações no interactive_map e criação de environment.yml)
 
 # QGIS / Geo
 *.gpkg
@@ -25,10 +25,12 @@ miniconda3/
 
 # logs, outputs, dados grandes
 logs/
+*/input/
 */output/*.gpkg
 */output/*.tif
 */output/*
 /cnr_*/output/
+/cnr*
 
 # IDEs
 .vscode/
