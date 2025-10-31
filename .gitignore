@@ -6,6 +6,11 @@ __pycache__/
 env/
 venv/
 .meu_ambiente/
+<<<<<<< HEAD
+=======
+.conda/
+miniconda3/
+>>>>>>> c408c7f (Atualizações no interactive_map e criação de environment.yml)
 
 # QGIS / Geo
 *.gpkg
