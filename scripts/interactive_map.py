@@ -1,27 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-scripts/interactive_map.py
+scripts/interactive_map.py (updated)
 
 Gera um mapa interativo (Leaflet via folium) a partir de um GeoPackage (.gpkg).
 Permite escolher múltiplas camadas e múltiplos campos por camada para cloropleth.
-Suporta:
-  --fields all              -> em todas as camadas selecionadas, usar todas as colunas que contenham "cs"
-  --fields "layer:all"      -> para a camada especificada, usar todas as colunas que contenham "cs"
-  --fields "layer:fld1,fld2;layer2:fldX"
+Adicionado:
+  --static : gerar imagem estática (subplots) com as mesmas camadas/campos
+  --static-out, --static-dpi, --static-max-features : controlar saída estática
+  --static-no-edges : lista de layers (nome base) para as quais a imagem estática será plotada sem linhas (apenas fills)
+
 Uso:
-  python -m scripts.interactive_map
-  python -m scripts.interactive_map --gpkg path/to.gpkg --layers layer1,layer2 --fields "layer1:fieldA,fieldB;layer2:all" --output map.html
+  python -m scripts.interactive_map --gpkg path/to.gpkg --layers layer1,layer2 --fields "layer1:fieldA,fieldB;layer2:all" --static --static-out preview.png --static-no-edges layer1
 
 Dependências:
-  geopandas, folium, branca, fiona
-  Recomendo instalar via conda: conda install -c conda-forge geopandas folium branca fiona
+  geopandas, folium, branca, fiona, matplotlib
+  Recomendo instalar via conda: mamba/conda install -c conda-forge geopandas folium branca fiona matplotlib
 """
 import os
 import sys
 import argparse
 import json
 import webbrowser
+import math
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 from pathlib import Path
 
 try:
@@ -36,6 +39,8 @@ except Exception:
 
 # Cores e classes solicitadas
 COLORS_ISH = ['#FF5500', '#FFAA00', '#FFFF71', '#169200', '#2986cc']
+# cor para "sem-dados" (NULL / 0)
+NO_DATA_COLOR = "#cccccc"
 CLASS_THRESHOLDS = [1.5, 2.5, 3.5, 4.5, 5.0]  # limites superiores
 CLASS_LABELS = [
     "1.00 - 1.50 (Mínimo)",
@@ -94,17 +99,24 @@ def parse_fields_arg(fields_arg):
 
 
 def get_color_for_value(v):
-    """Return color for ISH value; NaN/None => light grey."""
+    """Return color for ISH value.
+    Observações:
+      - valores None/NULL e o número 0.0 são tratados como 'sem dados' e recebem NO_DATA_COLOR.
+      - valores < 1.0 (mas > 0) recebem uma cor cinza clara.
+    """
     try:
         if v is None:
-            return "#cccccc"
-        v = float(v)
+            return NO_DATA_COLOR
+        vf = float(v)
     except Exception:
-        return "#cccccc"
-    if v < 1.0:
+        return NO_DATA_COLOR
+    # tratar zero como sem-dados
+    if vf == 0.0:
+        return NO_DATA_COLOR
+    if vf < 1.0:
         return "#eeeeee"
     for thresh, color in zip(CLASS_THRESHOLDS, COLORS_ISH):
-        if v <= thresh:
+        if vf <= thresh:
             return color
     return COLORS_ISH[-1]
 
@@ -132,16 +144,16 @@ def add_legend(map_obj, title="Classes ISH"):
     map_obj.get_root().html.add_child(el)
 
 
-def style_function_for_field(field):
+def style_function_for_field(field, edgecolor="#444444", weight=0.5, fillOpacity=0.8):
     def style_function(feature):
         props = feature.get("properties", {})
         val = props.get(field)
         color = get_color_for_value(val)
         return {
             "fillColor": color,
-            "color": "#444444",
-            "weight": 0.5,
-            "fillOpacity": 0.8,
+            "color": edgecolor,
+            "weight": weight,
+            "fillOpacity": fillOpacity,
         }
     return style_function
 
@@ -161,13 +173,15 @@ def try_parse_float(x):
         return None
 
 
-def run_interactive(gpkg_path=None, chosen_layers=None, fields_map=None, output_html=None, open_browser=True):
+def run_interactive(gpkg_path=None, chosen_layers=None, fields_map=None, output_html=None, open_browser=True,
+                    static=False, static_out=None, static_dpi=300, static_max_features=None, static_no_edges=None, generate="both"):
     """
     fields_map can be:
       - None (interactive prompt per layer)
       - a string produced by CLI (--fields argument), parsed by parse_fields_arg
       - the string 'all' meaning global 'all' (select cs-containing columns for every selected layer)
       - a dict {layer: [field,..], ...} where a value may be ['all'] or ['cs_ish', ...]
+    static_no_edges: list of layer names (base layer names) for which static image will be drawn without edges
     """
     # 1) discover gpkg
     if gpkg_path is None:
@@ -281,10 +295,19 @@ def run_interactive(gpkg_path=None, chosen_layers=None, fields_map=None, output_
             layer_field_selection[lyr] = []
 
     # 6) load selected layers into memory
+    # Decidir quais saídas serão necessárias para economizar tempo/memória
+    need_html = generate in ('html', 'both')
+    need_png = (generate in ('png', 'both')) and static
+    if not (need_html or need_png):
+        print(f"Nenhuma saída requisitada (generate={generate}, static={static}). Abortando.")
+        return None
+ 
+    # Carregar GDFs apenas se necessário
     gdfs = []
-    for lyr in chosen_layers:
-        gdf = gpd.read_file(gpkg_path, layer=lyr)
-        gdfs.append((lyr, gdf))
+    if need_html or need_png:
+        for lyr in chosen_layers:
+            gdf = gpd.read_file(gpkg_path, layer=lyr)
+            gdfs.append((lyr, gdf))
 
     # 7) determine map centre from bounds
     all_bounds = [gdf.total_bounds for _, gdf in gdfs]
@@ -299,7 +322,9 @@ def run_interactive(gpkg_path=None, chosen_layers=None, fields_map=None, output_
     center_y = (min(minys) + max(maxys)) / 2.0
 
     # 8) build folium map
-    m = folium.Map(location=[center_y, center_x], zoom_start=8, tiles="CartoDB Positron")
+    # 8) build folium map (apenas se HTML foi pedido)
+    if need_html:
+        m = folium.Map(location=[center_y, center_x], zoom_start=8, tiles="CartoDB Positron")
 
     # For each layer and each selected field, add a sublayer named "layer__field"
     for lyr_name, gdf in gdfs:
@@ -349,6 +374,8 @@ def run_interactive(gpkg_path=None, chosen_layers=None, fields_map=None, output_
         output_dir = os.path.join(gpkg_parent, "interactive_maps")
         os.makedirs(output_dir, exist_ok=True)
         output_html = os.path.join(output_dir, f"interactive_map_{Path(gpkg_path).stem}.html")
+    else:
+        output_dir = os.path.dirname(os.path.abspath(output_html)) or "."
 
     m.save(output_html)
     print("Mapa salvo em:", output_html)
@@ -357,7 +384,162 @@ def run_interactive(gpkg_path=None, chosen_layers=None, fields_map=None, output_
             webbrowser.open("file://" + os.path.abspath(output_html))
         except Exception:
             pass
+
+    # If static requested, build reduced gdfs (sampled if requested) and call static generator
+    if static:
+        # prepare reduced gdfs according to static_max_features
+        gdfs_static = []
+        for lyr, gdf in gdfs:
+            gdf_small = gdf
+            if static_max_features and len(gdf) > static_max_features:
+                step = max(1, len(gdf) // static_max_features)
+                idxs = list(range(0, len(gdf), step))[:static_max_features]
+                gdf_small = gdf.iloc[idxs].reset_index(drop=True)
+            gdfs_static.append((lyr, gdf_small))
+        # determine output path for static if not provided
+        if static_out is None:
+            img_path = os.path.join(output_dir, f"preview_{Path(gpkg_path).stem}.png")
+        else:
+            img_path = static_out
+        # parse static_no_edges into list if string provided
+        if isinstance(static_no_edges, str):
+            static_no_edges_list = [s.strip() for s in static_no_edges.split(",") if s.strip()]
+        elif isinstance(static_no_edges, (list, tuple)):
+            static_no_edges_list = list(static_no_edges)
+        else:
+            static_no_edges_list = []
+        save_static_maps_from_selection(gpkg_path, gdfs_static, layer_field_selection,
+                                        output_path=img_path, title_prefix=f"Preview - {Path(gpkg_path).stem}",
+                                        dpi=static_dpi, no_edge_layers=static_no_edges_list)
     return output_html
+
+
+def save_static_maps_from_selection(gpkg_path, gdfs, layer_field_selection, output_path=None,
+                                    crs_epsg=4326, cmap=None, title_prefix=None, dpi=150,
+                                    max_label_chars=40, no_edge_layers=None):
+    """
+    Gera uma imagem estática com subplots a partir das mesmas camadas/colunas usadas no mapa interativo.
+
+    Parâmetros:
+      - gpkg_path: caminho do gpkg (apenas para nomes/metadata, pode ser None)
+      - gdfs: lista de tuplas (layer_name, gdf) carregadas (como em run_interactive)
+      - layer_field_selection: dict {layer_name: [field1, field2, ...]} (pode conter listas vazias para layer sem field)
+      - output_path: se fornecido, salva PNG em output_path; caso contrário mostra a figura na tela
+      - crs_epsg: EPSG para projetar antes de desenhar (default 4326)
+      - dpi: resolução do PNG salvo
+      - no_edge_layers: lista de base layer names para os quais o static plot usará edgecolor=None/linewidth=0
+    """
+    if no_edge_layers is None:
+        no_edge_layers = []
+
+    # 1) montar lista de "plots" a partir de gdfs e layer_field_selection
+    items = []  # list of (label, gdf_for_plot, field_or_None)
+    for lyr_name, gdf in gdfs:
+        sel_fields = layer_field_selection.get(lyr_name, [])
+        if not sel_fields:
+            # adicionar a layer "sem campo", como base (uma única visualização)
+            try:
+                gdf_plot = gdf.to_crs(epsg=crs_epsg)
+            except Exception:
+                gdf_plot = gdf.copy()
+            items.append((lyr_name, gdf_plot, None))
+        else:
+            for fld in sel_fields:
+                if fld not in gdf.columns:
+                    # pula se não existir
+                    continue
+                gdf_copy = gdf.copy()
+                # normaliza valores numéricos e converte virgula -> ponto
+                gdf_copy[fld] = gdf_copy[fld].apply(lambda x: try_parse_float(x))
+                try:
+                    gdf_plot = gdf_copy.to_crs(epsg=crs_epsg)
+                except Exception:
+                    gdf_plot = gdf_copy
+                label = f"{lyr_name}__{fld}"
+                items.append((label, gdf_plot, fld))
+
+    n = len(items)
+    if n == 0:
+        raise ValueError("Nenhum item para plotar (verifique layer_field_selection e gdfs).")
+
+    # 2) escolher arranjo: seguir a heurística pedida
+    if n <= 3:
+        rows = 1
+    elif n == 4:
+        rows = 2
+    else:
+        rows = math.ceil(n / 3)
+
+    base = n // rows
+    rem = n % rows
+    per_row = [base + (1 if i >= rows - rem else 0) for i in range(rows)]
+    cols = max(per_row)
+
+    # 3) preparar figura: tamanho automático
+    w_per = 5.0
+    h_per = 4.0
+    figsize = (max(6, cols * w_per), max(4, rows * h_per))
+    fig, axes = plt.subplots(nrows=rows, ncols=cols, figsize=figsize)
+    if rows == 1 and cols == 1:
+        axes = [[axes]]
+    elif rows == 1:
+        axes = [axes]
+    elif cols == 1:
+        axes = [[ax] for ax in axes]
+
+    # 4) iterar e desenhar
+    idx = 0
+    for r in range(rows):
+        ncols_this_row = per_row[r]
+        for c in range(cols):
+            ax = axes[r][c]
+            ax.set_axis_off()
+            if c < ncols_this_row:
+                if idx >= n:
+                    continue
+                label, gdf_plot, field = items[idx]
+                base_layer = label.split("__")[0]
+                # determine edge style based on no_edge_layers
+                if base_layer in no_edge_layers:
+                    edgecolor = None
+                    linewidth = 0
+                else:
+                    edgecolor = "k"
+                    linewidth = 0.2
+                try:
+                    if field is None:
+                        gdf_plot.plot(ax=ax, color="lightgray", edgecolor=edgecolor, linewidth=linewidth)
+                    else:
+                        vals = gdf_plot[field].tolist()
+                        cols_list = [get_color_for_value(v) for v in vals]
+                        gdf_plot.plot(ax=ax, color=cols_list, edgecolor=edgecolor, linewidth=linewidth)
+                    short_label = label if len(label) <= max_label_chars else label[:max_label_chars-3] + "..."
+                    ax.set_title(short_label, fontsize=10)
+                except Exception as e:
+                    ax.text(0.5, 0.5, f"Erro ao plotar:\n{e}", ha="center", va="center", fontsize=9)
+                idx += 1
+            else:
+                ax.set_visible(False)
+
+    # 5) legenda das classes ISH (discreta)
+    patches = [mpatches.Patch(color=col, label=lbl) for col, lbl in zip(COLORS_ISH, CLASS_LABELS)]
+    fig.legend(handles=patches, loc="lower center", ncol=len(patches), frameon=True,
+               bbox_to_anchor=(0.5, 0.02))
+    if title_prefix:
+        fig.suptitle(title_prefix, fontsize=14, y=0.98)
+
+    plt.tight_layout(rect=[0, 0.04, 1, 0.96])
+
+    # 6) salvar ou mostrar
+    if output_path:
+        outp = str(output_path)
+        fig.savefig(outp, dpi=dpi, bbox_inches="tight")
+        plt.close(fig)
+        print(f"Imagem salva em: {outp}")
+        return outp
+    else:
+        plt.show()
+        return None
 
 
 def main():
@@ -367,6 +549,13 @@ def main():
     parser.add_argument("--fields", help="Mapeamento layer:fields ex: 'layer1:field1,field2;layer2:field3' ou 'all' (opcional).")
     parser.add_argument("--output", help="Arquivo HTML de saída (opcional).")
     parser.add_argument("--no-open", action="store_true", help="Não abrir o HTML no navegador após criar.")
+    # new static flags
+    parser.add_argument("--static", action="store_true", help="Gerar imagem estática (subplots) com as camadas/fields selecionados.")
+    parser.add_argument("--static-out", help="Caminho do PNG de saída para a imagem estática (opcional).")
+    parser.add_argument("--static-dpi", type=int, default=300, help="DPI ao salvar a imagem estática (padrão 150).")
+    parser.add_argument("--static-max-features", type=int, default=None, help="Se definido, amostra até esse número de feições por layer para o static plot.")
+    parser.add_argument("--static-no-edges", help="Lista separada por vírgula de nomes de layers (base) para desenhar sem linhas (fills only) no static plot.")
+    parser.add_argument("--generate", choices=["html", "png", "both"], default="both", help="O que gerar: 'html' (apenas HTML), 'png' (apenas PNG estático), 'both' (padrão).")
     args = parser.parse_args()
 
     gpkg = args.gpkg
@@ -375,7 +564,12 @@ def main():
         layers = [s.strip() for s in args.layers.split(",") if s.strip()]
     fields_map = args.fields if args.fields else None
 
-    out = run_interactive(gpkg_path=gpkg, chosen_layers=layers, fields_map=fields_map, output_html=args.output, open_browser=(not args.no_open))
+    out = run_interactive(gpkg_path=gpkg, chosen_layers=layers, fields_map=fields_map, output_html=args.output,
+                         open_browser=(not args.no_open), static=args.static, static_out=args.static_out,
+                         static_dpi=args.static_dpi, static_max_features=args.static_max_features,
+                         static_no_edges=args.static_no_edges, generate=args.generate)
+                     
+                       
     if out is None:
         sys.exit(1)
     else:
