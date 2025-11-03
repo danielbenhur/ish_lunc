@@ -40,11 +40,13 @@ ISH/
 1. [Pré-requisitos](#pré-requisitos)  
 2. [Formato de entrada](#formatos-de-entrada)  
 3. [Formato de saída](#formatos-de-saída)  
-4. [Como rodar os scripts (exemplos)](#como-rodar)  
-5. [Interpretação dos logs](#logs)  
-6. [Validação rápida e dicas](#validacao)  
-7. [Exemplo numérico da agregação ponderada](#exemplo-numerico)  
-8. [Como abrir/inspecionar resultados](#inspecionar)  
+3. [Como rodar os scripts (Exemplos)](#como-rodar)  
+4. [Interpretação da camada de saída do joinISH.py](#interpretacao-joinISH)
+4. [Exemplo prático (numérico)](#exemplo-numerico)  
+5. [Logs e interpretação rápida](#logs)  
+6. [Validação rápida (scripts úteis)](#validacao)  
+7. [Boas práticas e recomendações](#recomendacoes)  
+8. [Exemplos de estrutura da pasta final](#pasta-final)  
 
 ---
 
@@ -237,14 +239,14 @@ python3 -m scripts.plot_bho ./cnr_atlas_2035/input/BHO_area.gpkg --layer bho_are
 ```
 
 Também podemos plotar interativamente mapas do ISH_LUNC usando o script `interactive_map.py`:
-#### O que o script faz
+#### O que o script interactive_maps.py faz
 
 - Lista (recursivamente) arquivos .gpkg no diretório atual, caso você não passe --gpkg.
 - Lista camadas do .gpkg e permite escolher uma ou mais camadas.
 - Seleciona automaticamente o campo cs_ish (se presente) ou um ire_cs_* disponível; também permite que você escolha outro campo.
 - Você pode escolher salvar um mapa estático em png ou um mapa interativo html (Leaflet via folium) com cloropleta usando as cores ISH padrões e as faixas definidas.
 
-#### Como rodar
+#### Como rodar o interactive_maps.py
 
 1) Modo interativo (prompt):
 
