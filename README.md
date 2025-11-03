@@ -38,8 +38,8 @@ ISH/
 ## Índice
 
 1. [Pré-requisitos](#pré-requisitos)  
-2. [Formato de entrada](#formatos-de-entrada)  
-3. [Formato de saída](#formatos-de-saída)  
+2. [Formatos de entrada](#formatos-de-entrada)  
+3. [Formatos de saída](#formatos-de-saída)  
 3. [Como rodar os scripts (Exemplos)](#como-rodar)  
 4. [Interpretação da camada de saída do joinISH.py](#interpretacao-joinISH)
 4. [Exemplo prático (numérico)](#exemplo-numerico)  
