@@ -24,6 +24,9 @@ ISH/
 │  │  └─ dim_<sigla_da_dimensão>.csv     # Todas as dimensões precisam estar com esse padrão de nomeclatura
 │  └─ output/     # Pasta onde estará as daídas dos cenários
 │     └─ ish_cnr_<cenario>.gpkg     # Arquivo principal de saída padrão dos scripts que calculam cenários. Nele estarão 
+│     └─ interactive_maps/
+│        └─ interactive_map_ish_<cenário>.html     # Arquivo com o mapa interativo em html (saída padrão interactive_map.py)
+│        └─ preview_ish_<cenário>.png     # Arquivo com o mapa interativo estático em png (saída padrão interactive_map.py)
 ├─ recortes/     # Pasta com geodataframes para gerar recorte de área
 │  └─ *.gpkg     # Importante ser do tipo gpkg
 └─ apresentacao/     # Pasta com geodataframes utilizados para gerar valores agregados por regiões
@@ -35,8 +38,8 @@ ISH/
 ## Índice
 
 1. [Pré-requisitos](#pré-requisitos)  
-2. [Formato dos arquivos de entrada — exemplos concretos](#formatos-de-entrada)  
-3. [Saídas esperadas — exemplos concretos](#formatos-de-saída)  
+2. [Formato de entrada](#formatos-de-entrada)  
+3. [Formato de saída](#formatos-de-saída)  
 4. [Como rodar os scripts (exemplos)](#como-rodar)  
 5. [Interpretação dos logs](#logs)  
 6. [Validação rápida e dicas](#validacao)  
@@ -233,65 +236,40 @@ Podemos plotar a BHO para visualizar área de estudo rapidamente. Nesse caso, o 
 python3 -m scripts.plot_bho ./cnr_atlas_2035/input/BHO_area.gpkg --layer bho_area --area --output ./cnr_atlas_2035/output/bho_plot.png
 ```
 
-Também podemos plotar interativamente:
-### O que o script faz
+Também podemos plotar interativamente mapas do ISH_LUNC usando o script `interactive_map.py`:
+#### O que o script faz
 
 - Lista (recursivamente) arquivos .gpkg no diretório atual, caso você não passe --gpkg.
 - Lista camadas do .gpkg e permite escolher uma ou mais camadas.
 - Seleciona automaticamente o campo cs_ish (se presente) ou um ire_cs_* disponível; também permite que você escolha outro campo.
-- Gera um mapa interativo (Leaflet via folium) com cloropleta usando as cores ISH que você especificou e as faixas definidas.
-- Salva o HTML em interactive_maps/interactive_map_<gpkg_stem>.html ao lado do gpkg por padrão e abre no navegador.
+- Você pode escolher salvar um mapa estático em png ou um mapa interativo html (Leaflet via folium) com cloropleta usando as cores ISH padrões e as faixas definidas.
 
-### Como rodar
+#### Como rodar
 
-Modo interativo (prompt):
+1) Modo interativo (prompt):
 
 ```bash
 python3 -m scripts.interactive_map
 ```
 
-Modo com argumentos:
-
+2) Gerar apenas o HTML (interativo):
 ```bash
-python3 -m scripts.interactive_map --gpkg ./cnr_atlas_2035/input/BHO_area.gpkg --layers bho_area --field cs_ish --output /tmp/map.html
+python3 -m scripts.interactive_map --gpkg /caminho/ish_cenario.gpkg --layers regiao_completa,mun_es --fields "regiao_completa:cs_ish;mun_es:cs_ish"
 ```
 
-Dependências
-
+3) Gerar HTML e imagem estática (salva em interactive_maps/preview_<gpkg>.png):
 ```bash
-#geopandas, folium, branca. Recomendo instalar via conda-forge:
-conda install -c conda-forge geopandas folium branca
+python3 -m scripts.interactive_map --gpkg /caminho/ish_cenario.gpkg --layers regiao_completa --fields "regiao_completa:cs_ish" --static
 ```
 
-ou pip:
-
+4) Gerar imagem estática e remover linhas (edge) apenas para a layer regiao_completa:
 ```bash
-pip install geopandas folium branca
+python3 -m scripts.interactive_map --gpkg /caminho/ish_cenario.gpkg --layers regiao_completa,mun_es --fields "regiao_completa:all;mun_es:cs_ish" --static --static-no-edges regiao_completa --static-out /tmp/preview.png
 ```
-
-(Geopandas funciona melhor via conda por dependências binárias.)
-
-### Como integrar ao joinISH.py
-
-Após gerar o ish_cnr_<cenario>.gpkg você pode chamar o script diretamente (subprocess) ou importá-lo. Exemplo (dentro do joinISH.py):
-
-```bash
-# após salvar output_file (caminho do gpkg)
-import subprocess, sys
-subprocess.run([sys.executable, "-m", "scripts.interactive_map", "--gpkg", output_file, "--layers", "regiao_completa", "--field", "cs_ish"])
-```
-
-Ou chamar programaticamente:
-
-```bash
-from scripts.interactive_map import run_interactive
-run_interactive(gpkg_path=output_file, chosen_layers=["regiao_completa"], field="cs_ish")
-```
-
 
 ---
 
-## Interpretação da camada de saída
+## Interpretação da camada de saída do joinISH.py
 
 - **Nome da camada:** `agg_<presentation_basename>` (por ex. `agg_mun_es`)
 - **Colunas:** todas as colunas originais da camada de apresentação são preservadas,
@@ -336,9 +314,8 @@ python3 -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg 
 - `Writing aggregated layer mean_mun_es to ...` — gravação concluída.
 
 **Erros comuns**
-- `ModuleNotFoundError: No module named 'geopandas'` → instale geopandas (preferível via conda).
+- `ModuleNotFoundError: No module named 'geopandas'` → instale o pacote (no caso do exemplo, o geopandas).
 - `ValueError: Input layer does not contain 'cs_ish'` → verifique se `joinISH.py` produziu `cs_ish`.
-- `fiona.listlayers(...)` falha → verifique instalação do `fiona`.
 
 ---
 
@@ -364,13 +341,14 @@ print(fiona.listlayers("cnr_atlas_2035/output/ish_cnr_atlas_2035.gpkg"))
 ## Boas práticas e recomendações
 
 - Garanta CSVs limpos (sem duplicatas em `cobacia`) — embora os scripts incluam rotinas de limpeza, é melhor corrigir na origem.
-- Use `conda` para evitar problemas com dependências nativas.
+- Se sua maquina tiver espaço, use `conda` para evitar problemas com dependências nativas.
 - Faça backup do GPKG antes de rodar operações que sobrescrevem camadas.
 - Para conjuntos grandes, execute a interseção em um servidor/VM com memória adequada.
+- Trazer os scripts para um ambiente como o Google Colab pode ajudar a compartilhar com outros usuários.
 
 ---
 
-## Exemplos concretos
+## Exemplos de pasta
 - Input:
   - `cnr_atlas_2035/input/BHO_area.gpkg`
   - `cnr_atlas_2035/input/dim_amb_cnr_atlas2035.csv`
@@ -378,6 +356,6 @@ print(fiona.listlayers("cnr_atlas_2035/output/ish_cnr_atlas_2035.gpkg"))
   - `apresentacao/mun_es.gpkg`
 - Output esperados:
   - `cnr_atlas_2035/output/ish_cnr_atlas_2035.gpkg` (layer `regiao_completa`, `agg_mun_es`, etc.)
-  - `cnr_atlas_2035/output/bho_plot.png` (opcional)
+  - `cnr_atlas_2035/output/interactive_maps/preview_ish_cnr_atlas_2035.png` (opcional)
 
 ---
