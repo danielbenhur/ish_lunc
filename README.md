@@ -1,29 +1,33 @@
 
-# Automação do ISH_LUNC ----- README
+# ISH_LUNC - README
 
-Este repositório contém scripts para calcular e processar o **Índice de Segurança Hídrica LabGest-UFES/Neades-CPID (ISH_LUNC)** por ottobacias e para agregar/visualizar esses resultados em unidades de apresentação (municípios, estados, regiões etc.).
+Este repositório contém scripts com finalidade principal de calcular o **Índice de Segurança Hídrica LabGest-UFES/Neades-CPID (ISH_LUNC)** por ottobacias e agregar/visualizar esses resultados em unidades de apresentação (municípios, estados, regiões etc.). O projeto ainda está em fase inicial de desenvolvimento.
 
 **Arquitetura de exemplo**
 ```
 ISH/
-├─ joinISH.py
-├─ environment.yml
-├─ planilhas/
-├─ scripts/
-│  ├─ aggregate_presentation.py
-│  ├─ aplica_recortes.py
-│  ├─ plot_bho.py
-│  └─ interactive_map.py
-├─ cnr_<cenario>/
-│  ├─ input/
-│  │  ├─ BHO_area.gpkg
-│  │  └─ dim_*.csv
-│  └─ output/
-│     └─ ish_cnr_<cenario>.gpkg
-├─ recortes/
-│  └─ *.gpkg
-└─ apresentacao/
-   └─ *.gpkg
+├─ joinISH.py     # Script principal que calcula o ISH a partir de um cenário determinado
+├─ environment.yml     # ambiente, caso use conda
+├─ requirements.txt     # pacotes requeridos, caso use venv
+├─ planilhas/     # Um exemplo de pasta onde planilhas de cálculos manuais possam ser armazenadas e reutilizadas
+├─ scripts/     # Alguns scripts auxiliares
+│  ├─ aggregate_presentation.py     # Agrega os dados do ISH para uma outra base de representação de informações (como municípios, bacias hidrográficas...) 
+│  ├─ aplica_recortes.py     # Script que realiza recortes da área com dados (para diminuir área total de estudo)
+│  ├─ plot_bho.py     # Script simples para plotar uma bho
+│  └─ interactive_map.py     # Gera mapas conforme as classes do ISH, em html ou png
+│  └─ update_dimension.py     # Altera uma ou mais dimensões de um arquivo gpkg já criado (útil quando se quer modificar uma dimensão apenas, sem ter que possuir os arquivos das demais dimensões)
+│  └─ gdf_to_csv.py      # Transforma qualquer geoddataframe em um csv (útil para criar csv do arquivo gpkg do cenário)
+│  └─ gdfhead.py     # Visualizador de cabeçalho de geodataframe (útil para verificar colunas e exemplos de dados do arquivo)
+├─ cnr_<cenario>/    # Padronizado, para facilitar organização dos cenários
+│  ├─ input/     # Pasta onde serão buscados os arquivos de entrada do joinISH
+│  │  ├─ BHO_area.gpkg     # Base hidrográfica ottocodificada de referência para a área de estudo (o ideal é que contenha uma área um pouco além da borda da área de estudo de interesse real)
+│  │  └─ dim_<sigla_da_dimensão>.csv     # Todas as dimensões precisam estar com esse padrão de nomeclatura
+│  └─ output/     # Pasta onde estará as daídas dos cenários
+│     └─ ish_cnr_<cenario>.gpkg     # Arquivo principal de saída padrão dos scripts que calculam cenários. Nele estarão 
+├─ recortes/     # Pasta com geodataframes para gerar recorte de área
+│  └─ *.gpkg     # Importante ser do tipo gpkg
+└─ apresentacao/     # Pasta com geodataframes utilizados para gerar valores agregados por regiões
+   └─ *.gpkg     # Importante ser do tipo gpkg
 ```
 
 ---
@@ -55,7 +59,7 @@ Verifique instalação:
 python -c "import geopandas as gpd, pandas as pd, fiona; print('ok')"
 ```
 
-2. Em ambiente Linux, pessoalmente recomendo uso de ambiente virtual, no qual você pode instalar os pacotes sem interferir na instalação global do Python. Para isso, siga os seguintes passos:
+2. Em ambiente Linux, se houver restrição de espaço, prefira o uso de ambiente virtual, no qual você pode instalar os pacotes sem interferir na instalação global do Python e ao mesmo tempo ter facilidade de apagar os arquivos quando precisar. Para isso, siga os seguintes passos:
 
 ```bash
 # Crie um novo ambiente virtual (você pode escolher o nome, aqui usamos "meu_ambiente")
@@ -64,8 +68,11 @@ python3 -m venv meu_ambiente
 # Ative o ambiente virtual
 source meu_ambiente/bin/activate
 
-# Agora, dentro deste ambiente, instale os pacotes desejados
-pip install geopandas pandas
+# Agora, dentro deste ambiente, instale os pacotes desejados (presentes no arquivo requirements.txt)
+pip install -r requirements.txt
+
+# Se tiver atualizado os scripts e quiser refazer o arquivo requeriments, pode usar o comando:
+pip freeze > requirements.txt
 
 #Após ativar o ambiente virtual, você pode executar seu script Python normalmente. Quando terminar, para sair do ambiente virtual, basta usar o comando:
 bash
@@ -175,34 +182,34 @@ cobacia,ire_cs_amb
 
 ---
 
-## Como rodar (comandos concretos)
+## Como rodar os scripts (Exemplos)
 
-### 1) Rodar `joinISH.py` (gerar `ish_cnr`)
+### 1) Rodar `joinISH.py` (gerar `ish_cnr`, ou seja, o ISH para algum cenário)
 Na raiz do projeto (`ISH/`):
 
 Executar joinISH para gerar o gpkg base (caso ainda não esteja criado):
 ```bash
 python3 joinISH.py atlas_2035
 ```
-### 2) Agregar para apresentação (municípios)
+### 2) Agregar para uma área de apresentação (ex.: municípios)
 Usando o output gerado acima:
 
 1. Agregar por municípios (média apenas — comportamento padrão):
 ```bash
-python -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg --id-field fid
+python3 -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg --id-field cod_ibge
 ```
 Isso criará (ou substituirá) a camada `agg_mun_es` dentro de:
 `./cnr_atlas_2035/output/ish_cnr_atlas_2035.gpkg` contendo a coluna `cs_ish_mean`.
 
 2. Agregar por municípios pedindo várias agregações:
 ```bash
-python -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg --id-field fid --agg mean median max
+python3 -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg --id-field cod_ibge --agg mean median max
 ```
 Resultado: camada `agg_mun_es` com colunas `cs_ish_mean`, `cs_ish_median`, `cs_ish_max`.
 
 3. Pedir todas as agregações:
 ```bash
-python -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg --id-field fid --agg all
+python3 -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg --id-field cod_ibge --agg all
 ```
 
 4. Use --targets para especificar alvos a agregar.
@@ -214,40 +221,16 @@ Exemplo: --targets all para agregar cs_ish e todas as colunas do input que come�
 As colunas geradas no layer de saída terão o nome: <target>_<agg> (ex.: ire_cs_amb_mean, cs_ish_median).
 
 ```bash
-python -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg --id-field fid --agg mean --targets all
+python3 -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg --id-field fid --agg mean --targets all
 # -> cria agg_mun_es com cs_ish_mean, ire_cs_amb_mean, ire_cs_eco_mean, ...
 ```
----
 
-## Interpretação da camada de saída
+### 3) Plotar mapas
 
-- **Nome da camada:** `agg_<presentation_basename>` (por ex. `agg_mun_es`)
-- **Colunas:** todas as colunas originais da camada de apresentação são preservadas,
-  e as colunas `cs_ish_<agg>` são adicionadas (por ex. `cs_ish_mean`).
-- **Valores `NaN`:** se uma unidade de apresentação não possui interseção com as ottobacias,
-  as colunas de agregação terão `NaN`.
+Podemos plotar a BHO para visualizar área de estudo rapidamente. Nesse caso, o script `plot_bho.py` criará um png para visualização:
 
----
-
-## Exemplo prático (numérico)
-
-Suponha Município X (fid=1001), área = 100 km²; interseções:
-- peça1: cs_ish = 2.0, area_inter = 25 km²
-- peça2: cs_ish = 1.5, area_inter = 10 km²
-- peça3: cs_ish = 0.5, area_inter = 65 km²
-
-Cálculo média ponderada (cs_ish_mean):
-- 2.0*(25/100) + 1.5*(10/100) + 0.5*(65/100) = 0.975
-
-Se pedir `--agg mean median`, a camada `agg_mun_es` conterá as colunas:
-- `cs_ish_mean` = 0.975
-- `cs_ish_median` = (weighted median computed as described)
-
----
-
-## 3) Plotar BHO
 ```bash
-python -m scripts.plot_bho ./cnr_atlas_2035/input/BHO_area.gpkg --layer bho_area --area --output ./cnr_atlas_2035/output/bho_plot.png
+python3 -m scripts.plot_bho ./cnr_atlas_2035/input/BHO_area.gpkg --layer bho_area --area --output ./cnr_atlas_2035/output/bho_plot.png
 ```
 
 Também podemos plotar interativamente:
@@ -264,13 +247,13 @@ Também podemos plotar interativamente:
 Modo interativo (prompt):
 
 ```bash
-python -m scripts.interactive_map
+python3 -m scripts.interactive_map
 ```
 
 Modo com argumentos:
 
 ```bash
-python -m scripts.interactive_map --gpkg ./cnr_atlas_2035/input/BHO_area.gpkg --layers bho_area --field cs_ish --output /tmp/map.html
+python3 -m scripts.interactive_map --gpkg ./cnr_atlas_2035/input/BHO_area.gpkg --layers bho_area --field cs_ish --output /tmp/map.html
 ```
 
 Dependências
@@ -304,7 +287,36 @@ Ou chamar programaticamente:
 from scripts.interactive_map import run_interactive
 run_interactive(gpkg_path=output_file, chosen_layers=["regiao_completa"], field="cs_ish")
 ```
+
+
 ---
+
+## Interpretação da camada de saída
+
+- **Nome da camada:** `agg_<presentation_basename>` (por ex. `agg_mun_es`)
+- **Colunas:** todas as colunas originais da camada de apresentação são preservadas,
+  e as colunas `cs_ish_<agg>` são adicionadas (por ex. `cs_ish_mean`).
+- **Valores `NaN`:** se uma unidade de apresentação não possui interseção com as ottobacias,
+  as colunas de agregação terão `NaN`.
+
+---
+
+## Exemplo prático (numérico)
+
+Suponha Município X (fid=1001), área = 100 km²; interseções:
+- peça1: cs_ish = 2.0, area_inter = 25 km²
+- peça2: cs_ish = 1.5, area_inter = 10 km²
+- peça3: cs_ish = 0.5, area_inter = 65 km²
+
+Cálculo média ponderada (cs_ish_mean):
+- 2.0*(25/100) + 1.5*(10/100) + 0.5*(65/100) = 0.975
+
+Se pedir `--agg mean max`, a camada `agg_mun_es` conterá as colunas:
+- `cs_ish_mean` = 0.975
+- `cs_ish_max` = 2.0
+
+---
+
 
 ## Logs e interpretação rápida
 
@@ -313,7 +325,7 @@ Recomenda-se redirecionar saída e erros para arquivos de log:
 ```bash
 mkdir -p logs
 python3 joinISH.py atlas_2035 > logs/joinISH_atlas2035.log 2>&1
-python -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg --id-field fid > logs/aggregate_mun.log 2>&1
+python3 -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg --id-field fid > logs/aggregate_mun.log 2>&1
 ```
 
 **O que procurar nos logs**
