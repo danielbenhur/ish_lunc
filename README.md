@@ -60,7 +60,7 @@ conda activate nome_do_ambiente
 ```
 
 
-2. Em ambiente Linux, ou se houver restrição de espaço, prefira o uso de ambiente virtual (é o que pessoalmente uso), no qual você pode instalar os pacotes sem interferir na instalação global do Python e ao mesmo tempo ter facilidade de apagar os arquivos quando precisar. Para isso, siga os seguintes passos:
+2. Em ambiente que houver restrição de espaço, prefira o uso de ambiente virtual (é o que pessoalmente uso em meu Puppy Linux), no qual você pode instalar os pacotes sem interferir na instalação global do Python e ao mesmo tempo ter facilidade de apagar os arquivos quando precisar. Para isso, siga os seguintes passos:
 
 ```bash
 # Crie um novo ambiente virtual (você pode escolher o nome, aqui usamos "meu_ambiente")
@@ -71,14 +71,13 @@ source meu_ambiente/bin/activate
 
 # Agora, dentro deste ambiente, instale os pacotes desejados (presentes no arquivo requirements.txt)
 pip install -r requirements.txt
-
-# Se tiver atualizado os scripts e quiser refazer o arquivo requeriments.txt, pode usar o comando:
-pip freeze > requirements.txt
-
-#Após ativar o ambiente virtual, você pode executar seu script Python normalmente. Quando terminar, para sair do ambiente virtual, basta usar o comando:
-bash
-deactivate
 ```
+
+- Se tiver atualizado os scripts e quiser refazer o arquivo requeriments.txt, pode usar o comando:
+`pip freeze > requirements.txt`
+
+- Após ativar o ambiente virtual, você pode executar seu script Python normalmente. Quando terminar, para sair do ambiente virtual, basta usar o comando:
+`deactivate`
 
 Essas abordagens garantem que as instalações de pacotes sejam gerenciadas de forma isolada, mantendo o sistema operacional estável e evitando conflitos entre versões.
 
@@ -173,7 +172,8 @@ cobacia,ire_cs_amb
 ## Como rodar os scripts (Exemplos)
 
 ### 1) Rodar `joinISH.py` (gerar `ish_cnr`, ou seja, o ISH para algum cenário)
-Na raiz do projeto (`ISH/`):
+Após criar uma pasta denominada `cnr_<nome_do_cenário>`, e dentro dela a pasta input contendo o arquivo base `BHO_area.gpkg`, bem como os arquivos das dimensões, nomeados com o padrão ``dim_<nome_da_dimensão>_<nome_do_cenário>.csv``
+Na raiz do projeto (`ISH/`, isto é, fora da pasta do cenário específico):
 
 Executar joinISH para gerar o gpkg base (caso ainda não esteja criado):
 ```bash
@@ -189,7 +189,7 @@ python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-f
 Isso criará (ou substituirá) a camada `agg_mun_es` dentro de:
 `./cnr_2035/output/ish_cnr_2035.gpkg` contendo a coluna `cs_ish_mean`.
 
-2. Agregar por municípios pedindo várias agregações:
+2. Agregar por municípios pedindo várias agregações (as possíveis são média ponderada, mediana ponderada, máximo e mínimo):
 ```bash
 python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-field cod_ibge --agg mean median max
 ```
@@ -228,6 +228,7 @@ python3 -m scripts.plot_bho ./cnr_2035/input/BHO_area.gpkg --layer bho_area --ar
 - Lista camadas do .gpkg e permite escolher uma ou mais camadas.
 - Seleciona automaticamente o campo cs_ish (se presente) ou um ire_cs_* disponível; também permite que você escolha outro campo.
 - Você pode escolher salvar um mapa estático em png ou um mapa interativo html (Leaflet via folium) com cloropleta usando as cores ISH padrões e as faixas definidas.
+- Use a flag --help para entender os parâmetros de entrada permitidos
 
 #### Como rodar o interactive_maps.py
 
