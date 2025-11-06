@@ -40,13 +40,13 @@ ISH/
 1. [Pré-requisitos](#pré-requisitos)  
 2. [Formatos de entrada](#formatos-de-entrada)  
 3. [Formatos de saída](#formatos-de-saída)  
-4. [Como rodar os scripts (Exemplos)](#como-rodar-os-scripts)  
-5. [Interpretação da camada de saída do joinISH.py](#interpretação-da-camada)
-6. [Exemplo prático (numérico)](#exemplo-prático)  
+4. [Como rodar os scripts (Exemplos)](#como-rodar-os-scripts-exemplos)  
+5. [Interpretação da camada de saída do joinISH.py](#interpretação-da-camada-de-saída-do-joinISH-py)
+6. [Exemplo prático (numérico)](#exemplo-prático-numérico)  
 7. [Logs e interpretação rápida](#logs-e-interpretação-rápida)  
-8. [Validação rápida (scripts úteis)](#validação-rápida)  
-9. [Boas práticas e recomendações](#recomendacoes)  
-10. [Exemplos de estrutura da pasta final](#pasta-final)  
+8. [Validação rápida (scripts úteis)](#validação-rápida-scripts-úteis)  
+9. [Boas práticas e recomendações](#boas-práticas-e-recomendações)  
+10. [Exemplos de estrutura da pasta final](#exemplos-de-estrutura-da-pasta-final)  
 
 ---
 
