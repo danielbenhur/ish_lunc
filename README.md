@@ -256,7 +256,7 @@ python3 -m scripts.interactive_map
 
 2) Gerar apenas o HTML (interativo):
 ```bash
-python3 -m scripts.interactive_map --gpkg /caminho/ish_cenario.gpkg --layers regiao_completa,mun_es --fields "regiao_completa:cs_ish;mun_es:cs_ish"
+python3 -m scripts.interactive_map --gpkg /caminho/ish_cenario.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:cs_ish;agg_mun_es:cs_ish"
 ```
 
 3) Gerar HTML e imagem estática (salva em interactive_maps/preview_<gpkg>.png):
@@ -266,7 +266,7 @@ python3 -m scripts.interactive_map --gpkg /caminho/ish_cenario.gpkg --layers reg
 
 4) Gerar imagem estática e remover linhas (edge) apenas para a layer regiao_completa:
 ```bash
-python3 -m scripts.interactive_map --gpkg /caminho/ish_cenario.gpkg --layers regiao_completa,mun_es --fields "regiao_completa:all;mun_es:cs_ish" --static --static-no-edges regiao_completa --static-out /tmp/preview.png
+python3 -m scripts.interactive_map --gpkg /caminho/ish_cenario.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:all;agg_mun_es:cs_ish" --static --static-no-edges regiao_completa --static-out /tmp/preview.png
 ```
 
 ---

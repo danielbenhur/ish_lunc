@@ -5,8 +5,8 @@ gdf_to_csv.py
 
 Converte um arquivo vetorial (gpkg/shp/geojson/...) para CSV e salva no mesmo diretório.
 Uso:
-  python scripts/gpkg_to_csv.py /caminho/para/arquivo.gpkg
-  python scripts/gpkg_to_csv.py /caminho/para/arquivo.gpkg --layer regiao_completa --geom centroid --to-wgs84
+  python3 scripts/gdf_to_csv.py /caminho/para/arquivo.gpkg
+  python3 scripts/gdf_to_csv.py /caminho/para/arquivo.gpkg --layer agg_mun_es --geom centroid --to-wgs84
 
 Opções:
   --layer LAYER        : nome da layer dentro do GPKG (se aplicável)
