@@ -41,7 +41,7 @@ ISH/
 2. [Formatos de entrada](#formatos-de-entrada)  
 3. [Formatos de saída](#formatos-de-saída)  
 4. [Como rodar os scripts (Exemplos)](#como-rodar-os-scripts-exemplos)  
-5. [Interpretação da camada de saída do joinISH.py](#interpretação-da-camada-de-saída-do-joinISH.py)
+5. [Interpretação da camada de saída do joinISH](#interpretação-da-camada-de-saída-do-joinish)
 6. [Exemplo prático (numérico)](#exemplo-prático-numérico)  
 7. [Logs e interpretação rápida](#logs-e-interpretação-rápida)  
 8. [Validação rápida (scripts úteis)](#validação-rápida-scripts-úteis)  
@@ -254,7 +254,7 @@ python3 -m scripts.interactive_map --gpkg /caminho/ish_cenario.gpkg --layers reg
 
 ---
 
-## Interpretação da camada de saída do joinISH.py
+## Interpretação da camada de saída do joinISH
 
 - **Nome da camada:** `agg_<presentation_basename>` (por ex. `agg_mun_es`)
 - **Colunas:** todas as colunas originais da camada de apresentação são preservadas,
