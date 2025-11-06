@@ -40,13 +40,13 @@ ISH/
 1. [Pré-requisitos](#pré-requisitos)  
 2. [Formatos de entrada](#formatos-de-entrada)  
 3. [Formatos de saída](#formatos-de-saída)  
-3. [Como rodar os scripts (Exemplos)](#como-rodar)  
-4. [Interpretação da camada de saída do joinISH.py](#interpretacao-joinISH)
-4. [Exemplo prático (numérico)](#exemplo-numerico)  
-5. [Logs e interpretação rápida](#logs)  
-6. [Validação rápida (scripts úteis)](#validacao)  
-7. [Boas práticas e recomendações](#recomendacoes)  
-8. [Exemplos de estrutura da pasta final](#pasta-final)  
+4. [Como rodar os scripts (Exemplos)](#como-rodar-os-scripts)  
+5. [Interpretação da camada de saída do joinISH.py](#interpretação-da-camada)
+6. [Exemplo prático (numérico)](#exemplo-prático)  
+7. [Logs e interpretação rápida](#logs-e-interpretação-rápida)  
+8. [Validação rápida (scripts úteis)](#validação-rápida)  
+9. [Boas práticas e recomendações](#recomendacoes)  
+10. [Exemplos de estrutura da pasta final](#pasta-final)  
 
 ---
 
@@ -59,12 +59,8 @@ conda env create -f environment.yml
 conda activate nome_do_ambiente
 ```
 
-Verifique instalação:
-```bash
-python -c "import geopandas as gpd, pandas as pd, fiona; print('ok')"
-```
 
-2. Em ambiente Linux, se houver restrição de espaço, prefira o uso de ambiente virtual, no qual você pode instalar os pacotes sem interferir na instalação global do Python e ao mesmo tempo ter facilidade de apagar os arquivos quando precisar. Para isso, siga os seguintes passos:
+2. Em ambiente Linux, ou se houver restrição de espaço, prefira o uso de ambiente virtual (é o que pessoalmente uso), no qual você pode instalar os pacotes sem interferir na instalação global do Python e ao mesmo tempo ter facilidade de apagar os arquivos quando precisar. Para isso, siga os seguintes passos:
 
 ```bash
 # Crie um novo ambiente virtual (você pode escolher o nome, aqui usamos "meu_ambiente")
@@ -76,26 +72,13 @@ source meu_ambiente/bin/activate
 # Agora, dentro deste ambiente, instale os pacotes desejados (presentes no arquivo requirements.txt)
 pip install -r requirements.txt
 
-# Se tiver atualizado os scripts e quiser refazer o arquivo requeriments, pode usar o comando:
+# Se tiver atualizado os scripts e quiser refazer o arquivo requeriments.txt, pode usar o comando:
 pip freeze > requirements.txt
 
 #Após ativar o ambiente virtual, você pode executar seu script Python normalmente. Quando terminar, para sair do ambiente virtual, basta usar o comando:
 bash
 deactivate
 ```
-
-3. Utilizar o pipx para Aplicações Globalmente Isoladas
-Se você deseja instalar um aplicativo Python globalmente sem afetar o ambiente do sistema, use o pipx, que administra ambientes virtuais automaticamente:
-
-```bash
-# Instale o pipx (se ainda não estiver instalado)
-python3 -m pip install --user pipx
-python3 -m pipx ensurepath
-
-# Instale o aplicativo desejado com pipx
-pipx install nome_do_app
-```
-> Atenção: > Evite utilizar a flag --break-system-packages para forçar a instalação global, pois isso pode comprometer a integridade do ambiente Python do seu sistema, causando problemas futuros.
 
 Essas abordagens garantem que as instalações de pacotes sejam gerenciadas de forma isolada, mantendo o sistema operacional estável e evitando conflitos entre versões.
 
@@ -127,10 +110,10 @@ A seguir, exemplos concretos de como **devem** ser os arquivos de entrada.
 - **Local:** `./cnr_<cenario>/input/dim_<sigla>_cnr_<cenario>.csv`
 - **Formato:** CSV com 2 colunas: `cobacia` e `ire_cs_<sigla>`
 - **Regras:**
-  - `cobacia` deve ser numérico inteiro (ex.: `7913`). Se houver formatos distintos (p.ex. `7796133.0`, `7.796.133`) o script contém rotinas de limpeza; porém prefira enviar limpo.
+  - `cobacia` deve ser numérico inteiro (ex.: `7913`). Se houver formatos distintos (p.ex. `7796133.0`, `7.796.133`) o script pode não funcionar; prefira enviar limpo.
   - `ire_cs_<sigla>` deve ser float (p.ex. `1.234`).
 
-**Exemplo `dim_amb_cnr_atlas2035.csv`:**
+**Exemplo `dim_amb_cnr_2035.csv`:**
 ```
 cobacia,ire_cs_amb
 7913,4.0
@@ -194,27 +177,27 @@ Na raiz do projeto (`ISH/`):
 
 Executar joinISH para gerar o gpkg base (caso ainda não esteja criado):
 ```bash
-python3 joinISH.py atlas_2035
+python3 joinISH.py 2035
 ```
 ### 2) Agregar para uma área de apresentação (ex.: municípios)
 Usando o output gerado acima:
 
 1. Agregar por municípios (média apenas — comportamento padrão):
 ```bash
-python3 -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg --id-field cod_ibge
+python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-field cod_ibge
 ```
 Isso criará (ou substituirá) a camada `agg_mun_es` dentro de:
-`./cnr_atlas_2035/output/ish_cnr_atlas_2035.gpkg` contendo a coluna `cs_ish_mean`.
+`./cnr_2035/output/ish_cnr_2035.gpkg` contendo a coluna `cs_ish_mean`.
 
 2. Agregar por municípios pedindo várias agregações:
 ```bash
-python3 -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg --id-field cod_ibge --agg mean median max
+python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-field cod_ibge --agg mean median max
 ```
 Resultado: camada `agg_mun_es` com colunas `cs_ish_mean`, `cs_ish_median`, `cs_ish_max`.
 
 3. Pedir todas as agregações:
 ```bash
-python3 -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg --id-field cod_ibge --agg all
+python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-field cod_ibge --agg all
 ```
 
 4. Use --targets para especificar alvos a agregar.
@@ -226,7 +209,7 @@ Exemplo: --targets all para agregar cs_ish e todas as colunas do input que come�
 As colunas geradas no layer de saída terão o nome: <target>_<agg> (ex.: ire_cs_amb_mean, cs_ish_median).
 
 ```bash
-python3 -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg --id-field fid --agg mean --targets all
+python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-field fid --agg mean --targets all
 # -> cria agg_mun_es com cs_ish_mean, ire_cs_amb_mean, ire_cs_eco_mean, ...
 ```
 
@@ -235,10 +218,10 @@ python3 -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg 
 Podemos plotar a BHO para visualizar área de estudo rapidamente. Nesse caso, o script `plot_bho.py` criará um png para visualização:
 
 ```bash
-python3 -m scripts.plot_bho ./cnr_atlas_2035/input/BHO_area.gpkg --layer bho_area --area --output ./cnr_atlas_2035/output/bho_plot.png
+python3 -m scripts.plot_bho ./cnr_2035/input/BHO_area.gpkg --layer bho_area --area --output ./cnr_2035/output/bho_plot.png
 ```
 
-Também podemos plotar interativamente mapas do ISH_LUNC usando o script `interactive_map.py`:
+**Também podemos plotar interativamente mapas do ISH_LUNC** usando o script `interactive_map.py`:
 #### O que o script interactive_maps.py faz
 
 - Lista (recursivamente) arquivos .gpkg no diretório atual, caso você não passe --gpkg.
@@ -304,8 +287,8 @@ Recomenda-se redirecionar saída e erros para arquivos de log:
 
 ```bash
 mkdir -p logs
-python3 joinISH.py atlas_2035 > logs/joinISH_atlas2035.log 2>&1
-python3 -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg --id-field fid > logs/aggregate_mun.log 2>&1
+python3 joinISH.py 2035 > logs/joinISH_2035.log 2>&1
+python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-field fid > logs/aggregate_mun.log 2>&1
 ```
 
 **O que procurar nos logs**
@@ -326,7 +309,7 @@ python3 -m scripts.aggregate_presentation atlas_2035 ./apresentacao/mun_es.gpkg 
 ### Verificar CSVs e duplicatas
 ```python
 import pandas as pd
-df = pd.read_csv("cnr_atlas_2035/input/dim_res_cnr_atlas2035.csv", sep=None, engine="python")
+df = pd.read_csv("cnr_2035/input/dim_res_cnr_2035.csv", sep=None, engine="python")
 print("total rows:", len(df))
 print("unique cobacia:", df['cobacia'].nunique())
 print(df['cobacia'].value_counts().head())
@@ -335,7 +318,7 @@ print(df['cobacia'].value_counts().head())
 ### Verificar GPKG e camadas
 ```python
 import fiona
-print(fiona.listlayers("cnr_atlas_2035/output/ish_cnr_atlas_2035.gpkg"))
+print(fiona.listlayers("cnr_2035/output/ish_cnr_2035.gpkg"))
 ```
 
 ---
@@ -352,12 +335,12 @@ print(fiona.listlayers("cnr_atlas_2035/output/ish_cnr_atlas_2035.gpkg"))
 
 ## Exemplos de pasta
 - Input:
-  - `cnr_atlas_2035/input/BHO_area.gpkg`
-  - `cnr_atlas_2035/input/dim_amb_cnr_atlas2035.csv`
-  - `cnr_atlas_2035/input/dim_hum_cnr_atlas2035.csv`
+  - `cnr_2035/input/BHO_area.gpkg`
+  - `cnr_2035/input/dim_amb_cnr_2035.csv`
+  - `cnr_2035/input/dim_hum_cnr_2035.csv`
   - `apresentacao/mun_es.gpkg`
 - Output esperados:
-  - `cnr_atlas_2035/output/ish_cnr_atlas_2035.gpkg` (layer `regiao_completa`, `agg_mun_es`, etc.)
-  - `cnr_atlas_2035/output/interactive_maps/preview_ish_cnr_atlas_2035.png` (opcional)
+  - `cnr_2035/output/ish_cnr_2035.gpkg` (layer `regiao_completa`, `agg_mun_es`, etc.)
+  - `cnr_2035/output/interactive_maps/preview_ish_cnr_2035.png` (opcional)
 
 ---
