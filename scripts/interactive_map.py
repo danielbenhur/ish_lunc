@@ -46,6 +46,30 @@ def find_gpkg_files(root="."):
     return [str(f) for f in root.rglob("*.gpkg")]
 
 
+def print_progress(current, total, prefix="Progress"):
+    """
+    Simple textual progress bar printed to stdout.
+    current: int (1..total)
+    total: int
+    prefix: label displayed before the bar
+    """
+    try:
+        total = int(total)
+        current = int(current)
+    except Exception:
+        return
+    if total <= 0:
+        return
+    pct = int((current / float(total)) * 100)
+    bar_len = 30
+    filled = int((pct * bar_len) / 100)
+    bar = "[" + ("#" * filled) + ("-" * (bar_len - filled)) + "]"
+    sys.stdout.write(f"\r{prefix} {bar} {pct:3d}% ({current}/{total})")
+    sys.stdout.flush()
+    if current >= total:
+        sys.stdout.write("\n")
+        sys.stdout.flush()
+
 def choose_from_list(prompt, options, allow_multiple=True):
     print(prompt)
     for i, opt in enumerate(options, start=1):
@@ -137,7 +161,7 @@ def add_legend(map_obj, title="Classes ISH"):
     labels_html += (
         f'<div style="display:flex;align-items:center;margin-bottom:4px;">'
         f'<div style="width:18px;height:14px;background:{NO_DATA_COLOR};margin-right:8px;border:1px solid #444;"></div>'
-        f'<div style="font-size:12px">Sem dados / zero</div></div>'
+        f'<div style="font-size:12px">Sem dados</div></div>'
     )
     legend_html = f"""
      <div style="position: fixed; 
@@ -169,7 +193,9 @@ def style_function_for_field(field, edgecolor="#444444", weight=0.5, fillOpacity
 
 
 def save_static_maps_from_selection(gpkg_path, gdfs, layer_field_selection, output_path=None,
-                                    crs_epsg=4326, dpi=300, max_label_chars=40, no_edge_layers=None):
+                                    crs_epsg=4326, dpi=300, max_label_chars=40, no_edge_layers=None,
+                                    progress_callback=None, progress_prefix="Saving PNG"):
+
     if no_edge_layers is None:
         no_edge_layers = []
 
@@ -250,18 +276,37 @@ def save_static_maps_from_selection(gpkg_path, gdfs, layer_field_selection, outp
                 except Exception as e:
                     ax.text(0.5, 0.5, f"Erro ao plotar:\n{e}", ha="center", va="center", fontsize=9)
                 idx += 1
+                # progress callback per item
+                if callable(progress_callback):
+                    # progress_callback signature: (current, total, prefix=...) or similar
+                    try:
+                        progress_callback(idx, n, prefix=progress_prefix)
+                    except TypeError:
+                        # fallback if callback expects only (current,total)
+                        progress_callback(idx, n)
             else:
                 ax.set_visible(False)
 
     patches = [mpatches.Patch(color=col, label=lbl) for col, lbl in zip(COLORS_ISH, CLASS_LABELS)]
-    patches.append(mpatches.Patch(color=NO_DATA_COLOR, label="Sem dados / zero"))
+    patches.append(mpatches.Patch(color=NO_DATA_COLOR, label="Sem dados"))
     fig.legend(handles=patches, loc="lower center", ncol=len(patches), frameon=True, bbox_to_anchor=(0.5, 0.02))
     plt.tight_layout(rect=[0, 0.04, 1, 0.96])
 
     if output_path:
         outp = str(output_path)
+        # indicate saving step (complete all items before saving)
+        if callable(progress_callback):
+            try:
+                progress_callback(n, n, prefix=progress_prefix + " (saving)")
+            except TypeError:
+                progress_callback(n, n)
         fig.savefig(outp, dpi=dpi, bbox_inches="tight")
         plt.close(fig)
+        if callable(progress_callback):
+            try:
+                progress_callback(n, n, prefix=progress_prefix + " (done)")
+            except TypeError:
+                progress_callback(n, n)
         print(f"Imagem salva em: {outp}")
         return outp
     else:
@@ -395,6 +440,19 @@ def run_interactive(gpkg_path=None, chosen_layers=None, fields_map=None, output_
     center_y = (min(minys) + max(maxys)) / 2.0
 
     if need_html:
+        # build a folium map and show progress as layers/fields are added
+        # compute total steps: 1 per layer (if no fields selected) or 1 per selected field, plus 1 for save
+        total_html_steps = 0
+        for lyr_name, gdf in gdfs:
+            sel_fields = layer_field_selection.get(lyr_name, [])
+            if not sel_fields:
+                total_html_steps += 1
+            else:
+                total_html_steps += len(sel_fields)
+        # add final save step
+        total_html_steps += 1
+        current_html_step = 0
+
         m = folium.Map(location=[center_y, center_x], zoom_start=8, tiles="CartoDB Positron")
         for lyr_name, gdf in gdfs:
             sel_fields = layer_field_selection.get(lyr_name, [])
@@ -406,6 +464,12 @@ def run_interactive(gpkg_path=None, chosen_layers=None, fields_map=None, output_
                     gdf_wgs = gdf.copy()
                 folium.GeoJson(json.loads(gdf_wgs.to_json()), name=lyr_name).add_to(fg)
                 fg.add_to(m)
+                current_html_step += 1
+                # report progress (if print_progress available)
+                try:
+                    print_progress(current_html_step, total_html_steps, prefix="Saving HTML")
+                except Exception:
+                    pass
                 continue
             for field in sel_fields:
                 if field not in gdf.columns:
@@ -428,6 +492,11 @@ def run_interactive(gpkg_path=None, chosen_layers=None, fields_map=None, output_
                 )
                 gj.add_to(fg)
                 fg.add_to(m)
+                current_html_step += 1
+                try:
+                    print_progress(current_html_step, total_html_steps, prefix="Saving HTML")
+                except Exception:
+                    pass
 
         add_legend(m, title="Classes ISH")
         folium.LayerControl(collapsed=False).add_to(m)
@@ -440,7 +509,17 @@ def run_interactive(gpkg_path=None, chosen_layers=None, fields_map=None, output_
         else:
             output_dir = os.path.dirname(os.path.abspath(output_html)) or "."
 
+        # indicate saving starting
+        try:
+            print_progress(current_html_step, total_html_steps, prefix="Saving HTML (saving)")
+        except Exception:
+            pass
         m.save(output_html)
+        # indicate done
+        try:
+            print_progress(total_html_steps, total_html_steps, prefix="Saving HTML (done)")
+        except Exception:
+            pass
         print("Mapa HTML salvo em:", output_html)
         if open_browser:
             try:
@@ -471,8 +550,28 @@ def run_interactive(gpkg_path=None, chosen_layers=None, fields_map=None, output_
             static_no_edges_list = list(static_no_edges)
         else:
             static_no_edges_list = []
-        save_static_maps_from_selection(gpkg_path, gdfs_static, layer_field_selection,
-                                        output_path=img_path, dpi=static_dpi, no_edge_layers=static_no_edges_list)
+        # call static saver with progress callback to show progress while building/saving PNG
+        try:
+            save_static_maps_from_selection(
+                gpkg_path,
+                gdfs_static,
+                layer_field_selection,
+                output_path=img_path,
+                dpi=static_dpi,
+                no_edge_layers=static_no_edges_list,
+                progress_callback=print_progress,
+                progress_prefix="Saving PNG"
+            )
+        except TypeError:
+            # fallback if save_static_maps_from_selection signature is older (without progress_callback)
+            save_static_maps_from_selection(
+                gpkg_path,
+                gdfs_static,
+                layer_field_selection,
+                output_path=img_path,
+                dpi=static_dpi,
+                no_edge_layers=static_no_edges_list
+            )
     return output_html if need_html else (img_path if need_png else None)
 
 
