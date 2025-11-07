@@ -1,4 +1,4 @@
-name: ish
+name: ish_lunc
 channels:
   - defaults
   - conda-forge

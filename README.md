@@ -56,18 +56,18 @@ ISH/
 
 ```bash
 conda env create -f environment.yml
-conda activate nome_do_ambiente
+conda activate ish_lunc
 ```
 
 
 2. Em ambiente que houver restrição de espaço, prefira o uso de ambiente virtual (é o que pessoalmente uso em meu Puppy Linux), no qual você pode instalar os pacotes sem interferir na instalação global do Python e ao mesmo tempo ter facilidade de apagar os arquivos quando precisar. Para isso, siga os seguintes passos:
 
 ```bash
-# Crie um novo ambiente virtual (você pode escolher o nome, aqui usamos "meu_ambiente")
-python3 -m venv meu_ambiente
+# Crie um novo ambiente virtual (você pode escolher o nome, aqui usamos "ish_lunc_venv")
+python3 -m venv ish_lunc_venv
 
 # Ative o ambiente virtual
-source meu_ambiente/bin/activate
+source ish_lunc_venv/bin/activate
 
 # Agora, dentro deste ambiente, instale os pacotes desejados (presentes no arquivo requirements.txt)
 pip install -r requirements.txt
@@ -252,6 +252,22 @@ python3 -m scripts.interactive_map --gpkg /caminho/ish_cenario.gpkg --layers reg
 ```bash
 python3 -m scripts.interactive_map --gpkg /caminho/ish_cenario.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:all;agg_mun_es:cs_ish" --static --static-no-edges regiao_completa --static-out /tmp/preview.png
 ```
+
+### 4) Gerar CSVs para análise
+
+Para análises dos valores calculados a geração de CSV pode se útil.
+utilize o script `gdf_to_csv.py` que converte um arquivo vetorial (gpkg/shp/geojson/...) para CSV e salva no mesmo diretório.
+Uso:
+```bash
+  python3 scripts/gdf_to_csv.py /caminho/para/arquivo.gpkg
+```
+
+Opções:
+  --layer LAYER        : nome da layer dentro do GPKG (se aplicável)
+  --geom {wkt,centroid,x_y,none} : como incluir geometria no CSV (default: wkt)
+  --to-wgs84           : reprojetar para EPSG:4326 antes de extrair centroid/coords
+  --overwrite          : sobrescrever CSV de saída se existir
+  --encoding ENCODING  : encoding do CSV (default utf-8)
 
 ---
 
