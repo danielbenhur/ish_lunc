@@ -20,7 +20,7 @@ O ISH-LUNC é classificado como um modelo baseado em indicadores. Ele mantém as
 | **Resiliência às Secas** | Reservação artificial; Reservação Natural; Potencial de armazenamento subterrâneo; Variabilidade pluviométrica. |
 | **Resiliência às Inundações** | Vulnerabilidade às inundações (indicador único: IVI - Índice de Vulnerabilidade a Inundações da ANA). |
 
-A adição da subdimensão **Resiliência às Inundações** é a principal adaptação em relação ao ISH original, visando uma representação mais abrangente dos riscos relacionados à água, incluindo cheias e secas, em consonância com definições de segurança hídrica amplamente usadas internacionalmente (como a de UN-Water, 2013) e nacionalmente (como a da ANA, 2019). Outras alterações em relação ao ISH disponibilizado no site da ANA corresponde à atualização da base de dados, reconstrução da metodologia e maior possibilidade de cálculo do índice para diferentes anos e cenários.
+A adição da subdimensão **Resiliência às Inundações** é a principal adaptação em relação ao ISH original, visando uma representação mais abrangente dos riscos relacionados à água, incluindo cheias e secas, em consonância com definições de segurança hídrica amplamente usadas internacionalmente (como a de UN-Water, 2013) e nacionalmente (como a da ANA, 2019). Outras alterações em relação ao ISH desenvolvido pela ANA corresponde à atualização da base de dados, reconstrução da metodologia e maior possibilidade de cálculo do índice para diferentes anos e cenários.
 
 ## 2. Cálculo do Índice
 
