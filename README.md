@@ -189,11 +189,11 @@ python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-f
 Isso criará (ou substituirá) a camada `agg_mun_es` dentro de:
 `./cnr_2035/output/ish_cnr_2035.gpkg` contendo a coluna `cs_ish_mean`.
 
-2. Agregar por municípios pedindo várias agregações (as possíveis são média ponderada, mediana ponderada, máximo e mínimo):
+2. Agregar por municípios pedindo várias agregações (as possíveis são média ponderada, mediana, máximo e mínimo):
 ```bash
-python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-field cod_ibge --agg mean median max
+python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-field cod_ibge --agg mean max
 ```
-Resultado: camada `agg_mun_es` com colunas `cs_ish_mean`, `cs_ish_median`, `cs_ish_max`.
+Resultado: camada `agg_mun_es` com colunas `cs_ish_mean`, `cs_ish_max`.
 
 3. Pedir todas as agregações:
 ```bash
@@ -240,26 +240,26 @@ python3 -m scripts.interactive_map
 
 2) Gerar apenas o HTML (interativo):
 ```bash
-python3 -m scripts.interactive_map --gpkg /caminho/ish_cenario.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:cs_ish;agg_mun_es:cs_ish"
+python3 -m scripts.interactive_map --gpkg ./cnr_2035/output/ish_cnr_2035.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:cs_ish;agg_mun_es:cs_ish"
 ```
 
 3) Gerar HTML e imagem estática (salva em interactive_maps/preview_<gpkg>.png):
 ```bash
-python3 -m scripts.interactive_map --gpkg /caminho/ish_cenario.gpkg --layers regiao_completa --fields "regiao_completa:cs_ish" --static
+python3 -m scripts.interactive_map --gpkg ./cnr_2035/output/ish_cnr_2035.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:all;agg_mun_es:cs_ish" --static
 ```
 
 4) Gerar imagem estática e remover linhas (edge) apenas para a layer regiao_completa:
 ```bash
-python3 -m scripts.interactive_map --gpkg /caminho/ish_cenario.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:all;agg_mun_es:cs_ish" --static --static-no-edges regiao_completa --static-out /tmp/preview.png
+python3 -m scripts.interactive_map --gpkg ./cnr_2035/output/ish_cnr_2035.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:all;agg_mun_es:cs_ish" --static --static-no-edges regiao_completa
 ```
 
 ### 4) Gerar CSVs para análise
 
 Para análises dos valores calculados a geração de CSV pode se útil.
 utilize o script `gdf_to_csv.py` que converte um arquivo vetorial (gpkg/shp/geojson/...) para CSV e salva no mesmo diretório.
-Uso:
+Exemplo de uso:
 ```bash
-  python3 scripts/gdf_to_csv.py /caminho/para/arquivo.gpkg
+  python3 scripts/gdf_to_csv.py ./cnr_2035/output/ish_cnr_2035.gpkg --layer agg_mun_es
 ```
 
 Opções:
@@ -291,10 +291,11 @@ Suponha Município X (fid=1001), área = 100 km²; interseções:
 Cálculo média ponderada (cs_ish_mean):
 - 2.0*(25/100) + 1.5*(10/100) + 0.5*(65/100) = 0.975
 
-Se pedir `--agg mean max`, a camada `agg_mun_es` conterá as colunas:
+Se pedir `--agg mean median max min` (ou `--agg all`), a camada `agg_mun_es` conterá as colunas:
 - `cs_ish_mean` = 0.975
+- `cs_ish_median` = 1.5
+- `cs_ish_min` = 0.5
 - `cs_ish_max` = 2.0
-
 ---
 
 
