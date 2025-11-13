@@ -43,7 +43,7 @@ Embora o cálculo base seja realizado por ottobacias, o ISH-LUNC pode ser repres
 
 A representação para recortes regionais diferentes das ottobacias se dá por meio de um processo de **agregação**. A metodologia utiliza scripts de agregação que calculam a média (ou outras estatísticas, como mediana, máxima e mínima) dos resultados do ISH-LUNC das ottobacias.
 
-A agregação apresentada no Adapta ES é realizada pela **mediana** dos valores das ottobacias, considerando a **área interceptada** entre a ottobacia e a unidade de apresentação (recorte regional). Para este fim, são utilizados **valores não nulos de grau de segurança hídrica** nas áreas interceptadas para calcular a mediana. Através da mediana, destaque maior é dado para um cenário crítico, útil em termos de adaptação climática.
+A agregação apresentada especificamente no Adapta ES é realizada pela **mediana** dos valores das ottobacias, considerando a **área interceptada** entre a ottobacia e a unidade de apresentação (recorte regional). Para este fim, são utilizados **valores não nulos de grau de segurança hídrica** nas áreas interceptadas para calcular a mediana. Através da mediana, destaque maior é dado para um cenário crítico, útil em termos de adaptação climática.
 
 ---
 *Outras informações sobre a metodologia podem ser encontradas em:* 
