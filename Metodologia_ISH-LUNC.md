@@ -51,6 +51,6 @@ A agregação apresentada especificamente no Adapta ES é realizada pela **media
 - OLIVEIRA, D. B. H. S. Aprimoramento da modelagem para avaliação de segurança hídrica no contexto do desenvolvimento regional.  sustentável. Dissertação de mestrado. Programa de Pós Graduação em Engenharia Ambiental - UFES. Disponível em: http://repositorio.ufes.br/handle/10/17419
 - OLIVEIRA, D. B. H. S. ISH_LUNC. Github. Disponível em: https://github.com/danielbenhur/ish_lunc/
 
-*Referências*
+*Referências citadas*
 - AGÊNCIA NACIONAL DE ÁGUA (ANA). Plano Nacional de Segurança Hídrica. ANA. Brasília, 2019. 112 p. ISBN: 978-85-8210-059-2. Disponível em: http://arquivos.ana.gov.br/pnsh/pnsh.pdf
 - UN-WATER. Water security and the global water agenda: a UN-water analytical brief. Ontario: United Nations University - Institute for Water, Environment and Health, 2013. Disponível em: https://www.unwater.org/publications/water-security-and-global-water-agenda
