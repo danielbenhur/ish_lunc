@@ -3,6 +3,8 @@
 
 Este repositório contém scripts com finalidade principal de calcular o **Índice de Segurança Hídrica LabGest-UFES/Neades-CPID (ISH_LUNC)** por ottobacias e agregar/visualizar esses resultados em unidades de apresentação (municípios, estados, regiões etc.). O projeto ainda está em fase inicial de desenvolvimento.
 
+![Fluxograma do ISH-LUNC](./ISH-LUNC_fluxograma.png)
+
 **Arquitetura de exemplo**
 ```
 ISH/
@@ -54,13 +56,20 @@ ISH/
 
 1. Recomenda-se utilizar **conda** (canal `conda-forge`) para instalar dependências geoespaciais:
 
+1.1 Instale o Anaconda/Miniconda conforme sua maquina (Windows, MacOS ou Linux) seguindo as instruções do site: https://www.anaconda.com/download
+
+1.1.1 No Windows, pode ser que a partir de então você precise usar o terminal o Anaconda PowerShell Prompt para rodar os códigos a seguir 
+
+1.1.2 As instruções e o modelo tem sido realizados majoritariamente em terminais Shell do Linux, portanto, sugiro a utilização do Linux para rodar esse programa.
+
+1.2 Após a instalação, vá através de seu terminal para a pasta raiz do projeto (a pasta onde estarão os arquivos do modelo ish_lunc), e nela, chame os códigos a seguir, para criar o ambiente virtual e ativá-lo:
 ```bash
 conda env create -f environment.yml
 conda activate ish_lunc
 ```
 
 
-2. Em ambiente que houver restrição de espaço, prefira o uso de ambiente virtual (é o que pessoalmente uso em meu Puppy Linux), no qual você pode instalar os pacotes sem interferir na instalação global do Python e ao mesmo tempo ter facilidade de apagar os arquivos quando precisar. Para isso, siga os seguintes passos:
+2. Em ambiente que houver restrição de espaço, prefira o uso de ambiente virtual (é o que pessoalmente uso em meu Puppy Linux), no qual você pode instalar os pacotes sem interferir na instalação global do Python e ao mesmo tempo ter facilidade de apagar os arquivos quando precisar. Se você estiver usando Linux, pode rodar o ambiente virtual seguindo os seguintes passos:
 
 ```bash
 # Crie um novo ambiente virtual (você pode escolher o nome, aqui usamos "ish_lunc_venv")
@@ -240,7 +249,7 @@ python3 -m scripts.interactive_map
 
 2) Gerar apenas o HTML (interativo):
 ```bash
-python3 -m scripts.interactive_map --gpkg ./cnr_2035/output/ish_cnr_2035.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:cs_ish;agg_mun_es:cs_ish"
+python3 -m scripts.interactive_map --gpkg ./cnr_2035/output/ish_cnr_2035.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:cs_ish;agg_mun_es:cs_ish" --generate html
 ```
 
 3) Gerar HTML e imagem estática (salva em interactive_maps/preview_<gpkg>.png):
@@ -250,7 +259,7 @@ python3 -m scripts.interactive_map --gpkg ./cnr_2035/output/ish_cnr_2035.gpkg --
 
 4) Gerar imagem estática e remover linhas (edge) apenas para a layer regiao_completa:
 ```bash
-python3 -m scripts.interactive_map --gpkg ./cnr_2035/output/ish_cnr_2035.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:all;agg_mun_es:cs_ish" --static --static-no-edges regiao_completa
+python3 -m scripts.interactive_map --gpkg ./cnr_2035/output/ish_cnr_2035.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:all;agg_mun_es:all" --static --static-no-edges regiao_completa --generate png
 ```
 
 ### 4) Gerar CSVs para análise
