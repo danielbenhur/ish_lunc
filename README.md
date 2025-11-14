@@ -3,7 +3,7 @@
 
 Este repositório contém scripts com finalidade principal de calcular o **Índice de Segurança Hídrica LabGest-UFES/Neades-CPID (ISH_LUNC)** por ottobacias e agregar/visualizar esses resultados em unidades de apresentação (municípios, estados, regiões etc.). O projeto ainda está em fase inicial de desenvolvimento.
 
-![Fluxograma do ISH-LUNC](./ISH-LUNC_fluxograma.html)
+![Fluxograma do ISH-LUNC](./ISH-LUNC_fluxograma.svg)
 
 **Arquitetura de exemplo**
 ```
