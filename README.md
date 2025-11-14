@@ -56,11 +56,11 @@ ISH/
 
 1. Recomenda-se utilizar **conda** (canal `conda-forge`) para instalar dependências geoespaciais:
 
-1.1 Instale o Anaconda/Miniconda conforme sua maquina (Windows, MacOS ou Linux) seguindo as instruções do site: https://www.anaconda.com/download
+1.1. Instale o Anaconda/Miniconda conforme sua maquina (Windows, MacOS ou Linux) seguindo as instruções do site: https://www.anaconda.com/download
 
-1.1.1 No Windows, pode ser que a partir de então você precise usar o terminal o Anaconda PowerShell Prompt para rodar os códigos a seguir 
+1.1.1. No Windows, pode ser que a partir de então você precise usar o terminal o Anaconda PowerShell Prompt para rodar os códigos a seguir 
 
-1.1.2 As instruções e o modelo tem sido realizados majoritariamente em terminais Shell do Linux, portanto, sugiro a utilização do Linux para rodar esse programa.
+1.1.2. As instruções e o modelo tem sido realizados majoritariamente em terminais Shell do Linux, portanto, sugiro a utilização do Linux para rodar esse programa.
 
 1.2 Após a instalação, vá através de seu terminal para a pasta raiz do projeto (a pasta onde estarão os arquivos do modelo ish_lunc), e nela, chame os códigos a seguir, para criar o ambiente virtual e ativá-lo:
 ```bash
