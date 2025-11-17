@@ -17,9 +17,9 @@ dependencies:
   - brotli-python=1.0.9=py311h6a678d5_9
   - bzip2=1.0.8=h5eee18b_6
   - c-ares=1.34.5=hef5626c_0
-  - ca-certificates=2025.10.5=hbd8a1cb_0
+  - ca-certificates=2025.11.4=h06a4308_0
   - cairo=1.18.4=h44eff21_0
-  - certifi=2025.10.5=pyhd8ed1ab_0
+  - certifi=2025.11.12=py311h06a4308_0
   - cffi=2.0.0=py311h4eded50_0
   - charset-normalizer=3.4.4=pyhd8ed1ab_0
   - click=8.3.0=pyh707e725_0
@@ -123,6 +123,7 @@ dependencies:
   - python-dateutil=2.9.0.post0=pyhe01879c_2
   - python-tzdata=2025.2=pyhd8ed1ab_0
   - pytz=2025.2=pyhd8ed1ab_0
+  - pyyaml=6.0.2=py311h5eee18b_0
   - readline=8.3=hc2a1206_0
   - requests=2.32.5=pyhd8ed1ab_0
   - scikit-learn=1.7.2=py311h505adc9_0
@@ -147,7 +148,8 @@ dependencies:
   - xorg-xorgproto=2024.1=h5eee18b_1
   - xyzservices=2025.4.0=pyhd8ed1ab_0
   - xz=5.6.4=h5eee18b_1
+  - yaml=0.2.5=h7b6447c_0
   - zlib=1.3.1=hb25bd0a_0
   - zstandard=0.24.0=py311h3d778a8_0
   - zstd=1.5.7=h11fc155_0
-prefix: /root/miniconda3/envs/ish
+prefix: /home/abest/miniconda3/envs/ish_lunc
