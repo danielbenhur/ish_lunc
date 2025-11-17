@@ -5,6 +5,9 @@ Este repositório contém scripts com finalidade principal de calcular o **Índi
 
 ![Fluxograma do ISH-LUNC](./ISH-LUNC_fluxograma.svg)
 
+# Veja o modelo aplicado:
+[AdaptaES](https://adaptaes.incaper.es.gov.br/ish)
+
 **Arquitetura de exemplo**
 ```
 ISH/
@@ -371,3 +374,4 @@ print(fiona.listlayers("cnr_2035/output/ish_cnr_2035.gpkg"))
   - `cnr_2035/output/interactive_maps/preview_ish_cnr_2035.png` (opcional)
 
 ---
+
