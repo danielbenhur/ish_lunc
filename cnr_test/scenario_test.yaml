@@ -1,13 +1,13 @@
 # scenario_test.yaml -exemplo mínimo
 # O ideal é que esse arquivo esteja dentro da pasta do cenário, ao lado das subpastas input e output
-id: atlas2035
-description: "Cenário Atlas 2035 - exemplo de uso com joinISH"
+id: teste
+description: "Cenário teste dados de 2020 - exemplo de uso com joinISH"
 # Base_dir relativo ao arquivo YAML ou caminho absoluto
 base_dir: "."
 
 bho:
   # caminho para o gpkg do BHO; se relativo, será resolvido em relação ao base_dir (ou ao diretório do YAML)
-  path: "../cnr_2035/input/BHO_area.gpkg"
+  path: "./input/BHO_area.gpkg"
   # opcional: nome da camada dentro do gpkg (ex: bho_area)
 #  layer: "bho_area"
 
@@ -18,14 +18,16 @@ dimensions:
   - name: hum
     file_glob: "./input/dim_hum*.csv"
   - name: eco
-    file_glob: "../cnr_2035/input/dim_eco_*.csv"
+    file_glob: "./input/dim_eco_*.csv"
+#	Uma outr possibilidade, usando caminhos relativos, é buscar arquivos em outros cenários como exemplificado na linha abaixo
+#   file_glob: "../cnr_2035/input/dim_eco_*.csv"
   - name: inu
     path: "./input/dim_inu_cnr_2020.csv"
 
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:
   folder: "./output"
-  gpkg_name: "ish_cnr_atlas2035.gpkg"
+  gpkg_name: "ish_cnr_test.gpkg"
 
 # logging / metadados (opcional)
 metadata:
