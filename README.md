@@ -124,7 +124,7 @@ A seguir, exemplos concretos de como **devem** ser os arquivos de entrada.
   - `cobacia` deve ser numérico inteiro (ex.: `7913`). Se houver formatos distintos (p.ex. `7796133.0`, `7.796.133`) o script pode não funcionar; prefira enviar limpo.
   - `ire_cs_<sigla>` deve ser float (p.ex. `1.234`).
 
-**Exemplo `dim_amb_cnr_2035.csv`:**
+**Exemplo `dim_amb_cnr_test.csv`:**
 ```
 cobacia,ire_cs_amb
 7913,4.0
@@ -189,27 +189,27 @@ Na raiz do projeto (`ISH/`, isto é, fora da pasta do cenário específico):
 
 Executar joinISH para gerar o gpkg base (caso ainda não esteja criado):
 ```bash
-python3 joinISH.py 2035
+python3 joinISH.py test
 ```
 ### 2) Agregar para uma área de apresentação (ex.: municípios)
 Usando o output gerado acima:
 
 1. Agregar por municípios (média apenas — comportamento padrão):
 ```bash
-python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-field cod_ibge
+python3 -m scripts.aggregate_presentation test ./apresentacao/mun_es.gpkg --id-field cod_ibge
 ```
 Isso criará (ou substituirá) a camada `agg_mun_es` dentro de:
-`./cnr_2035/output/ish_cnr_2035.gpkg` contendo a coluna `cs_ish_mean`.
+`./cnr_test/output/ish_cnr_test.gpkg` contendo a coluna `cs_ish_mean`.
 
 2. Agregar por municípios pedindo várias agregações (as possíveis são média ponderada, mediana, máximo e mínimo):
 ```bash
-python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-field cod_ibge --agg mean max
+python3 -m scripts.aggregate_presentation test ./apresentacao/mun_es.gpkg --id-field cod_ibge --agg mean max
 ```
 Resultado: camada `agg_mun_es` com colunas `cs_ish_mean`, `cs_ish_max`.
 
 3. Pedir todas as agregações:
 ```bash
-python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-field cod_ibge --agg all
+python3 -m scripts.aggregate_presentation test ./apresentacao/mun_es.gpkg --id-field cod_ibge --agg all
 ```
 
 4. Use --targets para especificar alvos a agregar.
@@ -221,7 +221,7 @@ Exemplo: --targets all para agregar cs_ish e todas as colunas do input que come�
 As colunas geradas no layer de saída terão o nome: <target>_<agg> (ex.: ire_cs_amb_mean, cs_ish_median).
 
 ```bash
-python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-field fid --agg mean --targets all
+python3 -m scripts.aggregate_presentation test ./apresentacao/mun_es.gpkg --id-field fid --agg mean --targets all
 # -> cria agg_mun_es com cs_ish_mean, ire_cs_amb_mean, ire_cs_eco_mean, ...
 ```
 
@@ -230,7 +230,7 @@ python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-f
 Podemos plotar a BHO para visualizar área de estudo rapidamente. Nesse caso, o script `plot_bho.py` criará um png para visualização:
 
 ```bash
-python3 -m scripts.plot_bho ./cnr_2035/input/BHO_area.gpkg --layer bho_area --area --output ./cnr_2035/output/bho_plot.png
+python3 -m scripts.plot_bho ./cnr_test/input/BHO_area.gpkg --layer bho_area --area --output ./cnr_test/output/bho_plot.png
 ```
 
 **Também podemos plotar interativamente mapas do ISH_LUNC** usando o script `interactive_map.py`:
@@ -252,17 +252,17 @@ python3 -m scripts.interactive_map
 
 2) Gerar apenas o HTML (interativo):
 ```bash
-python3 -m scripts.interactive_map --gpkg ./cnr_2035/output/ish_cnr_2035.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:cs_ish;agg_mun_es:cs_ish" --generate html
+python3 -m scripts.interactive_map --gpkg ./cnr_test/output/ish_cnr_test.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:cs_ish;agg_mun_es:cs_ish" --generate html
 ```
 
 3) Gerar HTML e imagem estática (salva em interactive_maps/preview_<gpkg>.png):
 ```bash
-python3 -m scripts.interactive_map --gpkg ./cnr_2035/output/ish_cnr_2035.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:all;agg_mun_es:cs_ish" --static
+python3 -m scripts.interactive_map --gpkg ./cnr_test/output/ish_cnr_test.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:all;agg_mun_es:cs_ish" --static
 ```
 
 4) Gerar imagem estática e remover linhas (edge) apenas para a layer regiao_completa:
 ```bash
-python3 -m scripts.interactive_map --gpkg ./cnr_2035/output/ish_cnr_2035.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:all;agg_mun_es:all" --static --static-no-edges regiao_completa --generate png
+python3 -m scripts.interactive_map --gpkg ./cnr_test/output/ish_cnr_test.gpkg --layers regiao_completa,agg_mun_es --fields "regiao_completa:all;agg_mun_es:all" --static --static-no-edges regiao_completa --generate png
 ```
 
 ### 4) Gerar CSVs para análise
@@ -271,7 +271,7 @@ Para análises dos valores calculados a geração de CSV pode se útil.
 utilize o script `gdf_to_csv.py` que converte um arquivo vetorial (gpkg/shp/geojson/...) para CSV e salva no mesmo diretório.
 Exemplo de uso:
 ```bash
-  python3 scripts/gdf_to_csv.py ./cnr_2035/output/ish_cnr_2035.gpkg --layer agg_mun_es
+  python3 scripts/gdf_to_csv.py ./cnr_test/output/ish_cnr_test.gpkg --layer agg_mun_es
 ```
 
 Opções:
@@ -317,8 +317,8 @@ Recomenda-se redirecionar saída e erros para arquivos de log:
 
 ```bash
 mkdir -p logs
-python3 joinISH.py 2035 > logs/joinISH_2035.log 2>&1
-python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-field fid > logs/aggregate_mun.log 2>&1
+python3 joinISH.py test > logs/joinISH_test.log 2>&1
+python3 -m scripts.aggregate_presentation test ./apresentacao/mun_es.gpkg --id-field fid > logs/aggregate_mun.log 2>&1
 ```
 
 **O que procurar nos logs**
@@ -339,7 +339,7 @@ python3 -m scripts.aggregate_presentation 2035 ./apresentacao/mun_es.gpkg --id-f
 ### Verificar CSVs e duplicatas
 ```python
 import pandas as pd
-df = pd.read_csv("cnr_2035/input/dim_res_cnr_2035.csv", sep=None, engine="python")
+df = pd.read_csv("cnr_test/input/dim_res_cnr_test.csv", sep=None, engine="python")
 print("total rows:", len(df))
 print("unique cobacia:", df['cobacia'].nunique())
 print(df['cobacia'].value_counts().head())
@@ -348,7 +348,7 @@ print(df['cobacia'].value_counts().head())
 ### Verificar GPKG e camadas
 ```python
 import fiona
-print(fiona.listlayers("cnr_2035/output/ish_cnr_2035.gpkg"))
+print(fiona.listlayers("cnr_test/output/ish_cnr_test.gpkg"))
 ```
 
 ---
@@ -365,13 +365,13 @@ print(fiona.listlayers("cnr_2035/output/ish_cnr_2035.gpkg"))
 
 ## Exemplos de pasta
 - Input:
-  - `cnr_2035/input/BHO_area.gpkg`
-  - `cnr_2035/input/dim_amb_cnr_2035.csv`
-  - `cnr_2035/input/dim_hum_cnr_2035.csv`
+  - `cnr_test/input/BHO_area.gpkg`
+  - `cnr_test/input/dim_amb_cnr_test.csv`
+  - `cnr_test/input/dim_hum_cnr_test.csv`
   - `apresentacao/mun_es.gpkg`
 - Output esperados:
-  - `cnr_2035/output/ish_cnr_2035.gpkg` (layer `regiao_completa`, `agg_mun_es`, etc.)
-  - `cnr_2035/output/interactive_maps/preview_ish_cnr_2035.png` (opcional)
+  - `cnr_test/output/ish_cnr_test.gpkg` (layer `regiao_completa`, `agg_mun_es`, etc.)
+  - `cnr_test/output/interactive_maps/preview_ish_cnr_test.png` (opcional)
 
 ---
 
