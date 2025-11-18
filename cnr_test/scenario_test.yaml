@@ -24,6 +24,53 @@ dimensions:
   - name: inu
     path: "./input/dim_inu_cnr_2020.csv"
 
+transformations:
+  # Forma declarativa (MVP recomendado)
+  - id: inu_shift_min_to_low
+    target_glob: "./input/dim_inu_cnr_2020.csv"
+    column: "ire_cs_inu"
+    condition:
+      type: between
+      min: 1.0
+      max: 1.5
+    action:
+      type: add
+      value: 1.0
+    description: "Se valor entre 1.0 e 1.5, soma 1 (muda classe)."
+
+  - id: eco_shift_min_to_low
+    target_glob: "./input/dim_eco*.csv"
+    column: "ire_cs_eco"
+    condition:
+      type: between
+      min: 0.0
+      max: 1.5
+    action:
+      type: add
+      value: 1.0
+    description: "Se valor entre 0.0 e 1.5, soma 1 (muda classe)."
+
+
+  # Multiplicador condicional
+  - id: reduce_high_ish
+    target_glob: "./input/dim_*.csv"   # exemplo aplicando a todos dim_*.csv
+    column: "cs_ish"
+    condition:
+      type: gt
+      value: 3.5
+    action:
+      type: multiply
+      factor: 0.5
+    description: "Reduz 50% onde cs_ish > 3.5"
+
+  ## Forma SQL-like (opcional): será traduzida para a operacao pandas
+  #- id: sql_example
+    #sql: |
+      #UPDATE ./input/dim_eco_cnr_ish_2017.csv
+      #SET ire_cs_eco = ire_cs_eco * 1.2
+      #WHERE ire_cs_eco >= 2.5 AND ire_cs_eco < 3.5;
+    #description: "Aumenta 20% na faixa 2.5-3.5 (exemplo SQL-like)."
+
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:
   folder: "./output"

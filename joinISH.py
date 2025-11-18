@@ -10,6 +10,7 @@ from pathlib import Path
 import json
 import yaml
 from scripts.aplica_recortes import aplica_recortes_gpkg
+from scripts.scenario_transformer import apply_transformations
 
 def load_gpkg_with_fid(filename, layer):
     """
@@ -188,6 +189,27 @@ def main():
     if not csv_files:
         csv_pattern = os.path.join(input_folder, f"dim_*.csv")
         csv_files = glob.glob(csv_pattern)
+
+    # ---------------------------------------------------------------------
+    # Se o YAML de cenário definiu transformações, aplique-as (gera arquivos em middle/modified_csvs)
+    # e substitui os paths dos csv_files por seus equivalentes modificados quando houver mapping.
+    # ---------------------------------------------------------------------
+    modified_file_map = {}
+    if scenario and scenario.get("transformations"):
+        mod_out = os.path.join(base_dir, "middle", "modified_csvs")
+        manifest = apply_transformations(scenario_yaml, out_folder=mod_out, dry_run=dry_run)
+        modified_file_map = {os.path.abspath(k): v for k, v in manifest.get("file_map", {}).items()}
+        if modified_file_map:
+            # replace csv_files entries with modified equivalents if present
+            new_csv_files = []
+            for f in csv_files:
+                af = os.path.abspath(f)
+                if af in modified_file_map:
+                    new_csv_files.append(modified_file_map[af])
+                else:
+                    new_csv_files.append(f)
+            csv_files = new_csv_files
+
     if dry_run:
         print("[dry-run] Arquivos CSV detectados:")
         for c in csv_files:
