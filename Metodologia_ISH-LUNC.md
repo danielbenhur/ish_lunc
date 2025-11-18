@@ -7,7 +7,7 @@ O projeto entende segurança hídrica como _“o grau de atendimento, de forma s
 
 ## 2. Estrutura do Índice e Indicadores
 
-O ISH_{LUNC} é classificado como um modelo baseado em indicadores. Ele mantém as quatro dimensões originais do $ISH_{ANA}$, mas modifica a dimensão de resiliência, dividindo-a em uma subdimensão de resiliência às secas e outra de resiliência às inundações, totalizando **cinco componentes** consideradas no cálculo global:
+O $ISH_{LUNC}$ é classificado como um modelo baseado em indicadores. Ele mantém as quatro dimensões originais do $ISH_{ANA}$, mas modifica a dimensão de resiliência, dividindo-a em uma subdimensão de resiliência às secas e outra de resiliência às inundações, totalizando **cinco componentes** consideradas no cálculo global:
 
 | Dimensão/Subdimensão | Indicadores Principais |
 | :--- | :--- |
