@@ -5,10 +5,9 @@ Este repositório contém scripts com finalidade principal de calcular o **Índi
 
 ![Fluxograma do ISH-LUNC](./ISH-LUNC_fluxograma.svg)
 
-## **Veja o modelo aplicado:**
-[AdaptaES](https://adaptaes.incaper.es.gov.br/ish)
+## **Veja o modelo aplicado:** [AdaptaES](https://adaptaes.incaper.es.gov.br/ish)
 
-**Arquitetura de exemplo**
+## **Arquitetura**
 ```
 ISH/
 ├─ joinISH.py     # Script principal que calcula o ISH a partir de um cenário determinado
