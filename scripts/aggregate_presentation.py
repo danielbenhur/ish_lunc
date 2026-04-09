@@ -19,7 +19,7 @@ import fiona
 def _get_local_utm_crs(gdf):
     if gdf.crs is None:
         raise ValueError("Input GeoDataFrame has no CRS.")
-    gdf4326 = gdf.to_crs(epsg=4326)
+    gdf4326 = gdf.to_crs(epsg=4674) # TODO: colocar um valor de entrada da função
     centroid = gdf4326.unary_union.centroid
     lon = centroid.x
     lat = centroid.y

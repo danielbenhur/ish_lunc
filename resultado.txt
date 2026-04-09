@@ -1,0 +1,55 @@
+Camadas disponíveis: ['bho_area']
+Schema da camada: {'properties': {}, 'geometry': 'MultiPolygon'}
+Atributos presentes: {}
+
+Preview (head) do arquivo BHO_area.gpkg (antes do processamento das colunas):
+                                            geometry  cobacia
+0  MULTIPOLYGON (((-40.28042 -20.33054, -40.28162...     7913
+1  MULTIPOLYGON (((-39.66468 -18.25089, -39.66415...    77975
+2  MULTIPOLYGON (((-39.82492 -18.18620, -39.82377...    77976
+3  MULTIPOLYGON (((-39.74788 -18.30785, -39.74444...    77977
+4  MULTIPOLYGON (((-39.70955 -18.43591, -39.71284...    77979
+Coluna de geometria ativa: geometry
+
+Preview (head) do arquivo BHO_area.gpkg (depois do processamento das colunas):
+                                            geometry  cobacia
+0  MULTIPOLYGON (((-40.28042 -20.33054, -40.28162...     7913
+1  MULTIPOLYGON (((-39.66468 -18.25089, -39.66415...    77975
+2  MULTIPOLYGON (((-39.82492 -18.18620, -39.82377...    77976
+3  MULTIPOLYGON (((-39.74788 -18.30785, -39.74444...    77977
+4  MULTIPOLYGON (((-39.70955 -18.43591, -39.71284...    77979
+
+Preview (head) do arquivo CSV 'dim_inu_cnr_2020.csv':
+   cobacia  ire_cs_inu
+0     7913         NaN
+1    77975         NaN
+2    77976         NaN
+3    77977         NaN
+4    77979         NaN
+
+Preview (head) do arquivo CSV 'dim_hum_atlasaguas_2020.csv':
+    cobacia ire_cs_hum
+0     77976       0,00
+1  77978323       0,00
+2  77978321       0,00
+3   7797814       0,00
+4     77975       0,00
+
+Preview (head) do arquivo CSV 'dim_eco_cnr_ish_2017.csv':
+   cobacia ire_cs_eco
+0     7913       0,00
+1    77975       1,25
+2    77976       4,00
+3    77977       2,00
+4    77979       2,00
+
+Preview (head) do GeoDataFrame final:
+   cobacia  ...                                           geometry
+0     7913  ...  MULTIPOLYGON (((-40.28042 -20.33054, -40.28162...
+1    77975  ...  MULTIPOLYGON (((-39.66468 -18.25089, -39.66415...
+2    77976  ...  MULTIPOLYGON (((-39.82492 -18.18620, -39.82377...
+3    77977  ...  MULTIPOLYGON (((-39.74788 -18.30785, -39.74444...
+4    77979  ...  MULTIPOLYGON (((-39.70955 -18.43591, -39.71284...
+
+[5 rows x 6 columns]
+Arquivo salvo em /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/cnr_test/output/ish_cnr_test.gpkg

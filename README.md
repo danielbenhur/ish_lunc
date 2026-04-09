@@ -202,7 +202,7 @@ Isso criará (ou substituirá) a camada `agg_mun_es` dentro de:
 
 2. Agregar por municípios pedindo várias agregações (as possíveis são média ponderada, mediana, máximo e mínimo):
 ```bash
-python3 -m scripts.aggregate_presentation test ./apresentacao/mun_es.gpkg --id-field cod_ibge --agg mean max
+python3 -m scripts.aggregate_presentation test ./apresentacao/mun_es.gpkg --id-field CD_MUN --agg mean max
 ```
 Resultado: camada `agg_mun_es` com colunas `cs_ish_mean`, `cs_ish_max`.
 
