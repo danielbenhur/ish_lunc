@@ -195,7 +195,7 @@ Usando o output gerado acima:
 
 1. Agregar por municípios (média apenas — comportamento padrão):
 ```bash
-python3 -m scripts.aggregate_presentation test ./apresentacao/mun_es.gpkg --id-field cod_ibge
+python3 -m scripts.aggregate_presentation test ./apresentacao/mun_es.gpkg --id-field CD_MUN
 ```
 Isso criará (ou substituirá) a camada `agg_mun_es` dentro de:
 `./cnr_test/output/ish_cnr_test.gpkg` contendo a coluna `cs_ish_mean`.
@@ -208,7 +208,7 @@ Resultado: camada `agg_mun_es` com colunas `cs_ish_mean`, `cs_ish_max`.
 
 3. Pedir todas as agregações:
 ```bash
-python3 -m scripts.aggregate_presentation test ./apresentacao/mun_es.gpkg --id-field cod_ibge --agg all
+python3 -m scripts.aggregate_presentation test ./apresentacao/mun_es.gpkg --id-field CD_MUN --agg all
 ```
 
 4. Use --targets para especificar alvos a agregar.
@@ -220,7 +220,7 @@ Exemplo: --targets all para agregar cs_ish e todas as colunas do input que come�
 As colunas geradas no layer de saída terão o nome: <target>_<agg> (ex.: ire_cs_amb_mean, cs_ish_median).
 
 ```bash
-python3 -m scripts.aggregate_presentation test ./apresentacao/mun_es.gpkg --id-field fid --agg mean --targets all
+python3 -m scripts.aggregate_presentation test ./apresentacao/mun_es.gpkg --id-field CD_MUN --agg mean --targets all
 # -> cria agg_mun_es com cs_ish_mean, ire_cs_amb_mean, ire_cs_eco_mean, ...
 ```
 
