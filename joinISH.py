@@ -53,7 +53,22 @@ def convert_columns(df, columns=None, exclude=[]):
     
     for col in columns:
         if col in df.columns:
-            df[col] = pd.to_numeric(df[col].astype(str).str.replace(",", "."), errors="coerce")
+            # Função para limpar cada valor
+            def clean_value(x):
+                if pd.isna(x):
+                    return x
+                # Converte para string
+                s = str(x).strip()
+                # Remove pontos de milhar e substitui vírgula decimal
+                if '.' in s and ',' in s:  # Caso "1.234,56"
+                    s = s.replace('.', '').replace(',', '.')
+                else:  # Caso "1234,56"
+                    s = s.replace(',', '.')
+                return s
+            
+            df[col] = df[col].apply(clean_value)
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+    
     return df
 
 
@@ -199,7 +214,6 @@ def main():
             print(f"Erro convertendo 'cobacia' no CSV {csv_file} para int: {e}")
             continue 
 
-        df = convert_columns(df, columns=item['name'], exclude=['cobacia'])
         mapeamento = df.set_index('cobacia')[item['name']].to_dict()
 
         # Aplicar o mapeamento
@@ -207,10 +221,13 @@ def main():
             gdf[item['name']] = item['value']
         else:
             gdf[item['name']] = gdf['cobacia'].map(mapeamento)
+            if(item['calculo'] == 'enabled'):
+                gdf = convert_columns(gdf, columns=[item['name']])
         print(gdf)
 
     
     # Seleciona todas as colunas que começam com "ire_cs_"
+    
     dimension_cols = [col for col in gdf.columns if col.startswith("ire_cs_")]
     
     # Cria a coluna "cs_ish" a partir da média das dimensões não nulas
