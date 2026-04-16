@@ -240,7 +240,7 @@ def main():
     
     # Imprime o cabeçalho (head) do GeoDataFrame final para verificação
     print("\nPreview (head) do GeoDataFrame final:")
-    print(gdf_final.head())
+    print(gdf.head())
     
     # Salva a camada "regiao_completa"
     # nome do gpkg final: pode ser sobrescrito no YAML (output.gpkg_name), senão usa padrão
@@ -256,7 +256,7 @@ def main():
     
     if os.path.isfile(output_file):
         os.remove(output_file)
-    gdf_final.to_file(output_file, driver="GPKG", layer="regiao_completa")
+    gdf.to_file(output_file, driver="GPKG", layer="regiao_completa")
     print(f"Arquivo salvo em {output_file}")
 
     ## Chama a função do script externo para gerar as demais camadas de recorte
