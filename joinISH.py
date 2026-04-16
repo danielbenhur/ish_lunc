@@ -173,32 +173,8 @@ def main():
     
     # Procura por arquivos CSV de dimensão.
     # Se o YAML tiver 'dimensions', respeitamos essa lista (cada item pode ter 'path' ou 'file_glob').
-    csv_files = []
-    if scenario and scenario.get("dimensions"):
-        yaml_dir = Path(scenario_yaml).parent if scenario_yaml else Path(root_folder)
-        for dim in scenario.get("dimensions", []):
-            if dim is None:
-                continue
-            # item pode ser string path ou dict
-            if isinstance(dim, str):
-                # interpret as path relative ao base_dir / yaml_dir
-                p = Path(dim)
-                if not p.is_absolute():
-                    p = (yaml_dir / dim)
-                csv_files.append(str(p))
-            elif isinstance(dim, dict):
-                if dim.get("path"):
-                    p = Path(dim["path"])
-                    if not p.is_absolute():
-                        p = (yaml_dir / dim["path"])
-                    csv_files.append(str(p))
-                elif dim.get("file_glob"):
-                    pat = dim["file_glob"]
-                    p = Path(pat)
-                    if not p.is_absolute():
-                        pat = str((yaml_dir / pat))
-                    matches = glob.glob(pat)
-                    csv_files.extend(matches)
+    csv_files = False
+    
     # fallback: procura padrão dim_*.csv dentro da pasta input
     if not csv_files:
         csv_pattern = os.path.join(input_folder, f"dim_*.csv")
@@ -207,6 +183,9 @@ def main():
         print("[dry-run] Arquivos CSV detectados:")
         for c in csv_files:
             print("   -", c)
+    
+    dimensoes_lista = scenario.get("dimensions", [])
+    print(dimensoes_lista)
     
     # Itera sobre cada arquivo CSV: imprime preview e faz o merge com o GeoDataFrame
     for csv_file in csv_files:
@@ -232,7 +211,8 @@ def main():
             continue
         
         df = convert_columns(df, exclude=['cobacia'])
-        gdf = gdf.merge(df, on="cobacia", how="left")
+        colunas_merge = ["cobacia"] + [col for col in dimensoes_lista if col in df.columns]
+        gdf = gdf.merge(df[colunas_merge], on="cobacia", how="left")
     
     # Seleciona todas as colunas que começam com "ire_cs_"
     dimension_cols = [col for col in gdf.columns if col.startswith("ire_cs_")]
