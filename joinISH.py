@@ -42,6 +42,21 @@ def compute_cs_ish(gdf, dim_cols):
     # Para cada linha, filtra apenas valores > 0 e calcula a média
     return gdf[dim_cols].apply(lambda row: row[row > 0.0].mean(), axis=1)
 
+# Converte apenas colunas específicas (ou todas exceto algumas)
+def convert_columns(df, columns=None, exclude=[]):
+    """
+    columns: lista de colunas a converter (se None, converte todas exceto 'exclude')
+    exclude: lista de colunas a ignorar
+    """
+    if columns is None:
+        columns = [col for col in df.columns if col not in exclude]
+    
+    for col in columns:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col].astype(str).str.replace(",", "."), errors="coerce")
+    return df
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Gera o GPKG de ISH para um cenário e aplica recortes opcionais")
@@ -216,18 +231,8 @@ def main():
             print(f"Erro convertendo 'cobacia' no CSV {csv_file} para int: {e}")
             continue
         
-        # Identifica a coluna de dimensão (excluindo 'cobacia')
-        dimension_columns = [col for col in df.columns if col != "cobacia"]
-        if len(dimension_columns) != 1:
-            print(f"Aviso: O arquivo {csv_file} não possui exatamente uma coluna de dimensão.")
-            continue
-        
-        dim_col = dimension_columns[0]
-        # Converte os valores da dimensão para float, tratando vírgulas como separador decimal
-        df[dim_col] = pd.to_numeric(df[dim_col].astype(str).str.replace(",", "."), errors="coerce")
-        
-        # Realiza a junção (merge) com o GeoDataFrame usando a coluna "cobacia"
-        gdf = gdf.merge(df[["cobacia", dim_col]], on="cobacia", how="left")
+        df = convert_columns(df, exclude=['cobacia'])
+        gdf = gdf.merge(df, on="cobacia", how="left")
     
     # Seleciona todas as colunas que começam com "ire_cs_"
     dimension_cols = [col for col in gdf.columns if col.startswith("ire_cs_")]

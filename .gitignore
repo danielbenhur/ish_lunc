@@ -40,3 +40,6 @@ logs/
 # system files
 .DS_Store
 Thumbs.db
+
+# pastas extra
+pasta_1
