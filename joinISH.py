@@ -173,23 +173,12 @@ def main():
     
     # Procura por arquivos CSV de dimensão.
     # Se o YAML tiver 'dimensions', respeitamos essa lista (cada item pode ter 'path' ou 'file_glob').
-    csv_files = False
-    
-    # fallback: procura padrão dim_*.csv dentro da pasta input
-    if not csv_files:
-        csv_pattern = os.path.join(input_folder, f"dim_*.csv")
-        csv_files = glob.glob(csv_pattern)
-    if dry_run:
-        print("[dry-run] Arquivos CSV detectados:")
-        for c in csv_files:
-            print("   -", c)
     
     dimensoes_lista = scenario.get("dimensions", [])
-    print(dimensoes_lista)
-    
-    # Itera sobre cada arquivo CSV: imprime preview e faz o merge com o GeoDataFrame
-    for csv_file in csv_files:
-        try:
+
+    for item in dimensoes_lista:
+        csv_file = item["path"]
+        try: 
             df = pd.read_csv(csv_file, sep=None, engine='python')
         except Exception as e:
             print(f"Erro ao ler o arquivo {csv_file}: {e}")
@@ -199,7 +188,7 @@ def main():
         df.columns = df.columns.str.strip().str.lower()
         print(f"\nPreview (head) do arquivo CSV '{os.path.basename(csv_file)}':")
         print(df.head())
-        
+
         if "cobacia" not in df.columns:
             print(f"Aviso: A coluna 'cobacia' não foi encontrada no arquivo {csv_file}.")
             continue
@@ -208,11 +197,18 @@ def main():
 
         except Exception as e:
             print(f"Erro convertendo 'cobacia' no CSV {csv_file} para int: {e}")
-            continue
-        
-        df = convert_columns(df, exclude=['cobacia'])
-        colunas_merge = ["cobacia"] + [col for col in dimensoes_lista if col in df.columns]
-        gdf = gdf.merge(df[colunas_merge], on="cobacia", how="left")
+            continue 
+
+        df = convert_columns(df, columns=item['name'], exclude=['cobacia'])
+        mapeamento = df.set_index('cobacia')[item['name']].to_dict()
+
+        # Aplicar o mapeamento
+        if('value' in item):
+            gdf[item['name']] = item['value']
+        else:
+            gdf[item['name']] = gdf['cobacia'].map(mapeamento)
+        print(gdf)
+
     
     # Seleciona todas as colunas que começam com "ire_cs_"
     dimension_cols = [col for col in gdf.columns if col.startswith("ire_cs_")]
