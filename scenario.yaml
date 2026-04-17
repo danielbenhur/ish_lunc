@@ -17,40 +17,31 @@ bho:
 dimensions:
   - name: ire_cs_eco # nome da coluna final
     path: "./cnr_A/input/dim_eco_teste.csv" # arquivo de onde extrair
-    calculo: enabled
 
   - name: pecuária 
     path: "./cnr_A/input/dim_eco_teste.csv"
-    calculo: disabled
   
   - name: irrigada
     path: "./cnr_A/input/dim_eco_teste.csv"
-    calculo: disabled
     
   - name: agropecuária
-    path: "./cnr_A/input/dim_eco_teste.csv"
-    calculo: disabled
+    path: "./cnr_A/input/dim_eco_teste.csv" 
   
   - name: industria
     path: "./cnr_A/input/dim_eco_teste.csv"
-    calculo: disabled
   
   - name: ire_cs_hum
     path: "./function_modules_planilha_1/arquivo_br.csv"
-    calculo: enabled
 
   - name: cs_risco
     path: "./function_modules_planilha_1/arquivo_br.csv"
-    calculo: disabled
 
   - name: cs_cobred
     path: "./function_modules_planilha_1/arquivo_br.csv"
-    calculo: disabled
     value: 5
 
   - name: tipo_setor
     path: "./function_modules_planilha_1/arquivo_br.csv"
-    calculo: disabled
 
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:

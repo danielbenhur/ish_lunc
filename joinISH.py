@@ -39,35 +39,47 @@ def compute_cs_ish(gdf, dim_cols):
     ['ire_cs_hum', 'ire_cs_eco', ...]). Retorna uma Series contendo a média
     das colunas, considerando apenas valores maiores que 0.0 (ignorando zeros e NaN).
     """
+    df_numeric = gdf[dim_cols].apply(pd.to_numeric, errors='coerce')
     # Para cada linha, filtra apenas valores > 0 e calcula a média
-    return gdf[dim_cols].apply(lambda row: row[row > 0.0].mean(), axis=1)
+    return df_numeric.apply(lambda row: row[row > 0.0].mean(), axis=1)
 
 # Converte apenas colunas específicas (ou todas exceto algumas)
 def convert_columns(df, columns=None, exclude=[]):
-    """
-    columns: lista de colunas a converter (se None, converte todas exceto 'exclude')
-    exclude: lista de colunas a ignorar
-    """
     if columns is None:
         columns = [col for col in df.columns if col not in exclude]
     
     for col in columns:
         if col in df.columns:
-            # Função para limpar cada valor
             def clean_value(x):
                 if pd.isna(x):
                     return x
-                # Converte para string
+                
                 s = str(x).strip()
-                # Remove pontos de milhar e substitui vírgula decimal
-                if '.' in s and ',' in s:  # Caso "1.234,56"
-                    s = s.replace('.', '').replace(',', '.')
-                else:  # Caso "1234,56"
-                    s = s.replace(',', '.')
-                return s
+                
+                # Verifica se parece um número (com vírgula/ponto)
+                # Aceita padrões: 123, 123.45, 1.234,56, 1234,56
+                import re
+                # Remove espaços e R$ se existir
+                s = s.replace('R$', '').replace(' ', '').strip()
+                
+                # Se tem letras, mantém como está
+                if re.search(r'[A-Za-zÀ-ÿ]', s) and not re.match(r'^[\d\.,]+$', s):
+                    return x  # Retorna o valor original
+                
+                # Tenta converter
+                try:
+                    # Caso "1.234,56"
+                    if '.' in s and ',' in s and s.rfind(',') > s.rfind('.'):
+                        s = s.replace('.', '').replace(',', '.')
+                    # Caso "1234,56"
+                    elif ',' in s and '.' not in s:
+                        s = s.replace(',', '.')
+                    
+                    return pd.to_numeric(s)
+                except:
+                    return x  # Se falhar, mantém original
             
             df[col] = df[col].apply(clean_value)
-            df[col] = pd.to_numeric(df[col], errors="coerce")
     
     return df
 
@@ -221,15 +233,12 @@ def main():
             gdf[item['name']] = item['value']
         else:
             gdf[item['name']] = gdf['cobacia'].map(mapeamento)
-            if(item['calculo'] == 'enabled'):
-                gdf = convert_columns(gdf, columns=[item['name']])
-        print(gdf)
+            gdf = convert_columns(gdf, columns=[item['name']],exclude='cobacia')
+        # print(gdf)
 
     
     # Seleciona todas as colunas que começam com "ire_cs_"
-    
     dimension_cols = [col for col in gdf.columns if col.startswith("ire_cs_")]
-    
     # Cria a coluna "cs_ish" a partir da média das dimensões não nulas
     gdf["cs_ish"] = compute_cs_ish(gdf, dimension_cols)
     
