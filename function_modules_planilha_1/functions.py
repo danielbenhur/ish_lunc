@@ -38,18 +38,25 @@ import numpy as np
 
 # AE, AF e AG correspondem a variáveis espaciais tabeladas, sendo respectivamente a área total do setor censitário, a área total da ottobacia e a área da porção do setor censitário inserida na ottobacia, não sendo derivadas por cálculo direto na planilha. 
 
-tabela_central = pd.read_csv('hum_sc_otto2017_ISH-2035.xlsx - hum_sc_otto.csv')
+tabela_central = pd.read_csv('dim_hum_cnr_fmea.csv')
 tabela_central.drop(0, inplace=True)
 tabela_inicial = tabela_central[tabela_central['COBACIA'].notna() & (tabela_central['COBACIA'] != '')]
 
 dados_entregues = tabela_inicial.copy()
 
-# convertendo de string para float para fazer as contas
-lista_conversao = ['dem_ret_ano', 'disp_q95', 'dem_acm', 'dmu_nu_poptotal', 'dmu_nu_popurbana', 'dmu_nu_poprural', 'pop', 'area_setor', 'ihu_pc_cobrede',
-                    'pop_urb_scbc', 'pop_urb_bacia', 'ihu_cs_ish']
-
-for i in lista_conversao:
-    dados_entregues[i] = dados_entregues[i].str.replace('.', '').str.replace(',', '.').astype('float')
+for col in dados_entregues.columns:
+    if dados_entregues[col].dtype == 'object':
+        # tenta converter para número
+        try:
+            dados_entregues[col] = (
+                dados_entregues[col]
+                .str.replace('.', '', regex=False)      # remove ponto de milhar
+                .str.replace(',', '.', regex=False)     # troca vírgula decimal por ponto
+                .astype(float)
+            )
+        except (AttributeError, ValueError, TypeError):
+            # se falhar, mantém coluna original
+            pass
 
 dados_entregues['bal_perc'] = 100*dados_entregues['dem_acm']/dados_entregues['disp_q95'] # L; a documentação original está ambígua sobre qual demanda utilizar; pelo contexto, inferi ser a demanda acumulada
 dados_entregues['disp/dem'] = 100/dados_entregues['bal_perc'] # M
