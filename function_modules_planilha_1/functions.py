@@ -38,14 +38,20 @@ import numpy as np
 
 # AE, AF e AG correspondem a variáveis espaciais tabeladas, sendo respectivamente a área total do setor censitário, a área total da ottobacia e a área da porção do setor censitário inserida na ottobacia, não sendo derivadas por cálculo direto na planilha. 
 
-tabela_central = pd.read_csv('dim_hum_cnr_fmea.csv')
+dados_string = ['fid', 'COBACIA', 'cod_setor', 'cod_mun']
+dtype_dict = {col: str for col in dados_string}
+
+tabela_central = pd.read_csv('dim_hum_cnr_fmea.csv', dtype=dtype_dict)
 tabela_central.drop(0, inplace=True)
 tabela_inicial = tabela_central[tabela_central['COBACIA'].notna() & (tabela_central['COBACIA'] != '')]
 
 dados_entregues = tabela_inicial.copy()
 
+
 for col in dados_entregues.columns:
-    if dados_entregues[col].dtype == 'object':
+    if col in dados_string:
+        dados_entregues[col] = dados_entregues[col].astype(str)
+    elif dados_entregues[col].dtype == 'object':
         # tenta converter para número
         try:
             dados_entregues[col] = (
