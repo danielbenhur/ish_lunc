@@ -3,138 +3,85 @@ import numpy as np
 import re
 
 def converter_numero_br(valor):
-    """
-    Converte número no formato brasileiro para float
-    
-    Formatos aceitos:
-    - "1.234,56" -> 1234.56
-    - "1.234" (ponto de milhar) -> 1234.0
-    - "1234,56" -> 1234.56
-    - "1234" -> 1234.0
-    - "1.234.567,89" -> 1234567.89
-    
-    Args:
-        valor: string, número ou outro tipo
-        
-    Returns:
-        float ou np.nan se não for possível converter
-    """
-    
-    # Validação 1: Verifica se é None ou vazio
-    if valor is None:
-        return np.nan
-    
-    # Validação 2: Se for pandas NA/NaN
+    """Converte número no formato brasileiro para float"""
     if pd.isna(valor):
         return np.nan
     
-    # Converte para string, tratando diferentes tipos
-    try:
-        valor_str = str(valor).strip()
-    except:
-        return np.nan
+    valor_str = str(valor).strip()
     
-    # Validação 3: Verifica se é string vazia ou apenas espaços
-    if not valor_str or valor_str == '' or valor_str.isspace():
-        return np.nan
-    
-    # Validação 4: Verifica se contém apenas caracteres válidos para número brasileiro
-    # Caracteres permitidos: dígitos, vírgula, ponto, sinal negativo
+    # Verifica se o valor é um número (inclui dígitos, pontos, vírgulas, sinal negativo)
+    # Se tiver letras ou outros caracteres que não são de número, retorna NaN
     if not re.match(r'^-?[\d\.,]+$', valor_str):
         return np.nan
     
-    # Validação 5: Conta vírgulas - número válido brasileiro tem no máximo 1 vírgula
-    if valor_str.count(',') > 1:
-        return np.nan
-    
-    # Validação 6: Trata números negativos
-    negativo = False
-    if valor_str.startswith('-'):
-        negativo = True
-        valor_str = valor_str[1:]
-    
     try:
-        # Padrão brasileiro: tem vírgula (decimal)
+        # Padrão brasileiro: 1.234.567,89
+        # Se tem vírgula, é decimal
         if ',' in valor_str:
-            # Separa parte inteira e decimal
+            # Remove pontos que estão antes da vírgula (milhar)
             partes = valor_str.split(',')
-            inteiro = partes[0]
+            inteiro = partes[0].replace('.', '')  # Remove todos os pontos da parte inteira
             decimal = partes[1]
-            
-            # Validação 7: Parte decimal deve ter apenas dígitos
-            if not re.match(r'^\d+$', decimal):
-                return np.nan
-            
-            # Validação 8: Parte inteira pode ter pontos de milhar
-            # Remove pontos da parte inteira (pontos de milhar)
-            if '.' in inteiro:
-                # Verifica padrão de ponto de milhar (pontos a cada 3 dígitos)
-                partes_inteiro = inteiro.split('.')
-                for parte in partes_inteiro:
-                    if not re.match(r'^\d{1,3}$', parte):
-                        return np.nan
-                inteiro = inteiro.replace('.', '')
-            
-            # Validação 9: Parte inteira deve ter apenas dígitos
-            if not re.match(r'^\d+$', inteiro):
-                return np.nan
-            
-            # Monta o número
-            numero_str = f"{inteiro}.{decimal}"
-            resultado = float(numero_str)
-        
+            return float(f"{inteiro}.{decimal}")
         else:
-            # Sem vírgula: pode ter pontos de milhar ou ser inteiro
-            if '.' in valor_str:
-                # Verifica padrão de ponto de milhar
-                partes = valor_str.split('.')
-                for parte in partes:
-                    if not re.match(r'^\d{1,3}$', parte):
-                        # Não é padrão de milhar, pode ser float com ponto
-                        resultado = float(valor_str)
-                        return -resultado if negativo else resultado
-                
-                # É ponto de milhar, remove todos
-                valor_str = valor_str.replace('.', '')
-            
-            # Validação 10: Agora deve ter apenas dígitos
-            if not re.match(r'^\d+$', valor_str):
-                return np.nan
-            
-            resultado = float(valor_str)
-        
-        # Aplica sinal negativo se necessário
-        resultado = -resultado if negativo else resultado
-        
-        # Validação 11: Verifica se é um número finito
-        if not np.isfinite(resultado):
-            return np.nan
-        
-        return resultado
-        
-    except (ValueError, TypeError, AttributeError) as e:
-        # Qualquer erro na conversão retorna NaN
+            # Sem vírgula, pode ter ponto de milhar ou ser inteiro
+            # Se o padrão for algo como "1.234" (ponto de milhar)
+            if '.' in valor_str and len(valor_str.split('.')[-1]) == 3:
+                return float(valor_str.replace('.', ''))
+            else:
+                return float(valor_str)
+    except (ValueError, TypeError):
         return np.nan
 
+# Ler os arquivos
 arquivo_1 = pd.read_csv('tabela_inicial.csv')
 arquivo_2 = pd.read_csv('arquivo_br.csv')
 
+# Colunas que devem ser mantidas como estão (identificadores)
+colunas_identificadores = ['fid', 'COBACIA', 'cod_setor', 'cod_mun']
 
-for i in arquivo_1.columns:
-    arquivo_1[i] = arquivo_1[i].apply(converter_numero_br)
-    arquivo_2[i] = arquivo_2[i].apply(converter_numero_br)
+# Colunas que serão comparadas (exclui identificadores)
+colunas_comuns = list(set(arquivo_1.columns) & set(arquivo_2.columns))
+colunas_comparar = [col for col in colunas_comuns if col not in colunas_identificadores]
 
+# Criar DataFrame de comparações com as colunas identificadoras do arquivo_2
+df_comparacoes = arquivo_2[colunas_identificadores].copy()
 
-coluna_referencia = 'cod_mun'
-posicao = arquivo_2.columns.get_loc(coluna_referencia)
-df_comparacoes = arquivo_2.iloc[:, :posicao]
+# Comparar apenas colunas numéricas
+for col in colunas_comparar:
+    # Converter apenas se a coluna for do tipo object (string)
+    if arquivo_1[col].dtype == 'object':
+        arquivo_1[col] = arquivo_1[col].apply(converter_numero_br)
+    else:
+        arquivo_1[col] = pd.to_numeric(arquivo_1[col], errors='coerce')
+    
+    if arquivo_2[col].dtype == 'object':
+        arquivo_2[col] = arquivo_2[col].apply(converter_numero_br)
+    else:
+        arquivo_2[col] = pd.to_numeric(arquivo_2[col], errors='coerce')
+    
+    # Calcular diferença percentual (evitando divisão por zero)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        # Verificar onde ambos os valores são válidos
+        mask_valida = (~np.isnan(arquivo_1[col])) & (~np.isnan(arquivo_2[col])) & (arquivo_2[col] != 0)
+        
+        diferenca_percentual = np.zeros(len(arquivo_2))
+        diferenca_percentual[mask_valida] = 100 * (arquivo_2[col][mask_valida] - arquivo_1[col][mask_valida]) / arquivo_2[col][mask_valida]
+    
+    # Marcar apenas diferenças > 2%
+    df_comparacoes[col] = np.where(
+        np.abs(diferenca_percentual) > 2,
+        diferenca_percentual,
+        0
+    )
 
-for i in arquivo_2.columns:
-    if i in arquivo_1.columns:
-        df_comparacoes[i] = np.where(
-            abs(100*(arquivo_2[i] - arquivo_1[i])/arquivo_2[i]) > 2,
-            100*(arquivo_2[i] - arquivo_1[i])/arquivo_2[i],
-            0
-        )
+# Salvar resultado
+df_comparacoes.to_csv('comparacoes.csv', index=False)
 
-df_comparacoes.to_csv('comparacoes.csv')
+# Mostrar estatísticas básicas
+print("\nResumo das diferenças encontradas:")
+for col in colunas_comparar:
+    n_diferencas = (df_comparacoes[col] != 0).sum()
+    if n_diferencas > 0:
+        max_diff = df_comparacoes[col].abs().max()
+        print(f"  {col}: {n_diferencas} registros com diferença > 2% (máx: {max_diff:.2f}%)")
