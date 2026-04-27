@@ -58,11 +58,15 @@ for col in dados_entregues.columns:
                 .str.replace(',', '.', regex=False)     # troca vírgula decimal por ponto
                 .astype(float)
             )
+            dados_entregues[col] = pd.to_numeric(dados_entregues[col], errors='coerce').fillna(0)
         except (AttributeError, ValueError, TypeError):
             # se falhar, mantém coluna original
             pass
 
-dados_entregues['bal_perc'] = 100*dados_entregues['dem_acm']/dados_entregues['disp_q95'] # L; a documentação original está ambígua sobre qual demanda utilizar; pelo contexto, inferi ser a demanda acumulada
+# dados_entregues['bal_perc'] = (
+    # 100*dados_entregues['dem_acm']/dados_entregues['disp_q95']
+# ).fillna(0).replace([float('inf'), -float('inf')], 0).astype(float)  # L; a documentação original está ambígua sobre qual demanda utilizar; pelo contexto, inferi ser a demanda acumulada
+
 dados_entregues['disp/dem'] = 100/dados_entregues['bal_perc'] # M
 
 
@@ -136,7 +140,7 @@ dados_entregues['perc_scbc'] = dados_entregues['pop_urb_scbc']/dados_entregues['
 # TODO: ihu_rel: multiplicação do percentual da população na porção do setor censitário e ihu_cs_ish (preciso de conceituação) 
 dados_entregues['ihu_rel'] = dados_entregues['perc_scbc']*dados_entregues['ihu_cs_ish']
 # ire_cs_hum: soma dos ihu_rel que pertencem à mesma cobacia
-dados_entregues['ire_cs_hum'] = dados_entregues.groupby('COBACIA')['ihu_rel'].transform('sum')
+dados_entregues['ire_cs_hum'] = round(dados_entregues.groupby('COBACIA')['ihu_rel'].transform('sum'),2)
 
 # Criar uma cópia do DataFrame com os números formatados como string brasileira
 df_export = dados_entregues.copy()
