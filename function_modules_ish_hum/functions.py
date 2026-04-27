@@ -142,6 +142,7 @@ dados_entregues['ihu_rel'] = dados_entregues['perc_scbc']*dados_entregues['ihu_c
 # ire_cs_hum: soma dos ihu_rel que pertencem à mesma cobacia
 dados_entregues['ire_cs_hum'] = round(dados_entregues.groupby('COBACIA')['ihu_rel'].transform('sum'),2)
 
+
 # Criar uma cópia do DataFrame com os números formatados como string brasileira
 df_export = dados_entregues.copy()
 
