@@ -49,9 +49,7 @@ dados_entregues = tabela_inicial.copy()
 
 
 for col in dados_entregues.columns:
-    if col in dados_string:
-        dados_entregues[col] = dados_entregues[col].astype(str)
-    elif dados_entregues[col].dtype == 'object':
+    if dados_entregues[col].dtype == 'object':
         # tenta converter para número
         try:
             dados_entregues[col] = (
