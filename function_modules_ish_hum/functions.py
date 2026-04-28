@@ -86,15 +86,14 @@ dados_entregues['fator_de_risco_total'] = dados_entregues['fator_iminente'] + da
 
 # Substituir NaN por 0 e infinitos por 0 antes de converter
 dados_entregues['ihu_nu_popriscoinerente'] = ( # W: percentual da população em risco pós-déficit, utilizando-se o fator de risco pós-déficit aplicado sobre a população urbana; N*R
-    dados_entregues['fator_iminente'] * dados_entregues['dmu_nu_popurbana']
+    round(dados_entregues['fator_iminente'] * dados_entregues['dmu_nu_popurbana'])
 ).fillna(0).replace([float('inf'), -float('inf')], 0).astype(float) 
 
 
 dados_entregues['ihu_pc_risco_inerente'] = dados_entregues['ihu_nu_popriscoinerente']/dados_entregues['dmu_nu_popurbana'] # T: razão entre o número de habitantes em risco inerente e a população urbana total
 
-
 dados_entregues['ihu_nu_popriscoposdeficit'] =  (
-    dados_entregues['fator_pós_deficit']*dados_entregues['dmu_nu_popurbana'] # X: o percentual da população em risco total; X = O*R
+    round(dados_entregues['fator_pós_deficit']*dados_entregues['dmu_nu_popurbana']) # X: o percentual da população em risco total; X = O*R
 ).fillna(0).replace([float('inf'), -float('inf')], 0).astype(float)
 
 dados_entregues['ihu_pc_riscoposdeficit'] = (
@@ -102,7 +101,7 @@ dados_entregues['ihu_pc_riscoposdeficit'] = (
 ).fillna(0).replace([float('inf'), -float('inf')], 0).astype(float)
 
 dados_entregues['ihu_nu_popriscototal'] = (
-    dados_entregues['fator_de_risco_total']*dados_entregues['dmu_nu_popurbana']
+    round(dados_entregues['fator_de_risco_total']*dados_entregues['dmu_nu_popurbana'])
 ).fillna(0).replace([float('inf'), -float('inf')], 0).astype(float)  # Y = P*R
 
 dados_entregues['ihu_pc_risco'] = (
