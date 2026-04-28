@@ -18,17 +18,28 @@ import numpy as np
 # N, fator de risco iminente, (1/3)*(M3)^SE(M3>=1;-2;1); 
 # O: Fator pós déficit: = SE(M3 >=1;0;1 - (M3))
 # P: Fator de risco Total: = O3+N3
-# Q: população total do município projetada para o ano de 2020
-# R: população urbana do município, também projetada para 2020
-# S: população rural do município
-# T: percentual da população em risco inerente no município, sendo calculada a partir da razão entre o número de habitantes em risco inerente e a população urbana total
-# U: o valor absoluto da população em risco inerente (coluna W) é obtido multiplicando-se a população urbana (coluna R) pelo fator de risco iminente previamente calculado
-# V: esse valor é dividido pela população urbana, resultando no percentual correspondente
-# W: o percentual da população em risco pós-déficit, utilizando-se o fator de risco pós-déficit aplicado sobre a população urbana
-# X: o percentual da população em risco total, que considera a população urbana multiplicada pelo fator de risco total (derivado da soma entre o fator iminente e o fator pós-déficit)
-# Y: Ver depois
-# Z: percentual de cobertura de rede do município, correspondente a um valor percentual previamente definido e utilizado como parâmetro de saneamento.
-# AE, AF e AG correspondem a variáveis espaciais tabeladas, sendo respectivamente a área total do setor censitário, a área total da ottobacia e a área da porção do setor censitário inserida na ottobacia, não sendo derivadas por cálculo direto na planilha. 
+# Q: VAB - Valor Adicionado Bruto (dmu_nu_popurbana) TODO: tem diferença
+# R: ihu_pc_risco_inerente; Percentual de população em risco inerente no município para o respectivo cenário.
+# S: ihu_pc_riscoposdeficit; Percentual de população em risco pós-defcit no município para o respectivo cenário.
+# T: Percentual de população em risco total no município para o respectivo cenário; ihu_pc_risco
+# U: VAB (mil R$) Risco inerente; ihu_nu_popriscoinerente
+# V: Valor de população (nº habitantes) em risco pós-déficit. ihu_nu_popriscoposdeficit
+# W: Valor de população (nº habitantes) em risco total; ihu_nu_popriscototal
+# X: Produção por Ottobacia (R$); ihu_pc_cobrede
+# Y: Classe (1-5) do Índice de Segurança Hídrica do município associado à sua população urbana (depende da projeção da população urbana de 2035); ihu_cs_ish
+# Z: ISH
+# AA: area_setor	
+# AB: area_otto	
+# AC: area_scbc	
+# AD: deman_indus	
+# AE: densidade	
+# AF: pop_urb_scbc	
+# AG: pop_urb_bacia	
+# AH: perc_scbc	
+# AI: ihu_rel	
+# AJ: ire_cs_hum
+# AK: ---
+# AL: IGH_Ind		
 
 dados_string = ['fid', 'COBACIA', 'cod_setor', 'cod_mun']
 dtype_dict = {col: str for col in dados_string}
