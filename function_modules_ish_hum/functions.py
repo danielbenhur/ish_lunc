@@ -1,6 +1,7 @@
 import pandas as pd
 import geopandas as gpd
 import numpy as np
+from convertion_functions import *
 
 # campos: 
 # A: fid (identificador único de registro)
@@ -70,18 +71,9 @@ for col in dados_entregues.columns:
 dados_entregues['disp/dem'] = 100/dados_entregues['bal_perc'] # M
 
 
-dados_entregues['fator_iminente'] = (1/3) * np.where( # N = (1/3)*(M3)^SE(M3>=1;-2;1); 
-    dados_entregues['disp/dem'] >= 1,  
-    dados_entregues['disp/dem'] ** (-2),  
-    dados_entregues['disp/dem'] ** 1 
-)
+dados_entregues['fator_iminente'] = dados_entregues['disp/dem'].apply(fator_iminente)
 
-dados_entregues['fator_pós_deficit'] = np.where( # O = SE(M3 >=1;0;1 - (M3))
-    dados_entregues['disp/dem'] >= 1,
-    0,
-    1 - dados_entregues['disp/dem']
-)
-
+dados_entregues['fator_pós_deficit'] = dados_entregues['disp/dem'].apply(fator_pos_deficit)
 dados_entregues['fator_de_risco_total'] = dados_entregues['fator_iminente'] + dados_entregues['fator_pós_deficit'] # P = O3+N3
 
 # Substituir NaN por 0 e infinitos por 0 antes de converter
