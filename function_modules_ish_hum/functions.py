@@ -42,7 +42,7 @@ from convertion_functions import *
 dados_string = ['fid', 'COBACIA', 'cod_setor', 'cod_mun']
 dtype_dict = {col: str for col in dados_string}
 
-localizacao = '.'
+localizacao = '/content'
 tabela_central = pd.read_csv(f'{localizacao}/dim_hum_cnr_fmea.csv', dtype=dtype_dict)
 tabela_central.drop(0, inplace=True)
 tabela_inicial = tabela_central[tabela_central['COBACIA'].notna() & (tabela_central['COBACIA'] != '')]
