@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import re
 
+
+diferenca_percentual_geral = 5
+
 def converter_numero_br(valor):
     """Converte número no formato brasileiro para float"""
     if pd.isna(valor):
@@ -68,9 +71,9 @@ for col in colunas_comparar:
         diferenca_percentual = np.zeros(len(arquivo_2))
         diferenca_percentual[mask_valida] = 100 * (arquivo_2[col][mask_valida] - arquivo_1[col][mask_valida]) / arquivo_2[col][mask_valida]
     
-    # Marcar apenas diferenças > 2%
+    # Marcar apenas diferenças > diferenca_percentual_geral %
     df_comparacoes[col] = np.where(
-        np.abs(diferenca_percentual) > 2,
+        np.abs(diferenca_percentual) > diferenca_percentual_geral,
         diferenca_percentual,
         0
     )
@@ -84,4 +87,4 @@ for col in colunas_comparar:
     n_diferencas = (df_comparacoes[col] != 0).sum()
     if n_diferencas > 0:
         max_diff = df_comparacoes[col].abs().max()
-        print(f"  {col}: {n_diferencas} registros com diferença > 2% (máx: {max_diff:.2f}%)")
+        print(f"  {col}: {n_diferencas} registros com diferença > {diferenca_percentual_geral}% (máx: {max_diff:.2f}%)")

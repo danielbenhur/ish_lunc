@@ -41,6 +41,7 @@ def compute_cs_ish(gdf, dim_cols):
     """
     df_numeric = gdf[dim_cols].apply(pd.to_numeric, errors='coerce')
     # Para cada linha, filtra apenas valores > 0 e calcula a média
+    # 
     return df_numeric.apply(lambda row: row[row > 0.0].mean(), axis=1)
 
 # Converte apenas colunas específicas (ou todas exceto algumas)

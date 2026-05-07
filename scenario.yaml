@@ -17,31 +17,27 @@ bho:
 dimensions:
   - name: ire_cs_eco # nome da coluna final
     path: "./cnr_A/input/dim_eco_teste.csv" # arquivo de onde extrair
-
-  - name: pecuária 
-    path: "./cnr_A/input/dim_eco_teste.csv"
-  
-  - name: irrigada
-    path: "./cnr_A/input/dim_eco_teste.csv"
-    
-  - name: agropecuária
-    path: "./cnr_A/input/dim_eco_teste.csv" 
-  
-  - name: industria
-    path: "./cnr_A/input/dim_eco_teste.csv"
+    weight: default
+    indicadores:
+      - indicador: pecuária
+        weight:    default
+      - indicador: irrigada
+        weight:    default
+      - indicador: agropecuária
+        weight:    default
+      - indicador: industria
+        weight:    default
   
   - name: ire_cs_hum
-    path: "./function_modules_planilha_1/arquivo_br.csv"
-
-  - name: cs_risco
-    path: "./function_modules_planilha_1/arquivo_br.csv"
-
-  - name: cs_cobred
-    path: "./function_modules_planilha_1/arquivo_br.csv"
-    value: 5
-
-  - name: tipo_setor
-    path: "./function_modules_planilha_1/arquivo_br.csv"
+    path: "./function_modules_planilha_ish_hum/arquivo_br.csv"
+    weight: default
+    indicadores:
+      - indicador: cs_risco
+        weight: default
+      - indicador: cs_cobred
+        weight: default
+        value: 5
+    descritor: tipo_setor
 
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:
