@@ -16,7 +16,7 @@ Estrutura:
 - Desenvolvimento de interface de usuário para entrega de parâmetros para mapas;
 - Código para importação de dados da fonte;
 - Código para tratamento de dados e adequação de modelo;
-- Adaptação de funções para modelo multidimensional
+- Adaptação de funções para modelo multicritério
 
 # Atividades Específicas a fazer:
 
