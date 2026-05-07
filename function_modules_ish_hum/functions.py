@@ -129,19 +129,28 @@ dados_entregues['cs_cobred'] = (pd.cut(dados_entregues['ihu_pc_cobrede'], bins=[
 # perc_scbc: Percentual da população na porção do setor cencitário que está na ottobacia em relação à população total da ottobacia
 dados_entregues['perc_scbc'] = dados_entregues['pop_urb_scbc']/dados_entregues['pop_urb_bacia']
 
-# TODO: ihu_rel: multiplicação do percentual da população na porção do setor censitário e ihu_cs_ish (preciso de conceituação) 
+peso_cs_cobred = 0.3
+peso_cs_risco = 0.7
+dados_entregues['ihu_cs_ish'] = dados_entregues.apply(
+    lambda row: ihu_cs_ish(row, peso_cs_risco=peso_cs_risco, peso_cs_cobred=peso_cs_cobred), 
+    axis=1
+)
 
 dados_entregues['ihu_rel_pop'] = dados_entregues['perc_scbc']*dados_entregues['cs_risco']
 dados_entregues['ihu_rel_cobred'] = dados_entregues['perc_scbc']*dados_entregues['cs_cobred']
 
-dados_entregues['ihu_rel'] = dados_entregues['perc_scbc']*dados_entregues['ihu_cs_ish']   # Não preciso mais disso
-# ire_cs_hum: soma dos ihu_rel que pertencem à mesma cobacia
+# dados_entregues['ihu_rel'] = dados_entregues['perc_scbc']*dados_entregues['ihu_cs_ish']   # Não preciso mais disso
 
 #TODO: Precisa das colunas AP e AQ
-dados_entregues['ire_cs_hum'] = round(dados_entregues.groupby('COBACIA')['ihu_rel'].transform('sum'),2) # TODO: transformar em =IF(AQ3<AP3;0,7*AP3+0,3*AQ3;AP3), 0,7 e 0,3 são weigths https://docs.google.com/spreadsheets/d/1BwZSjrKUrVmr8iAYrL86RvPQF2Lbkg4v/edit?usp=sharing&ouid=115797524688437743844&rtpof=true&sd=true
+dados_entregues['ire_hu_pop'] = round(dados_entregues.groupby('COBACIA')['ihu_rel_pop'].transform('sum'),2) # AP
+dados_entregues['ire_hu_cobred'] = round(dados_entregues.groupby('COBACIA')['ihu_rel_cobred'].transform('sum'),2) # AQ # =SOMASE($B:$B;$B3;AN:AN)
+dados_entregues['ire_cs_hum'] = dados_entregues.apply( # TODO:  =IF(AQ3<AP3;0,7*AP3+0,3*AQ3;AP3), 0,7 e 0,3 são weigths https://docs.google.com/spreadsheets/d/1BwZSjrKUrVmr8iAYrL86RvPQF2Lbkg4v/edit?usp=sharing&ouid=115797524688437743844&rtpof=true&sd=true
+    lambda row: ire_cs_hum(row, peso_cs_risco=peso_cs_risco, peso_cs_cobred=peso_cs_cobred),
+    axis=1
+) 
 
 # ind_rel: sempre que comece com esse valor, ele faz uma multiplicação baseado neles
-dados_entregues['ind_rel'] =
+# dados_entregues['ind_rel'] =
 # Criar uma cópia do DataFrame com os números formatados como string brasileira
 df_export = dados_entregues.copy()
 
