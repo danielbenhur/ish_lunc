@@ -4,3 +4,4 @@ tabela_inicial.csv
 comparacoes.csv
 dim_hum_cnr_fmea.csv
 erros.txt
+read_yaml.py

@@ -2,6 +2,7 @@ import pandas as pd
 import geopandas as gpd
 import numpy as np
 from convertion_functions import *
+import yaml
 
 # campos: 
 # A: fid (identificador único de registro)
@@ -39,10 +40,25 @@ from convertion_functions import *
 
 # AE, AF e AG correspondem a variáveis espaciais tabeladas, sendo respectivamente a área total do setor censitário, a área total da ottobacia e a área da porção do setor censitário inserida na ottobacia, não sendo derivadas por cálculo direto na planilha. 
 
+with open('scenario.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+
+dimensions = config['dimensions']
+
+# Encontra dimensão e já extrai os pesos
+dimensao = next((d for d in dimensions if d['name'] == 'ire_cs_hum'), None)
+
+if dimensao:
+    indicadores = dimensao['indicadores']
+    pesos = {item['indicador']: item['weight'] for item in indicadores}
+    
+    peso_cs_risco = pesos.get('cs_risco')
+    peso_cs_cobred = pesos.get('cs_cobred')
+
 dados_string = ['fid', 'COBACIA', 'cod_setor', 'cod_mun']
 dtype_dict = {col: str for col in dados_string}
 
-localizacao = '/content'
+localizacao = './'
 tabela_central = pd.read_csv(f'{localizacao}/dim_hum_cnr_fmea.csv', dtype=dtype_dict)
 tabela_central.drop(0, inplace=True)
 tabela_inicial = tabela_central[tabela_central['COBACIA'].notna() & (tabela_central['COBACIA'] != '')]
@@ -65,72 +81,37 @@ for col in dados_entregues.columns:
             # se falhar, mantém coluna original
             pass
 
-# dados_entregues['bal_perc'] = (
-    # 100*dados_entregues['dem_acm']/dados_entregues['disp_q95']
-# ).fillna(0).replace([float('inf'), -float('inf')], 0).astype(float)  # L; a documentação original está ambígua sobre qual demanda utilizar; pelo contexto, inferi ser a demanda acumulada
-
-dados_entregues['disp/dem'] = 100/dados_entregues['bal_perc'] # M
-
+dados_entregues['disp/dem'] = dados_entregues['bal_perc'].apply(disp_dem) # M
 
 dados_entregues['fator_iminente'] = dados_entregues['disp/dem'].apply(fator_iminente)
 
 dados_entregues['fator_pós_deficit'] = dados_entregues['disp/dem'].apply(fator_pos_deficit)
+
 dados_entregues['fator_de_risco_total'] = dados_entregues['fator_iminente'] + dados_entregues['fator_pós_deficit'] # P = O3+N3
 
 # Substituir NaN por 0 e infinitos por 0 antes de converter
-dados_entregues['ihu_nu_popriscoinerente'] = ( # W: percentual da população em risco pós-déficit, utilizando-se o fator de risco pós-déficit aplicado sobre a população urbana; N*R
-    round(dados_entregues['fator_iminente'] * dados_entregues['dmu_nu_popurbana'])
-).fillna(0).replace([float('inf'), -float('inf')], 0).astype(float) 
+dados_entregues['ihu_nu_popriscoinerente'] = dados_entregues.apply(ihu_nu_popriscoinerente, axis=1)
 
+dados_entregues['ihu_pc_risco_inerente'] = dados_entregues.apply(ihu_pc_risco_inerente, axis=1) # T: razão entre o número de habitantes em risco inerente e a população urbana total
 
-dados_entregues['ihu_pc_risco_inerente'] = dados_entregues['ihu_nu_popriscoinerente']/dados_entregues['dmu_nu_popurbana'] # T: razão entre o número de habitantes em risco inerente e a população urbana total
+dados_entregues['ihu_nu_popriscoposdeficit'] =  dados_entregues.apply(ihu_nu_popriscoposdeficit,axis=1)
 
-dados_entregues['ihu_nu_popriscoposdeficit'] =  (
-    round(dados_entregues['fator_pós_deficit']*dados_entregues['dmu_nu_popurbana']) # X: o percentual da população em risco total; X = O*R
-).fillna(0).replace([float('inf'), -float('inf')], 0).astype(float)
+dados_entregues['ihu_pc_riscoposdeficit'] = dados_entregues.apply(ihu_pc_riscoposdeficit, axis=1)
 
-dados_entregues['ihu_pc_riscoposdeficit'] = (
-    dados_entregues['ihu_nu_popriscoposdeficit']/dados_entregues['dmu_nu_popurbana'] # U = X/R
-).fillna(0).replace([float('inf'), -float('inf')], 0).astype(float)
+dados_entregues['ihu_nu_popriscototal'] = dados_entregues.apply(ihu_nu_popriscototal, axis=1)
 
-dados_entregues['ihu_nu_popriscototal'] = (
-    round(dados_entregues['fator_de_risco_total']*dados_entregues['dmu_nu_popurbana'])
-).fillna(0).replace([float('inf'), -float('inf')], 0).astype(float)  # Y = P*R
+dados_entregues['ihu_pc_risco'] = dados_entregues.apply(ihu_pc_risco, axis=1)
 
-dados_entregues['ihu_pc_risco'] = (
-    dados_entregues['ihu_nu_popriscototal']/dados_entregues['dmu_nu_popurbana'] # V = Y/R
-).fillna(0).replace([float('inf'), -float('inf')], 0).astype(float)
+dados_entregues['densidade'] = dados_entregues.apply(densidade, axis=1)
 
-dados_entregues['densidade'] = (
-    dados_entregues['pop']/dados_entregues['area_setor']
-).fillna(0).replace([float('inf'), -float('inf')], 0).astype(float)
-
-# cs_risco: busca de dados em matriz
-matriz_risco = [
-            #    0% 20% 40% 60% 80%
-                [5, 5,	4,	4,	3], # 0
-                [5,	4,	3,	3,	2], # 2000
-                [4,	3,	3,	2,	2], # 5000
-                [4,	3,	2,	2,	1], # 10000
-                [3,	2,	2,	1,	1]  # 50000
-]
-
-dados_entregues['cs_risco'] = dados_entregues['cs_risco'] = np.array(matriz_risco)[
-    pd.cut(dados_entregues['ihu_nu_popriscototal'], bins=[0,2000,5000,10000,50000,float('inf')], labels=[0,1,2,3,4], right=False).astype(int),
-    pd.cut(dados_entregues['ihu_pc_risco'], bins=[0,0.2,0.4,0.6,0.8,1.0], labels=[0,1,2,3,4], right=False).astype(int)
-]
+dados_entregues['cs_risco'] = dados_entregues.apply(cs_risco, axis=1)
 
 # cs_cobred: busca de dados dentre os limites da Cobertura de Rede de Abastecimento (%)
-dados_entregues['cs_cobred'] = (pd.cut(dados_entregues['ihu_pc_cobrede'], bins=[0, 0.8, 0.9, 0.95, 0.98, 1], labels=[1,2,3,4,5],include_lowest=True)
-                                 .astype(float)  # Converte para float, NaN vira NaN
-                                 .fillna(0)      # Agora fillna funciona
-                                 .astype(int))
+dados_entregues['cs_cobred'] = dados_entregues['ihu_pc_cobrede'].apply(cs_cobred)
 
 # perc_scbc: Percentual da população na porção do setor cencitário que está na ottobacia em relação à população total da ottobacia
-dados_entregues['perc_scbc'] = dados_entregues['pop_urb_scbc']/dados_entregues['pop_urb_bacia']
+dados_entregues['perc_scbc'] = dados_entregues.apply(perc_scbc, axis=1)
 
-peso_cs_cobred = 0.3
-peso_cs_risco = 0.7
 dados_entregues['ihu_cs_ish'] = dados_entregues.apply(
     lambda row: ihu_cs_ish(row, peso_cs_risco=peso_cs_risco, peso_cs_cobred=peso_cs_cobred), 
     axis=1
