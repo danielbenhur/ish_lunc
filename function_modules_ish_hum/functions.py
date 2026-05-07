@@ -130,9 +130,15 @@ dados_entregues['cs_cobred'] = (pd.cut(dados_entregues['ihu_pc_cobrede'], bins=[
 dados_entregues['perc_scbc'] = dados_entregues['pop_urb_scbc']/dados_entregues['pop_urb_bacia']
 
 # TODO: ihu_rel: multiplicação do percentual da população na porção do setor censitário e ihu_cs_ish (preciso de conceituação) 
-dados_entregues['ihu_rel'] = dados_entregues['perc_scbc']*dados_entregues['ihu_cs_ish']
+
+dados_entregues['ihu_rel_pop'] = dados_entregues['perc_scbc']*dados_entregues['cs_risco']
+dados_entregues['ihu_rel_cobred'] = dados_entregues['perc_scbc']*dados_entregues['cs_cobred']
+
+dados_entregues['ihu_rel'] = dados_entregues['perc_scbc']*dados_entregues['ihu_cs_ish']   # Não preciso mais disso
 # ire_cs_hum: soma dos ihu_rel que pertencem à mesma cobacia
-dados_entregues['ire_cs_hum'] = round(dados_entregues.groupby('COBACIA')['ihu_rel'].transform('sum'),2)
+
+#TODO: Precisa das colunas AP e AQ
+dados_entregues['ire_cs_hum'] = round(dados_entregues.groupby('COBACIA')['ihu_rel'].transform('sum'),2) # TODO: transformar em =IF(AQ3<AP3;0,7*AP3+0,3*AQ3;AP3), 0,7 e 0,3 são weigths https://docs.google.com/spreadsheets/d/1BwZSjrKUrVmr8iAYrL86RvPQF2Lbkg4v/edit?usp=sharing&ouid=115797524688437743844&rtpof=true&sd=true
 
 # ind_rel: sempre que comece com esse valor, ele faz uma multiplicação baseado neles
 dados_entregues['ind_rel'] =
