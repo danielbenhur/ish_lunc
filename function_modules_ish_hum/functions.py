@@ -81,7 +81,7 @@ for col in dados_entregues.columns:
             # se falhar, mantém coluna original
             pass
 
-dados_entregues['disp/dem'] = dados_entregues['bal_perc'].apply(disp_por_dem) # M
+dados_entregues['disp/dem'] = disp_por_dem(dados_entregues['bal_perc']) # M
 
 dados_entregues['fator_iminente'] = dados_entregues['disp/dem'].apply(fator_iminente)
 

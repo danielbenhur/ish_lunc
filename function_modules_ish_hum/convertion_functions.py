@@ -3,11 +3,9 @@ import numpy as np
 import yaml
 import sys
 
-def disp_por_dem(bal_perc: float):
-    if pd.isna(bal_perc) or bal_perc == 0:
-        return 0
-    else:
-        return 100/bal_perc
+def disp_por_dem(parametros):
+    bal_perc_series = parametros[0]
+    return np.where((pd.isna(bal_perc_series)) | (bal_perc_series == 0), 0, 100/bal_perc_series)
 
 def fator_iminente(disp_dem: float):
     if disp_dem >= 1:
@@ -15,13 +13,14 @@ def fator_iminente(disp_dem: float):
     else:
         return (1/3) * (disp_dem ** 1)
 
-def fator_pós_deficit(disp_dem:float):
-    if disp_dem >= 1:
-        return 0
-    else:
-        return 1-disp_dem
+def fator_pos_deficit(parametros):
+    disp_dem = parametros[0]
+    
+    return disp_dem.apply(lambda x: 0 if x >= 1 else 1 - x)
 
-def fator_de_risco_total(fator_iminente: float, fator_pos_deficit: float):
+def fator_de_risco_total(parametros):
+    fator_iminente = parametros[0]
+    fator_pos_deficit = parametros[1]
     return 0
 
 def ihu_nu_popriscoinerente(row: pd.DataFrame):
@@ -237,7 +236,6 @@ def list_functions(yaml_file_path: str):
             continue
 
         nome_funcao = item['indicador']
-        # print(nome_funcao)
 
         # Verifica se a função existe no módulo importado
         if hasattr(sys.modules['convertion_functions'], nome_funcao):
@@ -245,8 +243,6 @@ def list_functions(yaml_file_path: str):
             if callable(funcao):
                 print(f"  ✓ Função '{nome_funcao}' encontrada e é chamável")
                 return_list.append(item)
-            else:
-                print(f"  ✗ '{nome_funcao}' existe mas não é uma função")
         else:
             print(f"  ✗ Função '{nome_funcao}' NÃO encontrada em convertion_functions")
 

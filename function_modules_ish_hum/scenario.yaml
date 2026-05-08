@@ -35,12 +35,14 @@ dimensions:
       - indicador: disp_por_dem
         weight: default
         depends_on: [bal_perc]
+        column: disp/dem
       - indicador: fator_iminente
         weight: default
-        depends_on: [disp_dem]
-      - indicador: fator_pós_deficit
+        depends_on: [disp/dem]
+      - indicador: fator_pos_deficit
         weight: default
-        depends_on: [disp_dem]
+        depends_on: [disp/dem]
+        column: fator_pós_deficit
       - indicador: fator_de_risco_total
         weight: default
         depends_on: [fator_iminente, fator_pós_deficit]
