@@ -37,7 +37,7 @@ Estrutura:
     - Descrição da tarefa: Queremos uma tabela que entregue todos os indicadores juntos, não só os dados calculados, de modo que o mapa consiga traduzir esses indicadores tanto calculados quanto dados pelo projeto; precisamos que algum código consiga tratar os dados e entregar a tabela completa;
     - Parte 1: colocar pesos adequáveis para cada grandeza que afeta um índice geral do joinISH (mudar YAML para incluir pesos específicos);
     - Parte 2: integração de funções de todos os arquivos de script e de funções
-    - Parte 3: adequação do código para leitura de yaml que chame funções ao invés de um paradigma estruturado
+    - Parte 3: adequação do código para leitura de yaml que chame funções ao invés de um paradigma estruturado (proposta: escrever uma função genérica que é moldada para servir na integração dos dados ou para ser chamada de maneira que o próprio usuário decida como vai ser essa função de maneira simples)
     - Responsável: Luca
     - Estágio do desenvolvimento inicial: temos alguns códigos que fazem tabelas a partir de dados específicos já entregues; o joinISH está trabalhando com cópias de arquivos prontos por códigos específicos e não faz as coisas diretamente;
     - Quantidade de horas gastas:

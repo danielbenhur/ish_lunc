@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def disp_dem(bal_perc: float):
+def disp_por_dem(bal_perc: float):
     if pd.isna(bal_perc) or bal_perc == 0:
         return 0
     else:
@@ -13,11 +13,14 @@ def fator_iminente(disp_dem: float):
     else:
         return (1/3) * (disp_dem ** 1)
 
-def fator_pos_deficit(disp_dem:float):
+def fator_pós_deficit(disp_dem:float):
     if disp_dem >= 1:
         return 0
     else:
         return 1-disp_dem
+
+def fator_de_risco_total(fator_iminente: float, fator_pos_deficit: float):
+    return 0
 
 def ihu_nu_popriscoinerente(row: pd.DataFrame):
     fator_iminente = row['fator_iminente'] 
@@ -196,6 +199,18 @@ def ihu_cs_ish(row: pd.DataFrame, peso_cs_risco: float, peso_cs_cobred: float):
         return peso_cs_risco*cs_risco + peso_cs_cobred*cs_cobred
     else:
         return cs_risco
+
+def ihu_rel_pop(perc_scbc: float, cs_risco: float):
+    return perc_scbc*cs_risco
+
+def ihu_rel_cobred(perc_scbc: float, cs_cobred: float):
+    return perc_scbc*cs_cobred
+
+def ire_hu_pop(df: pd.DataFrame, ihu_rel_pop: str):
+    return round(df.groupby('COBACIA')[ihu_rel_pop].transform('sum'),2)
+
+def ire_hu_cobred(df: pd.DataFrame, ihu_rel_cobred: str):
+    return round(df.groupby('COBACIA')[ihu_rel_cobred].transform('sum'),2)
 
 def ire_cs_hum(row: pd.DataFrame, peso_cs_risco: float, peso_cs_cobred: float):
     ire_hu_pop = row['ire_hu_pop']
