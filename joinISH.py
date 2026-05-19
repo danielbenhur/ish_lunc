@@ -86,41 +86,16 @@ def convert_columns(df, columns=None, exclude=[]):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Gera o GPKG de ISH para um cenário e aplica recortes opcionais")
-    parser.add_argument("cenario", help="Nome do cenário (ex: atlas2035)")
-    parser.add_argument("-r", "--recorte", action="append", default=[],
-                        help="Nome do recorte (arquivo .gpkg dentro de recortes/) sem extensão. Pode repetir para vários recortes.")
-    parser.add_argument("-s", "--scenario-file", default=None,
-                        help="(opcional) arquivo YAML de cenário. Se informado, parametros do YAML (bho.path, bho.layer, base_dir, dimensions, output.folder) serão usados.")
-    parser.add_argument("--dry-run", action="store_true",
-                        help="Mostra o que seria executado, mas NÃO roda nada e não salva arquivos.")
-  
-    args = parser.parse_args()
-
-    nome_cenario = args.cenario
-    recortes_escolhidos = args.recorte  # lista de strings, pode ser vazia
-    scenario_yaml = args.scenario_file
-    scenario = None
-    dry_run = args.dry_run
-    # se foi especificado um YAML de cenário, carregue e valide
-    if scenario_yaml:
-        if yaml is None:
-            print("ERRO: 'pyyaml' não está instalado. Instale com 'pip install pyyaml' para usar --scenario-file.")
-            sys.exit(1)
-        try:
-            scenario_path = Path(scenario_yaml).expanduser().resolve()
-            with open(scenario_path, "r", encoding="utf-8") as sf:
-                scenario = yaml.safe_load(sf)
-            print("Cenário YAML carregado de:", scenario_path)
-        except Exception as e:
-            print("Erro ao ler o YAML de cenário:", e)
-            sys.exit(1)
+    yaml_file_path = "parameters.yaml"
+    with open(yaml_file_path, 'r') as file:
+        config = yaml.safe_load(file)
+    dry_run = True
     if dry_run:
         print("\n==============================")
         print("        DRY RUN ATIVO")
         print("==============================\n")
     
+    # exit()
     # Define a pasta base do cenário e cria as subpastas necessárias
     root_folder = os.getcwd()
     # se o YAML definiu base_dir, use-o (resolvido relativo ao YAML); senão use o padrão ./cnr_<nome_cenario>
