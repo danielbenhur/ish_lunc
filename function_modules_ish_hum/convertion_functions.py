@@ -159,7 +159,9 @@ def perc_scbc(parametros):
 
 def ihu_cs_ish(parametros):
     cs_risco = parametros[0]
-    cs_cobred = parametros[1]
+    peso_cs_risco = parametros[1]
+    cs_cobred = parametros[2]
+    peso_cs_cobred = parametros[3]
     
     if cs_cobred < cs_risco:
         return peso_cs_risco*cs_risco + peso_cs_cobred*cs_cobred
@@ -176,6 +178,7 @@ def ihu_rel_cobred(parametros):
     cs_cobred = parametros[1]
     return perc_scbc*cs_cobred
 
+# TODO: adaptar essas funções
 def ire_hu_pop(parametros):
     return round(df.groupby('COBACIA')[ihu_rel_pop].transform('sum'),2)
 
@@ -184,7 +187,9 @@ def ire_hu_cobred(parametros):
 
 def ire_cs_hum(parametros):
     ire_hu_pop = parametros[0]
-    ire_hu_cobred = parametros[1]
+    peso_ire_hu_pop = parametros[1]
+    ire_hu_cobred = parametros[2]
+    peso_ire_hu_cobred = parametros[3]
 
     if ire_hu_cobred < ire_hu_pop:
         return peso_cs_risco*ire_hu_pop + peso_cs_cobred*ire_hu_cobred

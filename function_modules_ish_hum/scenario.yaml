@@ -68,17 +68,17 @@ dimensions:
         weight: default
         depends_on: [pop, area_setor]
       - indicador: cs_risco
-        weight: 0.7
+        weight: default
         depends_on: [ihu_nu_popriscototal, ihu_pc_risco]
       - indicador: cs_cobred
-        weight: 0.3
+        weight: default
         depends_on: [ihu_pc_cobrede]
       - indicador: perc_scbc
         weight: default
         depends_on: [pop_urb_scbc, pop_urb_bacia]
       - indicador: ihu_cs_ish
         weight: default
-        depends_on: [cs_risco, cs_cobred]
+        depends_on: [cs_risco, 0.7, cs_cobred, 0.3] # isso é maracutaia, que fique claro
       - indicador: ihu_rel_pop
         weight: default
         depends_on: [perc_scbc, cs_risco]
@@ -93,7 +93,7 @@ dimensions:
         depends_on: [df, ihu_rel_cobred, COBACIA]
       - indicador: ire_cs_hum
         weight: default
-        depends_on: [ire_hu_pop, ire_hu_cobred]
+        depends_on: [ire_hu_pop, 0.7, ire_hu_cobred, 0.3]
     
     descritor: tipo_setor
 

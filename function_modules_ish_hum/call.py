@@ -42,7 +42,13 @@ for item in functions_to_work:
     parametros_colunas = []
     print(item['indicador'])
     for dependencia in item['depends_on']:
-        parametros_colunas.append(dados_entregues[dependencia])
+        # quando não estiver no dataframe, será número
+        # não está bom, muito menos robusto
+        if dependencia in dados_entregues:
+            parametros_colunas.append(dados_entregues[dependencia])
+        else:
+            coluna_constante = pd.Series([dependencia] * len(df), index=df.index)
+            parametros_colunas.append()
     
     if('column' in item):
         print(f"{item['indicador']} {item['depends_on']}")
