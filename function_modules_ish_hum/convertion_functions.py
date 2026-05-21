@@ -117,58 +117,33 @@ def cs_risco(parametros):
     ihu_nu_popriscototal = parametros[0]
     ihu_pc_risco = parametros[1]
     
+    bins_pop = [-float('inf'), 0, 2000, 5000, 10000, 50000, float('inf')]
+    labels_pop = [0, 0, 1, 2, 3, 4]
+    idx_pop = pd.cut(ihu_nu_popriscototal.fillna(-1), bins=bins_pop, labels=labels_pop, right=False).astype(int)
+    
+    # Define os bins e labels para pc_risco
+    bins_risco = [-float('inf'), 0, 0.2, 0.4, 0.6, 0.8, float('inf')]
+    labels_risco = [0, 0, 1, 2, 3, 4]
+    idx_risco = pd.cut(ihu_pc_risco.fillna(-1), bins=bins_risco, labels=labels_risco, right=False).astype(int)
+    
+    # Matriz de risco
     matriz_risco = [
-            #    0% 20% 40% 60% 80%
-                [5, 5, 4, 4, 3],  # 0
-                [5, 4, 3, 3, 2],  # 2000
-                [4, 3, 3, 2, 2],  # 5000
-                [4, 3, 2, 2, 1],  # 10000
-                [3, 2, 2, 1, 1]   # 50000
+        [5, 5, 4, 4, 3],
+        [5, 4, 3, 3, 2],
+        [4, 3, 3, 2, 2],
+        [4, 3, 2, 2, 1],
+        [3, 2, 2, 1, 1]
     ]
     
-    # Define os índices manualmente
-    if pd.isna(ihu_nu_popriscototal) or ihu_nu_popriscototal < 0:
-        idx_pop = 0
-    elif ihu_nu_popriscototal < 2000:
-        idx_pop = 0
-    elif ihu_nu_popriscototal < 5000:
-        idx_pop = 1
-    elif ihu_nu_popriscototal < 10000:
-        idx_pop = 2
-    elif ihu_nu_popriscototal < 50000:
-        idx_pop = 3
-    else:
-        idx_pop = 4
+    # Mapeia os valores usando numpy
+    resultado = np.array([matriz_risco[i][j] for i, j in zip(idx_pop, idx_risco)])
     
-    if pd.isna(ihu_pc_risco) or ihu_pc_risco < 0:
-        idx_risco = 0
-    elif ihu_pc_risco < 0.2:
-        idx_risco = 0
-    elif ihu_pc_risco < 0.4:
-        idx_risco = 1
-    elif ihu_pc_risco < 0.6:
-        idx_risco = 2
-    elif ihu_pc_risco < 0.8:
-        idx_risco = 3
-    else:
-        idx_risco = 4
-    
-    return matriz_risco[idx_pop][idx_risco]
+    return pd.Series(resultado)
 
 def cs_cobred(parametros):
-    if pd.isna(ihu_pc_cobrede):
-        return 0
-    if ihu_pc_cobrede < 0.8:
-        return 1
-    if ihu_pc_cobrede < 0.9:
-        return 2
-    if ihu_pc_cobrede < 0.95:
-        return 3
-    if ihu_pc_cobrede < 0.98:
-        return 4
-    if ihu_pc_cobrede <= 1:
-        return 5
-    return 0 
+    bins = [-float('inf'), 0, 0.8, 0.9, 0.95, 0.98, 1, float('inf')]
+    labels = [0, 1, 2, 3, 4, 5, 0]
+    return pd.cut(ihu_pc_cobrede.fillna(-1), bins=bins, labels=labels, right=False).astype(int)
 
 def perc_scbc(parametros):
     pop_urb_scbc = parametros[0]
