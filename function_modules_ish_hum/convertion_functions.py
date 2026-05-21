@@ -25,9 +25,9 @@ def fator_de_risco_total(parametros):
     fator_pos_deficit = parametros[1]
     return fator_iminente + fator_pos_deficit
 
-def ihu_nu_popriscoinerente(row: pd.DataFrame):
-    fator_iminente = row['fator_iminente'] 
-    dmu_nu_popurbana = row['dmu_nu_popurbana']
+def ihu_nu_popriscoinerente(parametros):
+    fator_iminente = parametros[0] 
+    dmu_nu_popurbana = parametros[1]
 
     fator_iminente = 0 if pd.isna(fator_iminente) else fator_iminente
     dmu_nu_popurbana = 0 if pd.isna(dmu_nu_popurbana) else dmu_nu_popurbana
@@ -39,9 +39,9 @@ def ihu_nu_popriscoinerente(row: pd.DataFrame):
     
     return round(resultado,2)
 
-def ihu_pc_risco_inerente(row: pd.DataFrame):
-    ihu_nu_popriscoinerente = row['ihu_nu_popriscoinerente']
-    dmu_nu_popurbana = row['dmu_nu_popurbana']
+def ihu_pc_risco_inerente(parametros):
+    ihu_nu_popriscoinerente = parametros[0]
+    dmu_nu_popurbana = parametros[1]
 
     ihu_nu_popriscoinerente = 0 if pd.isna(ihu_nu_popriscoinerente) else ihu_nu_popriscoinerente
     dmu_nu_popurbana = 0 if pd.isna(dmu_nu_popurbana) else dmu_nu_popurbana
@@ -53,9 +53,9 @@ def ihu_pc_risco_inerente(row: pd.DataFrame):
     
     return round(resultado,2)
 
-def ihu_nu_popriscoposdeficit(row: pd.DataFrame):
-    fator_pos_deficit = row['fator_pós_deficit']
-    dmu_nu_popurbana = row['dmu_nu_popurbana']
+def ihu_nu_popriscoposdeficit(parametros):
+    fator_pos_deficit = parametros[0]
+    dmu_nu_popurbana = parametros[1]
 
     fator_pos_deficit = 0 if pd.isna(fator_pos_deficit) else fator_pos_deficit
     dmu_nu_popurbana = 0 if pd.isna(dmu_nu_popurbana) else dmu_nu_popurbana
@@ -67,9 +67,9 @@ def ihu_nu_popriscoposdeficit(row: pd.DataFrame):
     
     return round(resultado,2)
 
-def ihu_pc_riscoposdeficit(row: pd.DataFrame):
-    ihu_nu_popriscoposdeficit = row['ihu_nu_popriscoposdeficit']
-    dmu_nu_popurbana = row['dmu_nu_popurbana']
+def ihu_pc_riscoposdeficit(parametros):
+    ihu_nu_popriscoposdeficit = parametros[0]
+    dmu_nu_popurbana = parametros[1]
 
     ihu_nu_popriscoposdeficit = 0 if pd.isna(ihu_nu_popriscoposdeficit) else ihu_nu_popriscoposdeficit
     dmu_nu_popurbana = 0 if pd.isna(dmu_nu_popurbana) else dmu_nu_popurbana
@@ -80,9 +80,9 @@ def ihu_pc_riscoposdeficit(row: pd.DataFrame):
     
     return round(resultado,2)
 
-def ihu_nu_popriscototal(row: pd.DataFrame):
-    fator_de_risco_total = row['fator_de_risco_total']
-    dmu_nu_popurbana = row['dmu_nu_popurbana']
+def ihu_nu_popriscototal(parametros):
+    fator_de_risco_total = parametros[0]
+    dmu_nu_popurbana = parametros[1]
     
     fator_de_risco_total = 0 if pd.isna(fator_de_risco_total) else fator_de_risco_total
     dmu_nu_popurbana = 0 if pd.isna(dmu_nu_popurbana) else dmu_nu_popurbana
@@ -93,9 +93,9 @@ def ihu_nu_popriscototal(row: pd.DataFrame):
     
     return round(resultado,2)
 
-def ihu_pc_risco(row: pd.DataFrame):
-    ihu_nu_popriscototal = row['ihu_nu_popriscototal']
-    dmu_nu_popurbana = row['dmu_nu_popurbana']
+def ihu_pc_risco(parametros):
+    ihu_nu_popriscototal = parametros[0]
+    dmu_nu_popurbana = parametros[1]
     
     ihu_nu_popriscototal = 0 if pd.isna(ihu_nu_popriscototal) else ihu_nu_popriscototal
     dmu_nu_popurbana = 0 if pd.isna(dmu_nu_popurbana) else dmu_nu_popurbana
@@ -106,9 +106,9 @@ def ihu_pc_risco(row: pd.DataFrame):
     
     return round(resultado,2)
 
-def densidade(row: pd.DataFrame):
-    pop = row['pop']
-    area_setor = row['area_setor']
+def densidade(parametros):
+    pop = parametros[0]
+    area_setor = parametros[1]
 
     pop = 0 if pd.isna(pop) else pop
     area_setor = 0 if pd.isna(area_setor) else area_setor
@@ -120,9 +120,9 @@ def densidade(row: pd.DataFrame):
     return round(resultado,2)
 
 # cs_risco: busca de dados em matriz
-def cs_risco(row: pd.DataFrame):
-    ihu_nu_popriscototal = row['ihu_nu_popriscototal']
-    ihu_pc_risco = row['ihu_pc_risco']
+def cs_risco(parametros):
+    ihu_nu_popriscototal = parametros[0]
+    ihu_pc_risco = parametros[1]
     
     matriz_risco = [
             #    0% 20% 40% 60% 80%
@@ -162,7 +162,7 @@ def cs_risco(row: pd.DataFrame):
     
     return matriz_risco[idx_pop][idx_risco]
 
-def cs_cobred(ihu_pc_cobrede: float):
+def cs_cobred(parametros):
     if pd.isna(ihu_pc_cobrede):
         return 0
     if ihu_pc_cobrede < 0.8:
@@ -177,9 +177,9 @@ def cs_cobred(ihu_pc_cobrede: float):
         return 5
     return 0 
 
-def perc_scbc(row: pd.DataFrame):
-    pop_urb_scbc = row['pop_urb_scbc']
-    pop_urb_bacia = row['pop_urb_bacia']
+def perc_scbc(parametros):
+    pop_urb_scbc = parametros[0]
+    pop_urb_bacia = parametros[1]
 
     pop_urb_scbc = 0 if pd.isna(pop_urb_scbc) else pop_urb_scbc
     pop_urb_bacia = 0 if pd.isna(pop_urb_bacia) else pop_urb_bacia
@@ -194,30 +194,30 @@ def perc_scbc(row: pd.DataFrame):
     
     return round(resultado, 2)
 
-def ihu_cs_ish(row: pd.DataFrame, peso_cs_risco: float, peso_cs_cobred: float):
-    cs_risco = row['cs_risco']
-    cs_cobred = row['cs_cobred']
+def ihu_cs_ish(parametros):
+    cs_risco = parametros[0]
+    cs_cobred = parametros[1]
     
     if cs_cobred < cs_risco:
         return peso_cs_risco*cs_risco + peso_cs_cobred*cs_cobred
     else:
         return cs_risco
 
-def ihu_rel_pop(perc_scbc: float, cs_risco: float):
+def ihu_rel_pop(parametros):
     return perc_scbc*cs_risco
 
-def ihu_rel_cobred(perc_scbc: float, cs_cobred: float):
+def ihu_rel_cobred(parametros):
     return perc_scbc*cs_cobred
 
-def ire_hu_pop(df: pd.DataFrame, ihu_rel_pop: str):
+def ire_hu_pop(parametros):
     return round(df.groupby('COBACIA')[ihu_rel_pop].transform('sum'),2)
 
-def ire_hu_cobred(df: pd.DataFrame, ihu_rel_cobred: str):
+def ire_hu_cobred(parametros):
     return round(df.groupby('COBACIA')[ihu_rel_cobred].transform('sum'),2)
 
-def ire_cs_hum(row: pd.DataFrame, peso_cs_risco: float, peso_cs_cobred: float):
-    ire_hu_pop = row['ire_hu_pop']
-    ire_hu_cobred = row['ire_hu_cobred']
+def ire_cs_hum(parametros):
+    ire_hu_pop = parametros[0]
+    ire_hu_cobred = parametros[1]
 
     if ire_hu_cobred < ire_hu_pop:
         return peso_cs_risco*ire_hu_pop + peso_cs_cobred*ire_hu_cobred
