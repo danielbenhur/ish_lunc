@@ -43,12 +43,12 @@ for item in functions_to_work:
     print(item['indicador'])
     for dependencia in item['depends_on']:
         parametros_colunas.append(dados_entregues[dependencia])
+    
     if('column' in item):
         print(f"{item['indicador']} {item['depends_on']}")
         dados_entregues[item['column']] = funcao(parametros_colunas)
-        print(dados_entregues[item['column']].head())
-    # else:
-        # dados_entregues[item['indicador']] = funcao(dependencias)
+    else:
+        dados_entregues[item['indicador']] = funcao(parametros_colunas)
 
 # Criar uma cópia do DataFrame com os números formatados como string brasileira
 df_export = dados_entregues.copy()

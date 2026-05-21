@@ -7,11 +7,13 @@ def disp_por_dem(parametros):
     bal_perc_series = parametros[0]
     return np.where((pd.isna(bal_perc_series)) | (bal_perc_series == 0), 0, 100/bal_perc_series)
 
-def fator_iminente(disp_dem: float):
-    if disp_dem >= 1:
-        return (1/3) * (disp_dem ** (-2))
-    else:
-        return (1/3) * (disp_dem ** 1)
+def fator_iminente(parametros):
+    disp_dem = parametros[0]
+    return np.where(
+        disp_dem >=1,
+        (1/3)*(disp_dem**(-2)),
+        (1/3)*(disp_dem)
+    )
 
 def fator_pos_deficit(parametros):
     disp_dem = parametros[0]
@@ -21,7 +23,7 @@ def fator_pos_deficit(parametros):
 def fator_de_risco_total(parametros):
     fator_iminente = parametros[0]
     fator_pos_deficit = parametros[1]
-    return 0
+    return fator_iminente + fator_pos_deficit
 
 def ihu_nu_popriscoinerente(row: pd.DataFrame):
     fator_iminente = row['fator_iminente'] 
