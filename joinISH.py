@@ -10,6 +10,7 @@ from pathlib import Path
 import json
 import yaml
 from scripts.aplica_recortes import aplica_recortes_gpkg
+from function_modules_ish_hum.convertion_functions import *
 
 def load_gpkg_with_fid(filename, layer):
     """
@@ -95,38 +96,24 @@ def main():
         print("        DRY RUN ATIVO")
         print("==============================\n")
     
-    # exit()
+    # print(config)
     # Define a pasta base do cenário e cria as subpastas necessárias
     root_folder = os.getcwd()
-    # se o YAML definiu base_dir, use-o (resolvido relativo ao YAML); senão use o padrão ./cnr_<nome_cenario>
-    if scenario and scenario.get("base_dir"):
-        base_dir_raw = scenario.get("base_dir")
-        # se caminho for relativo, resolva em relação ao diretório do YAML
-        yaml_dir = Path(scenario_yaml).parent if scenario_yaml else Path(root_folder)
-        base_dir = str((yaml_dir / base_dir_raw).resolve()) if not os.path.isabs(base_dir_raw) else base_dir_raw
-    else:
-        base_dir = os.path.expanduser(f"{root_folder}/cnr_{nome_cenario}")
+    
+    
+    # o base_dir precisa ser um parametro dentro do arquivo yaml (não iremos criar pastas nesse código)
+    base_dir = config.get('base_dir')
+    
     if dry_run:
         print(f"[dry-run] Base dir seria: {base_dir}")
+
+    # TODO: ajustar o input e o output para englobar direito o que se uer fazer no YAML
     for subfolder in ["input", "output"]:
-        os.makedirs(os.path.join(base_dir, subfolder), exist_ok=True)
+        os.makedirs(os.path.join(base_dir, subfolder), exist_ok=True) # TODO: entender como isso será plenamente usado
+        # proposta de colocar input como padrão obrigatório com os arquivos base definidos (o jeito que está agora não propõe isso)
 
-    # Define as pastas de input e output (possíveis overrides via YAML)
-    input_folder = os.path.join(base_dir, "input")
-    output_folder = os.path.join(base_dir, "output")
-    if scenario and scenario.get("output") and scenario["output"].get("folder"):
-        out_raw = scenario["output"].get("folder")
-        yaml_dir = Path(scenario_yaml).parent if scenario_yaml else Path(root_folder)
-        output_folder = str((yaml_dir / out_raw).resolve()) if not os.path.isabs(out_raw) else out_raw
-        os.makedirs(output_folder, exist_ok=True)
+    gpkg_file = config['bho'].get('path') # bho é pra definir gpkg
 
-    # O arquivo GeoPackage do BHO: prefer value do YAML, senão o padrão input/BHO_area.gpkg
-    if scenario and scenario.get("bho") and scenario["bho"].get("path"):
-        bho_raw = scenario["bho"].get("path")
-        yaml_dir = Path(scenario_yaml).parent if scenario_yaml else Path(root_folder)
-        gpkg_file = str((yaml_dir / bho_raw).resolve()) if not os.path.isabs(bho_raw) else bho_raw
-    else:
-        gpkg_file = os.path.join(input_folder, "BHO_area.gpkg")
     if dry_run:
         print(f"[dry-run] BHO GPKG seria: {gpkg_file}")
     
@@ -135,8 +122,8 @@ def main():
     print("Camadas disponíveis:", layers)
     # camada do BHO: pode ser sobrescrita no YAML
     layer = "bho_area"  # default
-    if scenario and scenario.get("bho") and scenario["bho"].get("layer"):
-        layer = scenario["bho"].get("layer")
+    if config["bho"].get("layer"):
+        layer = config["bho"].get("layer")
     
     try:
         with fiona.open(gpkg_file, layer=layer) as src:
@@ -174,44 +161,14 @@ def main():
     else:
         gdf = gdf.to_crs(epsg=4674)
     
-    # Procura por arquivos CSV de dimensão.
-    # Se o YAML tiver 'dimensions', respeitamos essa lista (cada item pode ter 'path' ou 'file_glob').
-    
-    dimensoes_lista = scenario.get("dimensions", [])
-
-    for item in dimensoes_lista:
-        csv_file = item["path"]
-        try: 
-            df = pd.read_csv(csv_file, sep=None, engine='python')
-        except Exception as e:
-            print(f"Erro ao ler o arquivo {csv_file}: {e}")
-            continue
+    # Aqui usaremos as funções de convertion_functions.py para calcular as dimensões
+    dimensions = config['dimensions']
+    functions_to_work = []
+    for dimensao in dimensions:
+        functions_to_work.extend(list_functions(dimensao))
         
-        # Padroniza os nomes das colunas para letras minúsculas
-        df.columns = df.columns.str.strip().str.lower()
-        print(f"\nPreview (head) do arquivo CSV '{os.path.basename(csv_file)}':")
-        print(df.head())
-
-        if "cobacia" not in df.columns:
-            print(f"Aviso: A coluna 'cobacia' não foi encontrada no arquivo {csv_file}.")
-            continue
-        try:
-            df["cobacia"] = df["cobacia"].astype("Int64")
-
-        except Exception as e:
-            print(f"Erro convertendo 'cobacia' no CSV {csv_file} para int: {e}")
-            continue 
-
-        mapeamento = df.set_index('cobacia')[item['name']].to_dict()
-
-        # Aplicar o mapeamento
-        if('value' in item):
-            gdf[item['name']] = item['value']
-        else:
-            gdf[item['name']] = gdf['cobacia'].map(mapeamento)
-            gdf = convert_columns(gdf, columns=[item['name']],exclude='cobacia')
-        # print(gdf)
-
+    print(functions_to_work)
+    exit(1)
     
     # Seleciona todas as colunas que começam com "ire_cs_"
     dimension_cols = [col for col in gdf.columns if col.startswith("ire_cs_")]

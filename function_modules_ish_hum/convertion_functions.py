@@ -222,15 +222,9 @@ def ire_cs_hum(row: pd.DataFrame, peso_cs_risco: float, peso_cs_cobred: float):
     else:
         return ire_hu_pop
 
-def list_functions(yaml_file_path: str):
-    with open(yaml_file_path, 'r') as file:
-        config = yaml.safe_load(file)
+def list_functions(dimensao):
     return_list = []
-    dimensions = config['dimensions']
-
-    # Encontra dimensão e já extrai os pesos
-    dimensao = next((d for d in dimensions if d['name'] == 'ire_cs_hum'), None)
-
+    
     for item in dimensao['indicadores']:
         if item == None:
             continue
@@ -238,12 +232,9 @@ def list_functions(yaml_file_path: str):
         nome_funcao = item['indicador']
 
         # Verifica se a função existe no módulo importado
-        if hasattr(sys.modules['convertion_functions'], nome_funcao):
-            funcao = getattr(sys.modules['convertion_functions'], nome_funcao)
-            if callable(funcao):
-                print(f"  ✓ Função '{nome_funcao}' encontrada e é chamável")
-                return_list.append(item)
-        else:
-            print(f"  ✗ Função '{nome_funcao}' NÃO encontrada em convertion_functions")
+        if nome_funcao in globals() and callable(globals()[nome_funcao]):
+            return_list.append(item)
+        # else:
+            # print(f"  ✗ Função '{nome_funcao}' NÃO encontrada em convertion_functions")
 
     return return_list

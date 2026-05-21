@@ -1,0 +1,50 @@
+# scenario_test.yaml -exemplo mínimo
+# O ideal é que esse arquivo esteja dentro da pasta do cenário, ao lado das subpastas input e output
+id: cenario
+description: "Cenário teste dados de 2020 - exemplo de uso com joinISH"
+# Base_dir relativo ao arquivo YAML ou caminho absoluto
+base_dir: "./testing_joinISH"
+
+bho:
+  # caminho para o gpkg do BHO; se relativo, será resolvido em relação ao base_dir (ou ao diretório do YAML)
+  path: "./testing_joinISH/input/BHO_area.gpkg"
+  # opcional: nome da camada dentro do gpkg (ex: bho_area)
+#  layer: "bho_area"
+
+# dimensions: lista opcional que substitui o glob dim_*.csv
+# Cada item pode ter 'path' (arquivo exato) ou 'file_glob' (padrão glob).
+# Caminhos relativos são resolvidos em relação a base_dir (ou ao diretório do YAML).
+dimensions:
+  - name: ire_cs_eco # nome da coluna final
+    path: "./cnr_A/input/dim_eco_teste.csv" # arquivo de onde extrair
+    weight: default
+    indicadores:
+      - indicador: pecuária
+        weight:    default
+      - indicador: irrigada
+        weight:    default
+      - indicador: agropecuária
+        weight:    default
+      - indicador: industria
+        weight:    default
+  
+  - name: ire_cs_hum
+    path: "./function_modules_planilha_ish_hum/arquivo_br.csv"
+    weight: default
+    indicadores:
+      - indicador: cs_risco
+        weight: default
+      - indicador: cs_cobred
+        weight: default
+        value: 5
+    descritor: tipo_setor
+
+# Saída: pode opcionalmente sobrescrever pasta output/gpkg final
+output:
+  folder: "./output"
+  gpkg_name: "ish_cnr_test.gpkg"
+
+# logging / metadados (opcional)
+metadata:
+  manifest: "./output/scenario_manifest.json"
+
