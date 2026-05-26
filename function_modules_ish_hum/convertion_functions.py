@@ -196,6 +196,55 @@ def ire_cs_hum(parametros):
     else:
         return ire_hu_pop
 
+def pop_urb_scbc_ind(parametros):
+    situacao_setor = parametros[0]
+    densidade = parametros[1]
+    area_scbc = parametros[2]
+    
+    return np.where(
+        situacao_setor <= 10,
+        densidade*area_scbc,
+        0
+    )
+
+def pop_urb_bacia(parametros):
+    return 0
+    
+def perc_scbc_ind(parametros):
+    pop_urb_scbc = parametros[0]
+    deman_indus = parametros[1]
+    
+    pop_urb_scbc = pop_urb_scbc.fillna(0)
+    deman_indus = deman_indus.fillna(0)
+    
+    resultado = pop_urb_scbc / deman_indus
+    resultado = resultado.where(np.isfinite(resultado), 0)
+    
+    return resultado.round(2)
+
+def igh_ind(parametros):
+    disp_q95 = parametros[0]
+    deman_indus = parametros[1]
+
+    disp_q95 = disp_q95.fillna(0)
+    deman_indus = deman_indus.fillna(0)
+
+    resultado = disp_q95/deman_indus
+    resultado = resultado.where(np.isfinite(resultado), 0)
+    
+    return resultado.round(2)
+
+def ihu_rel(parametros):
+    perc_scbc = parametros[0]
+    ihu_cs_ish = parametros[1]
+
+    resultado = perc_scbc*ihu_cs_ish
+
+    return resultado.round(2)
+
+def ire_cs_hum_ind(parametros):
+    return 0
+
 def list_functions(dimensao):
     return_list = []
     

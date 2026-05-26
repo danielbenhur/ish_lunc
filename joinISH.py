@@ -166,7 +166,7 @@ def main():
     functions_to_work = []
     for dimensao in dimensions:
         functions_to_work.extend(list_functions(dimensao))
-        
+    
     print(functions_to_work)
     exit(1)
     

@@ -94,7 +94,16 @@ dimensions:
       - indicador: ire_cs_hum
         weight: default
         depends_on: [ire_hu_pop, 0.7, ire_hu_cobred, 0.3]
-    
+      - indicador: pop_urb_scbc_ind
+        depends_on: [situacao_setor, densidade, area_scbc]
+      - indicador: perc_scbc_ind
+        depends_on: [pop_urb_scbc, deman_indus]
+      - indicador: igh_ind
+        depends_on: [disp_q95, deman_indus]
+      - indicador: ihu_rel
+        depends_on: [perc_scbc_ind, ihu_cs_ish]
+      
+      
     descritor: tipo_setor
 
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
