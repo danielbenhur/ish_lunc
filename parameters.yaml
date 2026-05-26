@@ -15,21 +15,21 @@ bho:
 # Cada item pode ter 'path' (arquivo exato) ou 'file_glob' (padrão glob).
 # Caminhos relativos são resolvidos em relação a base_dir (ou ao diretório do YAML).
 dimensions:
-  - name: ire_cs_eco # nome da coluna final
-    path: "./cnr_A/input/dim_eco_teste.csv" # arquivo de onde extrair
-    weight: default
-    indicadores:
-      - indicador: pop_urb_scbc_ind
-        depends_on: [situacao_setor, densidade, area_scbc]
-      - indicador: perc_scbc_ind
-        depends_on: [pop_urb_scbc, deman_indus]
-      - indicador: igh_ind
-        depends_on: [disp_q95, deman_indus]
-      - indicador: ihu_rel
-        depends_on: [perc_scbc_ind, ihu_cs_ish]
+  # - name: ire_cs_eco # nome da coluna final
+    # path: "./cnr_A/input/dim_eco_teste.csv" # arquivo de onde extrair
+    # weight: default
+    # indicadores:
+      # - indicador: pop_urb_scbc_ind
+        # depends_on: [situacao_setor, densidade, area_scbc]
+      # - indicador: perc_scbc_ind
+        # depends_on: [pop_urb_scbc, deman_indus]
+      # - indicador: igh_ind
+        # depends_on: [disp_q95, deman_indus]
+      # - indicador: ihu_rel
+        # depends_on: [perc_scbc_ind, ihu_cs_ish]
   
   - name: ire_cs_hum
-    path: "./function_modules_planilha_ish_hum/arquivo_br.csv"
+    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/function_modules_ish_hum/dim_hum_cnr_fmea.csv"
     weight: default
     indicadores:
       - indicador: disp_por_dem

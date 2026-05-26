@@ -119,12 +119,12 @@ def cs_risco(parametros):
     
     bins_pop = [-float('inf'), 0, 2000, 5000, 10000, 50000, float('inf')]
     labels_pop = [0, 0, 1, 2, 3, 4]
-    idx_pop = pd.cut(ihu_nu_popriscototal.fillna(-1), bins=bins_pop, labels=labels_pop, right=False).astype(int)
+    idx_pop = pd.cut(ihu_nu_popriscototal.fillna(-1), bins=bins_pop, labels=labels_pop, right=False, ordered=False).astype(int)
     
     # Define os bins e labels para pc_risco
     bins_risco = [-float('inf'), 0, 0.2, 0.4, 0.6, 0.8, float('inf')]
     labels_risco = [0, 0, 1, 2, 3, 4]
-    idx_risco = pd.cut(ihu_pc_risco.fillna(-1), bins=bins_risco, labels=labels_risco, right=False).astype(int)
+    idx_risco = pd.cut(ihu_pc_risco.fillna(-1), bins=bins_risco, labels=labels_risco, right=False, ordered=False).astype(int)
     
     # Matriz de risco
     matriz_risco = [

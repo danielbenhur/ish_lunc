@@ -164,32 +164,54 @@ def main():
     # Aqui usaremos as funções de convertion_functions.py para calcular as dimensões
     dimensions = config['dimensions']
     functions_to_work = []
+    
+    dados_entregues = None
     for dimensao in dimensions:
         functions_to_work.extend(list_functions(dimensao))
-    
-    # print(functions_to_work)
-    
+        df_temp = pd.read_csv(dimensao['path'],
+            decimal=',',  # trata vírgula como separador decimal
+            thousands='.'  # trata ponto como separador de milhar (se necessário)
+        )
+
+        if dados_entregues is None:
+            dados_entregues = df_temp
+        else:
+            dados_entregues = pd.concat([dados_entregues, df_temp], ignore_index=True)
+
+    # A QUANTIDADE DE LINHAS COM VALORES CORRESPONDENTES DE COBACIA NÃO ESTÀ COORDENADO ENTRE geodataframe e os arquivos csv
+
+    coluna_cobacia = 'COBACIA' 
+    print(dados_entregues['COBACIA'].nunique())
+
+    if coluna_cobacia in dados_entregues.columns:
+        dados_entregues = dados_entregues.groupby(coluna_cobacia).first().reset_index()
+
     for item in functions_to_work:
         funcao = globals()[item['indicador']]
         parametros_colunas = []
-    
+        print(funcao)
         for dependencia in item['depends_on']:
-            # quando não estiver no dataframe, será número
-            # não está bom, muito menos robusto
-            if dependencia in gdf:
-                parametros_colunas.append(gdf[dependencia])
+            if dependencia in dados_entregues.columns:
+                parametros_colunas.append(dados_entregues[dependencia])
             else:
-                coluna_constante = pd.Series([dependencia] * len(gdf), index=gdf.index)
+                # Converte para número se for constante
+                try:
+                    valor_constante = float(dependencia)
+                except (ValueError, TypeError):
+                    print(f"Erro: {dependencia} não é uma coluna nem um número")
+                    valor_constante = 0
+                coluna_constante = pd.Series([valor_constante] * len(dados_entregues), index=dados_entregues.index)
                 parametros_colunas.append(coluna_constante)
     
-        if('column' in item):
+        if 'column' in item:
             print(f"{item['indicador']} {item['depends_on']}")
+            # dados_entregues[item['column']] = funcao(parametros_colunas)
             gdf[item['column']] = funcao(parametros_colunas)
         else:
+            # dados_entregues[item['indicador']] = funcao(parametros_colunas)
             gdf[item['indicador']] = funcao(parametros_colunas)
-    
-    print(gdf.head)
-    exit(1)
+
+
     # Seleciona todas as colunas que começam com "ire_cs_"
     dimension_cols = [col for col in gdf.columns if col.startswith("ire_cs_")]
     # Cria a coluna "cs_ish" a partir da média das dimensões não nulas
