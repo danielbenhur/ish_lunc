@@ -19,14 +19,14 @@ dimensions:
     path: "./cnr_A/input/dim_eco_teste.csv" # arquivo de onde extrair
     weight: default
     indicadores:
-      - indicador: pecuária
-        weight:    default
-      - indicador: irrigada
-        weight:    default
-      - indicador: agropecuária
-        weight:    default
-      - indicador: industria
-        weight:    default
+      - indicador: pop_urb_scbc_ind
+        depends_on: [situacao_setor, densidade, area_scbc]
+      - indicador: perc_scbc_ind
+        depends_on: [pop_urb_scbc, deman_indus]
+      - indicador: igh_ind
+        depends_on: [disp_q95, deman_indus]
+      - indicador: ihu_rel
+        depends_on: [perc_scbc_ind, ihu_cs_ish]
   
   - name: ire_cs_hum
     path: "./function_modules_planilha_ish_hum/arquivo_br.csv"

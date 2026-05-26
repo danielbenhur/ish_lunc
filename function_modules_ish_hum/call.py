@@ -48,7 +48,7 @@ for item in functions_to_work:
             parametros_colunas.append(dados_entregues[dependencia])
         else:
             coluna_constante = pd.Series([dependencia] * len(df), index=df.index)
-            parametros_colunas.append()
+            parametros_colunas.append(coluna_constante)
     
     if('column' in item):
         print(f"{item['indicador']} {item['depends_on']}")

@@ -167,9 +167,29 @@ def main():
     for dimensao in dimensions:
         functions_to_work.extend(list_functions(dimensao))
     
-    print(functions_to_work)
-    exit(1)
+    # print(functions_to_work)
     
+    for item in functions_to_work:
+        funcao = globals()[item['indicador']]
+        parametros_colunas = []
+    
+        for dependencia in item['depends_on']:
+            # quando não estiver no dataframe, será número
+            # não está bom, muito menos robusto
+            if dependencia in gdf:
+                parametros_colunas.append(gdf[dependencia])
+            else:
+                coluna_constante = pd.Series([dependencia] * len(gdf), index=gdf.index)
+                parametros_colunas.append(coluna_constante)
+    
+        if('column' in item):
+            print(f"{item['indicador']} {item['depends_on']}")
+            gdf[item['column']] = funcao(parametros_colunas)
+        else:
+            gdf[item['indicador']] = funcao(parametros_colunas)
+    
+    print(gdf.head)
+    exit(1)
     # Seleciona todas as colunas que começam com "ire_cs_"
     dimension_cols = [col for col in gdf.columns if col.startswith("ire_cs_")]
     # Cria a coluna "cs_ish" a partir da média das dimensões não nulas
