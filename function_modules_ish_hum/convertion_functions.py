@@ -8,7 +8,7 @@ def disp_por_dem(parametros):
     return np.where((pd.isna(bal_perc_series)) | (bal_perc_series == 0), 0, 100/bal_perc_series)
 
 def fator_iminente(parametros):
-    disp_dem = parametros[0]
+    disp_dem = pd.to_numeric(parametros[0], errors='coerce')
     return np.where(
         disp_dem >=1,
         (1/3)*(disp_dem**(-2)),
@@ -16,7 +16,7 @@ def fator_iminente(parametros):
     )
 
 def fator_pos_deficit(parametros):
-    disp_dem = parametros[0]
+    disp_dem = pd.to_numeric(parametros[0], errors='coerce')
     
     return disp_dem.apply(lambda x: 0 if x >= 1 else 1 - x)
 
@@ -141,21 +141,25 @@ def cs_risco(parametros):
     return pd.Series(resultado)
 
 def cs_cobred(parametros):
+    ihu_pc_cobrede = parametros[0]
     bins = [-float('inf'), 0, 0.8, 0.9, 0.95, 0.98, 1, float('inf')]
-    labels = [0, 1, 2, 3, 4, 5, 0]
-    return pd.cut(ihu_pc_cobrede.fillna(-1), bins=bins, labels=labels, right=False).astype(int)
+    labels = [0, 1, 2, 3, 4, 5, 0]  
+    return pd.cut(ihu_pc_cobrede.fillna(-1), bins=bins, labels=labels, right=False, ordered=False).astype(int)
 
 def perc_scbc(parametros):
     pop_urb_scbc = parametros[0]
     pop_urb_bacia = parametros[1]
 
-    pop_urb_scbc = pop_urb_scbc.fillna(0)
-    pop_urb_bacia = pop_urb_bacia.fillna(0)
+    pop_urb_scbc = pd.to_numeric(pop_urb_scbc, errors='coerce').fillna(0)
+    pop_urb_bacia = pd.to_numeric(pop_urb_bacia, errors='coerce').fillna(0)
     
-    resultado = pop_urb_scbc / pop_urb_bacia
-    resultado = resultado.where(np.isfinite(resultado), 0)
-    
-    return resultado.round(2)
+    resultado = np.where(
+        pop_urb_bacia != 0,
+        pop_urb_scbc / pop_urb_bacia,
+        0
+    )
+  
+    return pd.Series(resultado, index=pop_urb_scbc.index).round(2)
 
 def ihu_cs_ish(parametros):
     cs_risco = parametros[0]
@@ -163,11 +167,12 @@ def ihu_cs_ish(parametros):
     cs_cobred = parametros[2]
     peso_cs_cobred = parametros[3]
     
-    if cs_cobred < cs_risco:
-        return peso_cs_risco*cs_risco + peso_cs_cobred*cs_cobred
-    else:
-        return cs_risco
-
+    return np.where(
+        cs_cobred < cs_risco,
+        peso_cs_risco*cs_risco + peso_cs_cobred*cs_cobred,
+        cs_risco
+    )
+    
 def ihu_rel_pop(parametros):
     perc_scbc = parametros[0]
     cs_risco = parametros[1]
@@ -180,10 +185,18 @@ def ihu_rel_cobred(parametros):
 
 # TODO: adaptar essas funções
 def ire_hu_pop(parametros):
-    return round(df.groupby('COBACIA')[ihu_rel_pop].transform('sum'),2)
+    cobacia = parametros[0]
+    ihu_rel_pop = pd.to_numeric(parametros[1], errors='coerce').fillna(0)
+    
+    resultado = ihu_rel_pop.groupby(cobacia).transform('sum')
+    return resultado.round(2)
 
 def ire_hu_cobred(parametros):
-    return round(df.groupby('COBACIA')[ihu_rel_cobred].transform('sum'),2)
+    cobacia = parametros[0]
+    ihu_rel_cobred = pd.to_numeric(parametros[1], errors='coerce').fillna(0)
+    
+    resultado = ihu_rel_cobred.groupby(cobacia).transform('sum')
+    return resultado.round(2)
 
 def ire_cs_hum(parametros):
     ire_hu_pop = parametros[0]
@@ -191,10 +204,11 @@ def ire_cs_hum(parametros):
     ire_hu_cobred = parametros[2]
     peso_ire_hu_cobred = parametros[3]
 
-    if ire_hu_cobred < ire_hu_pop:
-        return peso_cs_risco*ire_hu_pop + peso_cs_cobred*ire_hu_cobred
-    else:
-        return ire_hu_pop
+    return np.where(
+        ire_hu_cobred < ire_hu_pop,
+        peso_ire_hu_pop*ire_hu_pop + peso_ire_hu_cobred*ire_hu_cobred,
+        ire_hu_pop
+    )
 
 def pop_urb_scbc_ind(parametros):
     situacao_setor = parametros[0]
@@ -217,8 +231,11 @@ def perc_scbc_ind(parametros):
     pop_urb_scbc = pop_urb_scbc.fillna(0)
     deman_indus = deman_indus.fillna(0)
     
-    resultado = pop_urb_scbc / deman_indus
-    resultado = resultado.where(np.isfinite(resultado), 0)
+    resultado = np.where(
+        deman_indus != 0,
+        pop_urb_scbc / deman_indus,
+        0
+    )
     
     return resultado.round(2)
 
@@ -229,8 +246,11 @@ def igh_ind(parametros):
     disp_q95 = disp_q95.fillna(0)
     deman_indus = deman_indus.fillna(0)
 
-    resultado = disp_q95/deman_indus
-    resultado = resultado.where(np.isfinite(resultado), 0)
+    resultado = np.where(
+        deman_indus != 0,
+        disp_q95 / deman_indus,
+        0
+    )
     
     return resultado.round(2)
 
@@ -238,12 +258,19 @@ def ihu_rel(parametros):
     perc_scbc = parametros[0]
     ihu_cs_ish = parametros[1]
 
-    resultado = perc_scbc*ihu_cs_ish
+    resultado = perc_scbc * ihu_cs_ish
+    
+    # Convert to numeric, coercing errors to NaN
+    resultado = pd.to_numeric(resultado, errors='coerce')
+    
+    # Round only if not all values are NaN
+    if resultado.notna().any():
+        return resultado.round(2)
+    else:
+        return resultado
 
-    return resultado.round(2)
+# def ire_cs_hum_ind(parametros):
 
-def ire_cs_hum_ind(parametros):
-    return 0
 
 def list_functions(dimensao):
     return_list = []

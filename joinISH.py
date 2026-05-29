@@ -180,18 +180,21 @@ def main():
 
     # A QUANTIDADE DE LINHAS COM VALORES CORRESPONDENTES DE COBACIA NÃO ESTÀ COORDENADO ENTRE geodataframe e os arquivos csv
 
-    coluna_cobacia = 'COBACIA' 
-    print(dados_entregues['COBACIA'].nunique())
+    coluna_cobacia_csv = 'COBACIA' 
+    coluna_cobacia_gdf = 'cobacia'
+    dados_entregues = dados_entregues[dados_entregues[coluna_cobacia_csv].isin(gdf[coluna_cobacia_gdf])].copy()
 
-    if coluna_cobacia in dados_entregues.columns:
-        dados_entregues = dados_entregues.groupby(coluna_cobacia).first().reset_index()
+    if coluna_cobacia_csv in dados_entregues.columns:
+        dados_entregues = dados_entregues.groupby(coluna_cobacia_csv).first().reset_index()
 
     for item in functions_to_work:
         funcao = globals()[item['indicador']]
         parametros_colunas = []
         print(funcao)
         for dependencia in item['depends_on']:
-            if dependencia in dados_entregues.columns:
+            if dependencia in gdf.columns:
+                parametros_colunas.append(gdf[dependencia])
+            elif dependencia in dados_entregues.columns:
                 parametros_colunas.append(dados_entregues[dependencia])
             else:
                 # Converte para número se for constante
@@ -226,11 +229,14 @@ def main():
     print("\nPreview (head) do GeoDataFrame final:")
     print(gdf.head())
     
+    print(config['id'])
     # Salva a camada "regiao_completa"
     # nome do gpkg final: pode ser sobrescrito no YAML (output.gpkg_name), senão usa padrão
-    gpkg_name = f"ish_cnr_{nome_cenario}.gpkg"
-    if scenario and scenario.get("output") and scenario["output"].get("gpkg_name"):
-        gpkg_name = scenario["output"].get("gpkg_name")
+    gpkg_name = f"ish_cnr_{config['id']}.gpkg"
+    output_folder = "./"
+    if config and config.get("output") and config["output"].get("gpkg_name"):
+        gpkg_name = config["output"].get("gpkg_name")
+        output_folder = config["output"].get('folder')
     output_file = os.path.join(output_folder, gpkg_name)
 
     if dry_run:

@@ -15,84 +15,63 @@ bho:
 # Cada item pode ter 'path' (arquivo exato) ou 'file_glob' (padrão glob).
 # Caminhos relativos são resolvidos em relação a base_dir (ou ao diretório do YAML).
 dimensions:
-  # - name: ire_cs_eco # nome da coluna final
-    # path: "./cnr_A/input/dim_eco_teste.csv" # arquivo de onde extrair
-    # weight: default
-    # indicadores:
-      # - indicador: pop_urb_scbc_ind
-        # depends_on: [situacao_setor, densidade, area_scbc]
-      # - indicador: perc_scbc_ind
-        # depends_on: [pop_urb_scbc, deman_indus]
-      # - indicador: igh_ind
-        # depends_on: [disp_q95, deman_indus]
-      # - indicador: ihu_rel
-        # depends_on: [perc_scbc_ind, ihu_cs_ish]
+  - name: ire_cs_eco # nome da coluna final
+    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/function_modules_ish_ind/Indicador-Industria-Ind_sc_otto.csv" # arquivo de onde extrair
+    
+    indicadores:
+      - indicador: pop_urb_scbc_ind
+        depends_on: [situacao_setor, densidade, area_scbc]
+      - indicador: perc_scbc_ind
+        depends_on: [pop_urb_scbc, deman_indus]
+      - indicador: igh_ind
+        depends_on: [disp_q95, deman_indus]
+      - indicador: ihu_rel
+        depends_on: [perc_scbc_ind, ihu_cs_ish]
   
   - name: ire_cs_hum
     path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/function_modules_ish_hum/dim_hum_cnr_fmea.csv"
-    weight: default
     indicadores:
       - indicador: disp_por_dem
-        weight: default
         depends_on: [bal_perc]
         column: disp/dem
       - indicador: fator_iminente
-        weight: default
         depends_on: [disp/dem]
       - indicador: fator_pos_deficit
-        weight: default
         depends_on: [disp/dem]
         column: fator_pós_deficit
       - indicador: fator_de_risco_total
-        weight: default
         depends_on: [fator_iminente, fator_pós_deficit]
       - indicador: ihu_nu_popriscoinerente
-        weight: default
         depends_on: [fator_iminente, dmu_nu_popurbana]
       - indicador: ihu_pc_risco_inerente
-        weight: default
         depends_on: [ihu_nu_popriscoinerente, dmu_nu_popurbana]
       - indicador: ihu_nu_popriscoposdeficit
-        weight: default
         depends_on: [fator_pós_deficit, dmu_nu_popurbana]
       - indicador: ihu_pc_riscoposdeficit
-        weight: default
         depends_on: [ihu_nu_popriscoposdeficit, dmu_nu_popurbana]
       - indicador: ihu_nu_popriscototal
-        weight: default
         depends_on: [fator_de_risco_total, dmu_nu_popurbana]
       - indicador: ihu_pc_risco
-        weight: default
         depends_on: [ihu_nu_popriscototal, dmu_nu_popurbana]
       - indicador: densidade
-        weight: default
         depends_on: [pop, area_setor]
       - indicador: cs_risco
-        weight: default
         depends_on: [ihu_nu_popriscototal, ihu_pc_risco]
       - indicador: cs_cobred
-        weight: default
         depends_on: [ihu_pc_cobrede]
       - indicador: perc_scbc
-        weight: default
         depends_on: [pop_urb_scbc, pop_urb_bacia]
       - indicador: ihu_cs_ish
-        weight: default
         depends_on: [cs_risco, 0.7, cs_cobred, 0.3] # isso é maracutaia, que fique claro
       - indicador: ihu_rel_pop
-        weight: default
         depends_on: [perc_scbc, cs_risco]
       - indicador: ihu_rel_cobred
-        weight: default
         depends_on: [perc_scbc, cs_cobred]
       - indicador: ire_hu_pop
-        weight: default
-        depends_on: [df, ihu_rel_pop, COBACIA]
+        depends_on: [cobacia, ihu_rel_pop]
       - indicador: ire_hu_cobred
-        weight: default
-        depends_on: [df, ihu_rel_cobred, COBACIA]
+        depends_on: [cobacia, ihu_rel_cobred]
       - indicador: ire_cs_hum
-        weight: default
         depends_on: [ire_hu_pop, 0.7, ire_hu_cobred, 0.3]
     
     descritor: tipo_setor
