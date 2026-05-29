@@ -39,11 +39,12 @@ def compute_cs_ish(gdf, dim_cols):
     Recebe um GeoDataFrame e uma lista de colunas de dimensão (por exemplo,
     ['ire_cs_hum', 'ire_cs_eco', ...]). Retorna uma Series contendo a média
     das colunas, considerando apenas valores maiores que 0.0 (ignorando zeros e NaN).
+    Quando não tiver valores na linha, o cs_ish será 0
     """
     df_numeric = gdf[dim_cols].apply(pd.to_numeric, errors='coerce')
     # Para cada linha, filtra apenas valores > 0 e calcula a média
-    # 
-    return df_numeric.apply(lambda row: row[row >= 0.0].mean(), axis=1)
+    
+    return df_numeric.apply(lambda row: row[row > 0.0].mean() if (row[row > 0.0].count() > 0) else 0.0, axis=1)
 
 # Converte apenas colunas específicas (ou todas exceto algumas)
 def convert_columns(df, columns=None, exclude=[]):
