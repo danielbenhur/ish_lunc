@@ -43,7 +43,7 @@ def compute_cs_ish(gdf, dim_cols):
     df_numeric = gdf[dim_cols].apply(pd.to_numeric, errors='coerce')
     # Para cada linha, filtra apenas valores > 0 e calcula a média
     # 
-    return df_numeric.apply(lambda row: row[row > 0.0].mean(), axis=1)
+    return df_numeric.apply(lambda row: row[row >= 0.0].mean(), axis=1)
 
 # Converte apenas colunas específicas (ou todas exceto algumas)
 def convert_columns(df, columns=None, exclude=[]):
@@ -90,7 +90,7 @@ def main():
     yaml_file_path = "parameters.yaml"
     with open(yaml_file_path, 'r') as file:
         config = yaml.safe_load(file)
-    dry_run = True
+    dry_run = False
     if dry_run:
         print("\n==============================")
         print("        DRY RUN ATIVO")
@@ -190,7 +190,7 @@ def main():
     for item in functions_to_work:
         funcao = globals()[item['indicador']]
         parametros_colunas = []
-        print(funcao)
+        # print(funcao)
         for dependencia in item['depends_on']:
             if dependencia in gdf.columns:
                 parametros_colunas.append(gdf[dependencia])
@@ -247,6 +247,7 @@ def main():
     if os.path.isfile(output_file):
         os.remove(output_file)
     gdf.to_file(output_file, driver="GPKG", layer="regiao_completa")
+    gdf.to_csv("./output/my_data.csv", index=False)
     print(f"Arquivo salvo em {output_file}")
 
     ## Chama a função do script externo para gerar as demais camadas de recorte
