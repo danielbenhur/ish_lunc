@@ -43,7 +43,7 @@ def compute_cs_ish(gdf, dim_cols):
     """
     df_numeric = gdf[dim_cols].apply(pd.to_numeric, errors='coerce')
     # Para cada linha, filtra apenas valores > 0 e calcula a média
-    
+
     return df_numeric.apply(lambda row: row[row > 0.0].mean() if (row[row > 0.0].count() > 0) else 0.0, axis=1)
 
 # Converte apenas colunas específicas (ou todas exceto algumas)
@@ -193,6 +193,8 @@ def main():
         parametros_colunas = []
         # print(funcao)
         for dependencia in item['depends_on']:
+            if(dependencia == 'dmu_nu_popurbana'):
+                print(dados_entregues[dependencia])
             if dependencia in gdf.columns:
                 parametros_colunas.append(gdf[dependencia])
             elif dependencia in dados_entregues.columns:

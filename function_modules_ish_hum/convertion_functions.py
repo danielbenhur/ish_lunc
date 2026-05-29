@@ -32,7 +32,7 @@ def ihu_nu_popriscoinerente(parametros):
     fator_iminente = fator_iminente.fillna(0)
     dmu_nu_popurbana = dmu_nu_popurbana.fillna(0)
     
-    resultado = fator_iminente + dmu_nu_popurbana
+    resultado = fator_iminente*dmu_nu_popurbana
     
     resultado = resultado.where(np.isfinite(resultado), 0)
 
