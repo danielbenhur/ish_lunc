@@ -169,9 +169,18 @@ def main():
     dados_entregues = None
     for dimensao in dimensions:
         functions_to_work.extend(list_functions(dimensao))
+    
+        # Define os tipos das colunas específicas
+        dtype_dict = {
+            'COBACIA': 'Int64',
+            'cod_mun': 'Int64',
+            'cod_setor': 'Int64'
+        }
+
         df_temp = pd.read_csv(dimensao['path'],
             decimal=',',  # trata vírgula como separador decimal
-            thousands='.'  # trata ponto como separador de milhar (se necessário)
+            thousands='.',  # trata ponto como separador de milhar
+            dtype=dtype_dict  # força o tipo das colunas
         )
 
         if dados_entregues is None:
@@ -179,25 +188,19 @@ def main():
         else:
             dados_entregues = pd.concat([dados_entregues, df_temp], ignore_index=True)
 
-    # A QUANTIDADE DE LINHAS COM VALORES CORRESPONDENTES DE COBACIA NÃO ESTÀ COORDENADO ENTRE geodataframe e os arquivos csv
-
     coluna_cobacia_csv = 'COBACIA' 
     coluna_cobacia_gdf = 'cobacia'
-    dados_entregues = dados_entregues[dados_entregues[coluna_cobacia_csv].isin(gdf[coluna_cobacia_gdf])].copy()
+    # dados_entregues = dados_entregues[dados_entregues[coluna_cobacia_csv].isin(gdf[coluna_cobacia_gdf])].copy()
 
-    if coluna_cobacia_csv in dados_entregues.columns:
-        dados_entregues = dados_entregues.groupby(coluna_cobacia_csv).first().reset_index()
+    # if coluna_cobacia_csv in dados_entregues.columns:
+        # dados_entregues = dados_entregues.groupby(coluna_cobacia_csv).first().reset_index()
 
     for item in functions_to_work:
         funcao = globals()[item['indicador']]
         parametros_colunas = []
         # print(funcao)
         for dependencia in item['depends_on']:
-            if(dependencia == 'dmu_nu_popurbana'):
-                print(dados_entregues[dependencia])
-            if dependencia in gdf.columns:
-                parametros_colunas.append(gdf[dependencia])
-            elif dependencia in dados_entregues.columns:
+            if dependencia in dados_entregues.columns:
                 parametros_colunas.append(dados_entregues[dependencia])
             else:
                 # Converte para número se for constante
@@ -212,11 +215,15 @@ def main():
         if 'column' in item:
             print(f"{item['indicador']} {item['depends_on']}")
             # dados_entregues[item['column']] = funcao(parametros_colunas)
-            gdf[item['column']] = funcao(parametros_colunas)
+            dados_entregues[item['column']] = funcao(parametros_colunas)
         else:
             # dados_entregues[item['indicador']] = funcao(parametros_colunas)
-            gdf[item['indicador']] = funcao(parametros_colunas)
-
+            dados_entregues[item['indicador']] = funcao(parametros_colunas)
+    
+    gdf = gdf.merge(dados_entregues, left_on='cobacia', right_on='COBACIA', how='left')
+    # Remove a coluna COBACIA (maiúscula) se existir
+    if 'COBACIA' in gdf.columns and 'cobacia' in gdf.columns:
+        gdf = gdf.drop(columns=['COBACIA'])
 
     # Seleciona todas as colunas que começam com "ire_cs_"
     dimension_cols = [col for col in gdf.columns if col.startswith("ire_cs_")]
@@ -242,6 +249,9 @@ def main():
         output_folder = config["output"].get('folder')
     output_file = os.path.join(output_folder, gpkg_name)
 
+    # fid duplicado estava causando problema
+    if 'fid' in gdf.columns:
+        gdf = gdf.drop(columns=['fid'])
     if dry_run:
         print(f"[dry-run] Arquivo final GPKG seria salvo em: {output_file}")
         print("\n[dry-run] Nada será executado. Finalizando.")
@@ -252,13 +262,6 @@ def main():
     gdf.to_file(output_file, driver="GPKG", layer="regiao_completa")
     gdf.to_csv("./output/my_data.csv", index=False)
     print(f"Arquivo salvo em {output_file}")
-
-    ## Chama a função do script externo para gerar as demais camadas de recorte
-    # recs = aplica_recortes_gpkg(root_folder, recortes_escolhidos)
-    # if recs:
-        # print("###### Recortes aplicados:", ", ".join(recs))
-    # else:
-        # print("###### Nenhum recorte aplicado.")
         
 if __name__ == "__main__":
     main()

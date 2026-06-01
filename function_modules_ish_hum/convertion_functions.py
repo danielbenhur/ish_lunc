@@ -33,8 +33,6 @@ def ihu_nu_popriscoinerente(parametros):
     dmu_nu_popurbana = dmu_nu_popurbana.fillna(0)
     
     resultado = fator_iminente*dmu_nu_popurbana
-    
-    resultado = resultado.where(np.isfinite(resultado), 0)
 
     return resultado.round(2)
 
@@ -143,7 +141,7 @@ def cs_risco(parametros):
 def cs_cobred(parametros):
     ihu_pc_cobrede = parametros[0]
     bins = [-float('inf'), 0, 0.8, 0.9, 0.95, 0.98, 1, float('inf')]
-    labels = [0, 1, 2, 3, 4, 5, 0]  
+    labels = [0, 1, 2, 3, 4, 5, 5]  
     return pd.cut(ihu_pc_cobrede.fillna(-1), bins=bins, labels=labels, right=False, ordered=False).astype(int)
 
 def perc_scbc(parametros):
@@ -211,33 +209,27 @@ def ire_cs_hum(parametros):
     )
 
 def pop_urb_scbc_ind(parametros):
-    situacao_setor = parametros[0]
-    densidade = parametros[1]
-    area_scbc = parametros[2]
+    situacao_setor = pd.to_numeric(parametros[0], errors='coerce').fillna(0).astype(int)
+    densidade = pd.to_numeric(parametros[1], errors='coerce').fillna(0)
+    area_scbc = pd.to_numeric(parametros[2], errors='coerce').fillna(0)
     
     return np.where(
         situacao_setor <= 10,
-        densidade*area_scbc,
+        densidade * area_scbc,
         0
     )
-
 def pop_urb_bacia(parametros):
     return 0
     
 def perc_scbc_ind(parametros):
-    pop_urb_scbc = parametros[0]
-    deman_indus = parametros[1]
+    pop_urb_scbc = pd.to_numeric(parametros[0], errors='coerce').fillna(0)
+    deman_indus = pd.to_numeric(parametros[1], errors='coerce').fillna(0)
     
-    pop_urb_scbc = pop_urb_scbc.fillna(0)
-    deman_indus = deman_indus.fillna(0)
+    # Usa operações vetorizadas do pandas
+    resultado = pop_urb_scbc / deman_indus.replace(0, np.nan)
+    resultado = resultado.fillna(0).round(2)
     
-    resultado = np.where(
-        deman_indus != 0,
-        pop_urb_scbc / deman_indus,
-        0
-    )
-    
-    return resultado.round(2)
+    return resultado
 
 def igh_ind(parametros):
     disp_q95 = parametros[0]
@@ -255,8 +247,8 @@ def igh_ind(parametros):
     return resultado.round(2)
 
 def ihu_rel(parametros):
-    perc_scbc = parametros[0]
-    ihu_cs_ish = parametros[1]
+    perc_scbc = pd.to_numeric(parametros[0], errors='coerce').fillna(0)
+    ihu_cs_ish = pd.to_numeric(parametros[1], errors='coerce').fillna(0)
 
     resultado = perc_scbc * ihu_cs_ish
     

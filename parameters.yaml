@@ -68,9 +68,9 @@ dimensions:
       - indicador: ihu_rel_cobred
         depends_on: [perc_scbc, cs_cobred]
       - indicador: ire_hu_pop
-        depends_on: [cobacia, ihu_rel_pop]
+        depends_on: [COBACIA, ihu_rel_pop]
       - indicador: ire_hu_cobred
-        depends_on: [cobacia, ihu_rel_cobred]
+        depends_on: [COBACIA, ihu_rel_cobred]
       - indicador: ire_cs_hum
         depends_on: [ire_hu_pop, 0.7, ire_hu_cobred, 0.3]
     
