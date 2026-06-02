@@ -42,9 +42,11 @@ Estrutura:
     - Estágio do desenvolvimento inicial: temos alguns códigos que fazem tabelas a partir de dados específicos já entregues; o joinISH está trabalhando com cópias de arquivos prontos por códigos específicos e não faz as coisas diretamente;
     - Quantidade de horas gastas:
     - Prioridade de acordo com os pesos pré-estabelecidos: Urgência: alta; Importância: alta; Facilidade de desenvolvimento: média; prioridade primeira
+  
+# Atividades em andamento
+- Análise do código dos scripts para junção com os comandos para o joinISH (entender a demanda específica também)
 
-# Atividades em andamento:
-- Tabela que entregue indicadores com todos os dados juntos
-    - Quantidade de horas gastas: 3h
-    - Andamento: Os pesos adequados podem ser lidos por yaml (ainda precisa ser colocado em linha de código como aplicar, não tem uma função geral que integre tudo isso ainda)
 # Atividades concluídas:
+- Pesos adequáveis são colocados como parâmetros de dependência no yaml junto dos nomes de colunas que um indicador precisa usar de base para cálculo
+- Código de leitura de YAML pronto, chamando funções pelo nome que está no yaml (funções precisam ser feitas uma a uma)
+- Código de todas as funções também está pronto: não tem um jeito simples de o usuário estabelecer qual a função que ele quer sem o nome devido, cada função precisa dos parâmetros e operações específicas precisam ser detalhadas na biblioteca convertion_functions
