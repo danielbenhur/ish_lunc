@@ -263,7 +263,19 @@ def ihu_rel(parametros):
     else:
         return resultado
 
-# def ire_cs_hum_ind(parametros):
+# def ire_cs_ind(parametros):
+    # ihu_rel = parametros[0]
+    # peso_ihu_rel = parametros[1]
+    # igh_ind = parametros[2]
+    # peso_igh_ind = parametros[3]
+    # 
+    # resultado = np.where(
+        # ihu_rel < igh_ind,
+        # peso_igh_ind * igh_ind + peso_ihu_rel * ihu_rel,
+        # igh_ind
+    # )
+# 
+    # return pd.Series(resultado)
 
 
 def list_functions(dimensao):

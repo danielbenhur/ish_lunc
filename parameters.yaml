@@ -15,7 +15,7 @@ bho:
 # Cada item pode ter 'path' (arquivo exato) ou 'file_glob' (padrão glob).
 # Caminhos relativos são resolvidos em relação a base_dir (ou ao diretório do YAML).
 dimensions:
-  - name: ire_cs_eco # nome da coluna final
+  - name: ire_cs_ind # nome da coluna final
     path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/function_modules_ish_ind/Indicador-Industria-Ind_sc_otto.csv" # arquivo de onde extrair
     
     indicadores:
@@ -27,6 +27,8 @@ dimensions:
         depends_on: [disp_q95, deman_indus]
       - indicador: ihu_rel
         depends_on: [perc_scbc_ind, ihu_cs_ish]
+      # - indicador: ire_cs_ind
+        # depends_on: [ihu_rel, 0.7, igh_ind, 0.3]
   
   - name: ire_cs_hum
     path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/function_modules_ish_hum/dim_hum_cnr_fmea.csv"
