@@ -22,7 +22,7 @@ dimensions:
       - indicador: pop_urb_scbc_ind
         depends_on: [situacao_setor, densidade, area_scbc]
       - indicador: perc_scbc_ind
-        depends_on: [pop_urb_scbc, deman_indus]
+        depends_on: [pop_urb_scbc_ind, deman_indus]
       - indicador: igh_ind
         depends_on: [disp_q95, deman_indus]
       - indicador: ihu_rel
@@ -62,7 +62,8 @@ dimensions:
       - indicador: perc_scbc
         depends_on: [pop_urb_scbc, pop_urb_bacia]
       - indicador: ihu_cs_ish
-        depends_on: [cs_risco, 0.7, cs_cobred, 0.3] # isso é maracutaia, que fique claro
+        depends_on: [cs_risco, 0.7, cs_cobred, 0.3]
+        # pesos: [0.7, 0.3]
       - indicador: ihu_rel_pop
         depends_on: [perc_scbc, cs_risco]
       - indicador: ihu_rel_cobred
@@ -73,6 +74,7 @@ dimensions:
         depends_on: [COBACIA, ihu_rel_cobred]
       - indicador: ire_cs_hum
         depends_on: [ire_hu_pop, 0.7, ire_hu_cobred, 0.3]
+        # pesos: [0.7, 0.3]
     
     descritor: tipo_setor
 

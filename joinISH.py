@@ -190,37 +190,36 @@ def main():
 
     coluna_cobacia_csv = 'COBACIA' 
     coluna_cobacia_gdf = 'cobacia'
-    # dados_entregues = dados_entregues[dados_entregues[coluna_cobacia_csv].isin(gdf[coluna_cobacia_gdf])].copy()
+    
+    # "dados_entregues" é o que vem do csv lido
+    # "dados_calculados" são depois das contas usando as funções em "convertion_functions", com dados não calculados presentes em "colunas_desejadas"
+    colunas_desejadas = ['fid', 'COBACIA', 'cod_setor', 'tipo_setor', 'cod_mun', 'mun_nm', 'uf', 'situacao_setor']
 
-    # if coluna_cobacia_csv in dados_entregues.columns:
-        # dados_entregues = dados_entregues.groupby(coluna_cobacia_csv).first().reset_index()
-
+    # solução inicial: criar uma lista das funções a partir dos itens do yaml
+    # eu não gosto de fazer isso porque tem que conferir o dicionário duas vezes, deve ter jeito melhor de fazer isso
+    lista_funcoes = []
     for item in functions_to_work:
-        funcao = globals()[item['indicador']]
-        parametros_colunas = []
-        # print(funcao)
+        lista_funcoes.append(item['indicador'])
+    
+    for item in functions_to_work:
         for dependencia in item['depends_on']:
-            if dependencia in dados_entregues.columns:
-                parametros_colunas.append(dados_entregues[dependencia])
-            else:
-                # Converte para número se for constante
-                try:
-                    valor_constante = float(dependencia)
-                except (ValueError, TypeError):
-                    print(f"Erro: {dependencia} não é uma coluna nem um número")
-                    valor_constante = 0
-                coluna_constante = pd.Series([valor_constante] * len(dados_entregues), index=dados_entregues.index)
-                parametros_colunas.append(coluna_constante)
+            if dependencia not in lista_funcoes and isinstance(dependencia, float) == False:
+                # verifica se o que um item depende para ser calculado está pra ser calculado pelo próprio código ou tem que ser entregue antes
+                colunas_desejadas.append(dependencia)
     
-        if 'column' in item:
-            print(f"{item['indicador']} {item['depends_on']}")
-            # dados_entregues[item['column']] = funcao(parametros_colunas)
-            dados_entregues[item['column']] = funcao(parametros_colunas)
-        else:
-            # dados_entregues[item['indicador']] = funcao(parametros_colunas)
-            dados_entregues[item['indicador']] = funcao(parametros_colunas)
+    # remove colunas duplicadas
+    colunas_desejadas = list(dict.fromkeys(colunas_desejadas))
+    dados_calculados = dados_entregues.filter(colunas_desejadas).copy()
+    dados_calculados.to_csv("./output/dados_calculados.csv", index=False)
     
-    gdf = gdf.merge(dados_entregues, left_on='cobacia', right_on='COBACIA', how='left')
+    # solução recursiva para calculo de indicadores considerando as dependências que tem
+    # tem uma checklist das funções que precisam ser calculadas ao invés de entregues
+    # a aplicação dessa função leva isso em consideração
+    for item in functions_to_work:
+        if item['indicador'] not in dados_calculados.columns:
+            calcular_indicador(item['indicador'], dados_calculados, functions_to_work)
+    
+    gdf = gdf.merge(dados_calculados, left_on='cobacia', right_on='COBACIA', how='left')
     # Remove a coluna COBACIA (maiúscula) se existir
     if 'COBACIA' in gdf.columns and 'cobacia' in gdf.columns:
         gdf = gdf.drop(columns=['COBACIA'])
