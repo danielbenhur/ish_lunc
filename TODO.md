@@ -50,3 +50,4 @@ Estrutura:
 - Pesos adequáveis são colocados como parâmetros de dependência no yaml junto dos nomes de colunas que um indicador precisa usar de base para cálculo
 - Código de leitura de YAML pronto, chamando funções pelo nome que está no yaml (funções precisam ser feitas uma a uma)
 - Código de todas as funções também está pronto: não tem um jeito simples de o usuário estabelecer qual a função que ele quer sem o nome devido, cada função precisa dos parâmetros e operações específicas precisam ser detalhadas na biblioteca convertion_functions
+- Retirada a necessidade de linha de comando do joinISH (tudo parametrizado em parameters.yaml)

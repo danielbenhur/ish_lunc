@@ -290,8 +290,6 @@ def list_functions(dimensao):
         # Verifica se a função existe no módulo importado
         if nome_funcao in globals() and callable(globals()[nome_funcao]):
             return_list.append(item)
-        # else:
-            # print(f"  ✗ Função '{nome_funcao}' NÃO encontrada em convertion_functions")
 
     return return_list
 
