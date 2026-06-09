@@ -5,3 +5,6 @@ comparacoes.csv
 dim_hum_cnr_fmea.csv
 Indicador-Industria-Ind_sc_otto.csv
 erros.txt
+entrada.csv
+dados_calculados.csv
+comparar.py

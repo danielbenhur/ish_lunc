@@ -4,10 +4,15 @@ import yaml
 import sys
 
 def disp_por_dem(parametros):
-    bal_perc_series = parametros[0]
-    return np.where((pd.isna(bal_perc_series)) | (bal_perc_series == 0), 0, 100/bal_perc_series)
+    # bal_perc_series = parametros[0]
+    # return np.where((pd.isna(bal_perc_series)) | (bal_perc_series == 0), 0, 100/bal_perc_series)
+    bal_perc_series = pd.to_numeric(parametros[0], errors='coerce')
+    
+    # Substitui 0 por NaN para a divisão não quebrar, faz a conta e limpa os NaNs restando 0
+    resultado = 100 / bal_perc_series.replace(0, np.nan)
+    return resultado.fillna(0)
 
-def fator_iminente(parametros):
+def ft_imi(parametros):
     disp_dem = pd.to_numeric(parametros[0], errors='coerce')
     return np.where(
         disp_dem >=1,
@@ -15,12 +20,12 @@ def fator_iminente(parametros):
         (1/3)*(disp_dem)
     )
 
-def fator_pos_deficit(parametros):
+def ft_pd(parametros):
     disp_dem = pd.to_numeric(parametros[0], errors='coerce')
     
     return disp_dem.apply(lambda x: 0 if x >= 1 else 1 - x)
 
-def fator_de_risco_total(parametros):
+def ft_tot(parametros):
     fator_iminente = parametros[0]
     fator_pos_deficit = parametros[1]
     return fator_iminente + fator_pos_deficit
@@ -75,13 +80,13 @@ def ihu_pc_riscoposdeficit(parametros):
     return resultado.round(2)
 
 def ihu_nu_popriscototal(parametros):
-    fator_de_risco_total = parametros[0]
+    ft_tot = parametros[0]
     dmu_nu_popurbana = parametros[1]
     
-    fator_de_risco_total = fator_de_risco_total.fillna(0)
+    ft_tot = ft_tot.fillna(0)
     dmu_nu_popurbana = dmu_nu_popurbana.fillna(0)
 
-    resultado = fator_de_risco_total*dmu_nu_popurbana
+    resultado = ft_tot*dmu_nu_popurbana
     resultado = resultado.where(np.isfinite(resultado), 0)
     
     return resultado.round(2)
@@ -144,20 +149,36 @@ def cs_cobred(parametros):
     labels = [0, 1, 2, 3, 4, 5, 5]  
     return pd.cut(ihu_pc_cobrede.fillna(-1), bins=bins, labels=labels, right=False, ordered=False).astype(int)
 
+# não gosto dessa solução
+def converter_br_para_float(serie):
+    """Converte uma série de números no formato brasileiro para float"""
+    if serie.dtype == 'object':
+        # Remove espaços
+        serie = serie.str.strip()
+        # Substitui ponto de milhar (remove todos os pontos)
+        serie = serie.str.replace('.', '', regex=False)
+        # Substitui vírgula decimal por ponto
+        serie = serie.str.replace(',', '.', regex=False)
+        # Converte para numérico
+        return pd.to_numeric(serie, errors='coerce').fillna(0)
+    else:
+        return pd.to_numeric(serie, errors='coerce').fillna(0)
+
 def perc_scbc(parametros):
     pop_urb_scbc = parametros[0]
     pop_urb_bacia = parametros[1]
 
-    pop_urb_scbc = pd.to_numeric(pop_urb_scbc, errors='coerce').fillna(0)
-    pop_urb_bacia = pd.to_numeric(pop_urb_bacia, errors='coerce').fillna(0)
+    pop_urb_scbc = converter_br_para_float(pop_urb_scbc)
+    pop_urb_bacia = converter_br_para_float(pop_urb_bacia)
     
+    # Evitar divisão por zero
     resultado = np.where(
         pop_urb_bacia != 0,
         pop_urb_scbc / pop_urb_bacia,
         0
     )
   
-    return pd.Series(resultado, index=pop_urb_scbc.index).round(2)
+    return pd.Series(resultado, index=pop_urb_scbc.index)
 
 def ihu_cs_ish(parametros):
     cs_risco = parametros[0]

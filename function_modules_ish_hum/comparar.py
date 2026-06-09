@@ -1,87 +1,92 @@
 import pandas as pd
 import numpy as np
-import re
 
-def converter_numero_br(valor):
-    """Converte número no formato brasileiro para float"""
-    if pd.isna(valor):
-        return np.nan
+# ==============================================================================
+# CONFIGURAÇÃO: Defina aqui a coluna única que identifica a linha em ambos os arquivos
+# Exemplo: 'CD_SETOR', 'ID', 'COD_IBGE', etc.
+COLUNA_CHAVE = 'CD_SETOR' 
+# ==============================================================================
+
+print("Lendo os arquivos CSV...")
+# Usando low_memory=False para evitar o DtypeWarning de tipos mistos
+arquivo_1 = pd.read_csv('./dim_hum_cnr_fmea.csv', low_memory=False)
+arquivo_2 = pd.read_csv('./dados_calculados.csv', low_memory=False)  # Ajuste o nome do arquivo 2 aqui
+
+# Verificar se a coluna chave existe em ambos os arquivos
+if COLUNA_CHAVE not in arquivo_1.columns or COLUNA_CHAVE not in arquivo_2.columns:
+    raise ValueError(f"A coluna chave '{COLUNA_CHAVE}' precisa existir em ambos os arquivos para alinhar os dados.")
+
+print(f"Arquivo 1: {len(arquivo_1)} linhas")
+print(f"Arquivo 2: {len(arquivo_2)} linhas")
+
+# Lista de colunas para comparar (removendo a coluna chave da lista de comparação se ela estiver lá)
+colunas_comparar = [
+    'FT_TOT', 'AREA_SETOR', 'MUN_NM', 'SITUACAO_SETOR', 'IHU_NU_POPRISCOINERENTE', 
+    'POP_URB_BACIA', 'CS_COBRED', 'POP_URB_SCBC', 'CS_RISCO', 'IHU_PC_RISCOPOSDEFICIT', 
+    'DMU_NU_POPURBANA', 'IHU_CS_ISH', 'IHU_PC_COBREDE', 'PERC_SCBC', 'TIPO_SETOR', 
+    'UF', 'IHU_NU_POPRISCOPOSDEFICIT', 'FT_IMI', 'IHU_PC_RISCO_INERENTE', 'POP', 
+    'IHU_PC_RISCO', 'IRE_CS_HUM', 'BAL_PERC', 'IHU_NU_POPRISCOTOTAL', 'DENSIDADE'
+]
+
+# Garante que vamos processar apenas colunas que realmente existem em ambos
+colunas_validas = [col for col in colunas_comparar if col in arquivo_1.columns and col in arquivo_2.columns]
+
+print(f"\nUnindo os arquivos com base na chave '{COLUNA_CHAVE}'...")
+# O merge traz as colunas de ambos os arquivos lado a lado: col_arq1 e col_arq2
+df_comparacao = pd.merge(arquivo_1, arquivo_2, on=COLUNA_CHAVE, suffixes=('_arq1', '_arq2'))
+print(f"Total de registros correspondentes encontrados: {len(df_comparacao)} linhas.")
+
+# Dicionário para armazenar os relatórios de diferenças
+relatorio_diferencas = {}
+
+for col in colunas_validas:
+    print(f"Processando coluna: {col}")
     
-    valor_str = str(valor).strip()
+    col_1 = f"{col}_arq1"
+    col_2 = f"{col}_arq2"
     
-    # Verifica se o valor é um número (inclui dígitos, pontos, vírgulas, sinal negativo)
-    # Se tiver letras ou outros caracteres que não são de número, retorna NaN
-    if not re.match(r'^-?[\d\.,]+$', valor_str):
-        return np.nan
-    
+    # Tenta converter para numérico caso haja tipos mistos (ignora colunas de texto como UF ou MUN_NM)
     try:
-        # Padrão brasileiro: 1.234.567,89
-        # Se tem vírgula, é decimal
-        if ',' in valor_str:
-            # Remove pontos que estão antes da vírgula (milhar)
-            partes = valor_str.split(',')
-            inteiro = partes[0].replace('.', '')  # Remove todos os pontos da parte inteira
-            decimal = partes[1]
-            return float(f"{inteiro}.{decimal}")
-        else:
-            # Sem vírgula, pode ter ponto de milhar ou ser inteiro
-            # Se o padrão for algo como "1.234" (ponto de milhar)
-            if '.' in valor_str and len(valor_str.split('.')[-1]) == 3:
-                return float(valor_str.replace('.', ''))
-            else:
-                return float(valor_str)
-    except (ValueError, TypeError):
-        return np.nan
+        v1 = pd.to_numeric(df_comparacao[col_1])
+        v2 = pd.to_numeric(df_comparacao[col_2])
+        is_numeric = True
+    except ValueError:
+        v1 = df_comparacao[col_1].astype(str)
+        v2 = df_comparacao[col_2].astype(str)
+        is_numeric = False
 
-# Ler os arquivos
-arquivo_1 = pd.read_csv('tabela_inicial.csv')
-arquivo_2 = pd.read_csv('arquivo_br.csv')
-
-# Colunas que devem ser mantidas como estão (identificadores)
-colunas_identificadores = ['fid', 'COBACIA', 'cod_setor', 'cod_mun']
-
-# Colunas que serão comparadas (exclui identificadores)
-colunas_comuns = list(set(arquivo_1.columns) & set(arquivo_2.columns))
-colunas_comparar = [col for col in colunas_comuns if col not in colunas_identificadores]
-
-# Criar DataFrame de comparações com as colunas identificadoras do arquivo_2
-df_comparacoes = arquivo_2[colunas_identificadores].copy()
-
-# Comparar apenas colunas numéricas
-for col in colunas_comparar:
-    # Converter apenas se a coluna for do tipo object (string)
-    if arquivo_1[col].dtype == 'object':
-        arquivo_1[col] = arquivo_1[col].apply(converter_numero_br)
-    else:
-        arquivo_1[col] = pd.to_numeric(arquivo_1[col], errors='coerce')
-    
-    if arquivo_2[col].dtype == 'object':
-        arquivo_2[col] = arquivo_2[col].apply(converter_numero_br)
-    else:
-        arquivo_2[col] = pd.to_numeric(arquivo_2[col], errors='coerce')
-    
-    # Calcular diferença percentual (evitando divisão por zero)
-    with np.errstate(divide='ignore', invalid='ignore'):
-        # Verificar onde ambos os valores são válidos
-        mask_valida = (~np.isnan(arquivo_1[col])) & (~np.isnan(arquivo_2[col])) & (arquivo_2[col] != 0)
+    if is_numeric:
+        # Preenche NaNs com 0 para o cálculo matemático não quebrar
+        v1 = v1.fillna(0)
+        v2 = v2.fillna(0)
         
-        diferenca_percentual = np.zeros(len(arquivo_2))
-        diferenca_percentual[mask_valida] = 100 * (arquivo_2[col][mask_valida] - arquivo_1[col][mask_valida]) / arquivo_2[col][mask_valida]
-    
-    # Marcar apenas diferenças > 2%
-    df_comparacoes[col] = np.where(
-        np.abs(diferenca_percentual) > 2,
-        diferenca_percentual,
-        0
-    )
+        # Evita divisão por zero substituindo 0 por NaN temporariamente no denominador
+        diferenca_percentual = 100 * (v2 - v1) / v2.replace(0, np.nan)
+        diferenca_percentual = diferenca_percentual.fillna(0) # Se era 0/0, vira 0
+        
+        # Consideramos diferença se o percentual for maior que um pequeno limite (ex: 0.01%)
+        mask_diferente = np.abs(diferenca_percentual) > 0.01
+        
+        if mask_diferente.any():
+            print(f" -> Encontradas {mask_diferente.sum()} linhas com divergência numérica.")
+            # Salva no relatório as linhas divergentes
+            df_erros = df_comparacao.loc[mask_diferente, [COLUNA_CHAVE, col_1, col_2]].copy()
+            df_erros['DIF_PERCENTUAL'] = diferenca_percentual[mask_diferente]
+            relatorio_diferencas[col] = df_erros
+    else:
+        # Comparação para colunas de texto
+        mask_diferente = v1 != v2
+        if mask_diferente.any():
+            print(f" -> Encontradas {mask_diferente.sum()} linhas com divergência de texto.")
+            df_erros = df_comparacao.loc[mask_diferente, [COLUNA_CHAVE, col_1, col_2]].copy()
+            relatorio_diferencas[col] = df_erros
 
-# Salvar resultado
-df_comparacoes.to_csv('comparacoes.csv', index=False)
-
-# Mostrar estatísticas básicas
-print("\nResumo das diferenças encontradas:")
-for col in colunas_comparar:
-    n_diferencas = (df_comparacoes[col] != 0).sum()
-    if n_diferencas > 0:
-        max_diff = df_comparacoes[col].abs().max()
-        print(f"  {col}: {n_diferencas} registros com diferença > 2% (máx: {max_diff:.2f}%)")
+print("\n=== COMPARAÇÃO CONCLUÍDA ===")
+if not relatorio_diferencas:
+    print("Sucesso! Nenhuma diferença encontrada entre as colunas comparadas.")
+else:
+    print(f"Diferenças encontradas em {len(relatorio_diferencas)} colunas.")
+    # Exemplo: Mostra as primeiras 5 linhas com erro da primeira coluna divergente
+    primeira_col_erro = list(relatorio_diferencas.keys())[0]
+    print(f"\nAmostra de divergências na coluna '{primeira_col_erro}':")
+    print(relatorio_diferencas[primeira_col_erro].head())

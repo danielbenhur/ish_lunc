@@ -15,44 +15,43 @@ bho:
 # Cada item pode ter 'path' (arquivo exato) ou 'file_glob' (padrão glob).
 # Caminhos relativos são resolvidos em relação a base_dir (ou ao diretório do YAML).
 dimensions:
-  - name: ire_cs_ind # nome da coluna final
-    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/function_modules_ish_ind/Indicador-Industria-Ind_sc_otto.csv" # arquivo de onde extrair
-    
-    indicadores:
-      - indicador: pop_urb_scbc_ind
-        depends_on: [situacao_setor, densidade, area_scbc]
-      - indicador: perc_scbc_ind
-        depends_on: [pop_urb_scbc_ind, deman_indus]
-      - indicador: igh_ind
-        depends_on: [disp_q95, deman_indus]
-      - indicador: ihu_rel
-        depends_on: [perc_scbc_ind, ihu_cs_ish]
+  # - name: ire_cs_ind # nome da coluna final
+    # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/function_modules_ish_ind/entrada.csv" # arquivo de onde extrair
+    # 
+    # indicadores:
+      # - indicador: pop_urb_scbc_ind
+        # depends_on: [situacao_setor, densidade, area_scbc]
+      # - indicador: perc_scbc_ind
+        # depends_on: [pop_urb_scbc_ind, deman_indus]
+      # - indicador: igh_ind
+        # depends_on: [disp_q95, deman_indus]
+      # - indicador: ihu_rel
+        # depends_on: [perc_scbc_ind, ihu_cs_ish]
       # - indicador: ire_cs_ind
         # depends_on: [ihu_rel, 0.7, igh_ind, 0.3]
   
   - name: ire_cs_hum
-    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/function_modules_ish_hum/dim_hum_cnr_fmea.csv"
+    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/function_modules_ish_hum/entrada.csv"
     indicadores:
       - indicador: disp_por_dem
         depends_on: [bal_perc]
-        column: disp/dem
-      - indicador: fator_iminente
-        depends_on: [disp/dem]
-      - indicador: fator_pos_deficit
-        depends_on: [disp/dem]
+      - indicador: ft_imi
+        depends_on: [disp_por_dem]
+      - indicador: ft_pd
+        depends_on: [disp_por_dem]
         column: fator_pós_deficit
-      - indicador: fator_de_risco_total
-        depends_on: [fator_iminente, fator_pós_deficit]
+      - indicador: ft_tot
+        depends_on: [ft_imi, ft_pd]
       - indicador: ihu_nu_popriscoinerente
-        depends_on: [fator_iminente, dmu_nu_popurbana]
+        depends_on: [ft_imi, dmu_nu_popurbana]
       - indicador: ihu_pc_risco_inerente
         depends_on: [ihu_nu_popriscoinerente, dmu_nu_popurbana]
       - indicador: ihu_nu_popriscoposdeficit
-        depends_on: [fator_pós_deficit, dmu_nu_popurbana]
+        depends_on: [ft_pd, dmu_nu_popurbana]
       - indicador: ihu_pc_riscoposdeficit
         depends_on: [ihu_nu_popriscoposdeficit, dmu_nu_popurbana]
       - indicador: ihu_nu_popriscototal
-        depends_on: [fator_de_risco_total, dmu_nu_popurbana]
+        depends_on: [ft_tot, dmu_nu_popurbana]
       - indicador: ihu_pc_risco
         depends_on: [ihu_nu_popriscototal, dmu_nu_popurbana]
       - indicador: densidade
