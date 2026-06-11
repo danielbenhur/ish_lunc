@@ -19,8 +19,6 @@ dimensions:
     # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/function_modules_ish_ind/entrada.csv" # arquivo de onde extrair
     # 
     # indicadores:
-      # - indicador: pop_urb_scbc_ind
-        # depends_on: [situacao_setor, densidade, area_scbc]
       # - indicador: perc_scbc_ind
         # depends_on: [pop_urb_scbc_ind, deman_indus]
       # - indicador: igh_ind
@@ -60,6 +58,10 @@ dimensions:
         depends_on: [ihu_nu_popriscototal, ihu_pc_risco]
       - indicador: cs_cobred
         depends_on: [ihu_pc_cobrede]
+      - indicador: pop_urb_scbc
+        depends_on: [situacao_setor, densidade, area_scbc, 3]
+      - indicador: pop_urb_bacia
+        depends_on: [COBACIA, pop_urb_scbc]
       - indicador: perc_scbc
         depends_on: [pop_urb_scbc, pop_urb_bacia]
       - indicador: ihu_cs_ish

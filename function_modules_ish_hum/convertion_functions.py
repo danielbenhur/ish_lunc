@@ -164,6 +164,25 @@ def converter_br_para_float(serie):
     else:
         return pd.to_numeric(serie, errors='coerce').fillna(0)
 
+def pop_urb_scbc(parametros):
+    situacao_setor = parametros[0]
+    densidade = parametros[1]
+    area_scbc = parametros[2]
+    fator_analisavel = parametros[3]
+    return np.where(
+        situacao_setor < fator_analisavel,
+        densidade*situacao_setor,
+        0
+    )
+
+def pop_urb_bacia(parametros):
+    cobacia = parametros[0]
+    pop_urb_scbc = parametros[1]
+    print("Luca esteve aqui")
+    resultado = pop_urb_scbc.groupby(cobacia).transform('sum')
+
+    return resultado
+
 def perc_scbc(parametros):
     pop_urb_scbc = parametros[0]
     pop_urb_bacia = parametros[1]
@@ -204,7 +223,6 @@ def ihu_rel_cobred(parametros):
     cs_cobred = parametros[1]
     return perc_scbc*cs_cobred
 
-# TODO: adaptar essas funções
 def ire_hu_pop(parametros):
     cobacia = parametros[0]
     ihu_rel_pop = pd.to_numeric(parametros[1], errors='coerce').fillna(0)
@@ -230,19 +248,6 @@ def ire_cs_hum(parametros):
         peso_ire_hu_pop*ire_hu_pop + peso_ire_hu_cobred*ire_hu_cobred,
         ire_hu_pop
     )
-
-def pop_urb_scbc_ind(parametros):
-    situacao_setor = pd.to_numeric(parametros[0], errors='coerce').fillna(0).astype(int)
-    densidade = pd.to_numeric(parametros[1], errors='coerce').fillna(0)
-    area_scbc = pd.to_numeric(parametros[2], errors='coerce').fillna(0)
-    
-    return np.where(
-        situacao_setor <= 10,
-        densidade * area_scbc,
-        0
-    )
-def pop_urb_bacia(parametros):
-    return 0
     
 def perc_scbc_ind(parametros):
     pop_urb_scbc = pd.to_numeric(parametros[0], errors='coerce').fillna(0)
@@ -321,11 +326,11 @@ def calcular_indicador(indicador, dados_calculados, functions_to_work, calculado
     # Se já foi calculado, retornar
     if indicador in dados_calculados.columns:
         return dados_calculados[indicador]
-    
+
     # Encontrar a função
     item_func = next((item for item in functions_to_work 
                      if item['indicador'] == indicador), None)
-    
+
     if not item_func:
         raise ValueError(f"Indicador {indicador} não encontrado")
     
@@ -350,7 +355,6 @@ def calcular_indicador(indicador, dados_calculados, functions_to_work, calculado
     # Calcular o indicador atual
     funcao = globals()[indicador]
     resultado = funcao(parametros)
-    
     # Armazenar resultado
     if 'column' in item_func:
         dados_calculados[item_func['column']] = resultado

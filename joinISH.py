@@ -210,7 +210,7 @@ def main():
     # remove colunas duplicadas
     colunas_desejadas = list(dict.fromkeys(colunas_desejadas))
     dados_calculados = dados_entregues.filter(colunas_desejadas).copy()
-    dados_calculados.to_csv("./function_modules_ish_hum/my_data.csv", index=False)
+
     # solução recursiva para calculo de indicadores considerando as dependências que tem
     # tem uma checklist das funções que precisam ser calculadas ao invés de entregues
     # a aplicação dessa função leva isso em consideração
@@ -259,7 +259,7 @@ def main():
         os.remove(output_file)
     gdf.to_file(output_file, driver="GPKG", layer="regiao_completa")
     gdf.to_csv("./output/my_data.csv", index=False)
-    gdf.to_csv("./function_modules_ish_hum/dados_calculados.csv", index=False)
+    # gdf.to_csv("./function_modules_ish_hum/dados_calculados.csv", index=False)
     print(f"Arquivo salvo em {output_file}")
         
 if __name__ == "__main__":
