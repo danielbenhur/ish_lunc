@@ -171,14 +171,13 @@ def pop_urb_scbc(parametros):
     fator_analisavel = parametros[3]
     return np.where(
         situacao_setor < fator_analisavel,
-        densidade*situacao_setor,
+        densidade*area_scbc,
         0
     )
 
 def pop_urb_bacia(parametros):
     cobacia = parametros[0]
     pop_urb_scbc = parametros[1]
-    print("Luca esteve aqui")
     resultado = pop_urb_scbc.groupby(cobacia).transform('sum')
 
     return resultado
