@@ -33,3 +33,4 @@ six
 tzdata
 urllib3
 xyzservices
+~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/hello_world

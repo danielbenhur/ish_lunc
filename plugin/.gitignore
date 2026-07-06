@@ -1,0 +1,10 @@
+__pycache__/
+help/
+i18n/
+scripts/
+test/
+metadata.txt
+pb_tool.cfg
+pylintrc
+README.html
+README.txt
