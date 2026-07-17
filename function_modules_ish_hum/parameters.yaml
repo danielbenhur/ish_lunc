@@ -1,33 +1,11 @@
-# scenario_test.yaml -exemplo mínimo
-# O ideal é que esse arquivo esteja dentro da pasta do cenário, ao lado das subpastas input e output
-id: cenario
-description: "Cenário teste dados de 2020 - exemplo de uso com joinISH"
-# Base_dir relativo ao arquivo YAML ou caminho absoluto
+id: humano
+description: "Calculando a dimensão humana"
 base_dir: "."
 
 bho:
-  # caminho para o gpkg do BHO; se relativo, será resolvido em relação ao base_dir (ou ao diretório do YAML)
-  path: "./input/BHO_area.gpkg"
-  # opcional: nome da camada dentro do gpkg (ex: bho_area)
-#  layer: "bho_area"
+  path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/cnr_A/input/BHO_area.gpkg"
 
-# dimensions: lista opcional que substitui o glob dim_*.csv
-# Cada item pode ter 'path' (arquivo exato) ou 'file_glob' (padrão glob).
-# Caminhos relativos são resolvidos em relação a base_dir (ou ao diretório do YAML).
 dimensions:
-  - name: ire_cs_eco # nome da coluna final
-    path: "./cnr_A/input/dim_eco_teste.csv" # arquivo de onde extrair
-    weight: default
-    indicadores:
-      - indicador: pop_urb_scbc_ind
-        depends_on: [situacao_setor, densidade, area_scbc]
-      - indicador: perc_scbc_ind
-        depends_on: [pop_urb_scbc, deman_indus]
-      - indicador: igh_ind
-        depends_on: [disp_q95, deman_indus]
-      - indicador: ihu_rel
-        depends_on: [perc_scbc_ind, ihu_cs_ish]
-  
   - name: ire_cs_hum
     path: "./function_modules_planilha_ish_hum/arquivo_br.csv"
     weight: default
@@ -97,12 +75,19 @@ dimensions:
       
     descritor: tipo_setor
 
+result:
+  - name: ire_cs_hum
+    depends_on:
+      - name: ire_hu_cobred
+        peso: 0.7
+      - name: ire_hu_pop
+        peso: 0.3
+
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:
-  folder: "./output"
-  gpkg_name: "ish_cnr_test.gpkg"
+  path: "./output/ish_hum.csv"
 
 # logging / metadados (opcional)
 metadata:
-  manifest: "./output/scenario_manifest.json"
-
+  manifest: "./output/my_new_dimensions_cenario_manifest.json"
+ 

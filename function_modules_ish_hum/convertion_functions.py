@@ -236,17 +236,14 @@ def ire_hu_cobred(parametros):
     resultado = ihu_rel_cobred.groupby(cobacia).transform('sum')
     return resultado.round(2)
 
-def ire_cs_hum(parametros):
-    ire_hu_pop = parametros[0]
-    peso_ire_hu_pop = parametros[1]
-    ire_hu_cobred = parametros[2]
-    peso_ire_hu_cobred = parametros[3]
-
-    return np.where(
-        ire_hu_cobred < ire_hu_pop,
-        peso_ire_hu_pop*ire_hu_pop + peso_ire_hu_cobred*ire_hu_cobred,
-        ire_hu_pop
-    )
+def ire_cs_hum(ire_hu_pop, peso_ire_hu_pop, ire_hu_cobred, peso_ire_hu_cobred):
+    impacto_hu_cobred = ire_hu_cobred*peso_ire_hu_cobred
+    impacto_hu_pop    = ire_hu_pop*peso_ire_hu_pop
+    
+    if ire_hu_cobred < ire_hu_pop:
+        return impacto_hu_cobred + impacto_hu_pop
+    else:
+        return ire_hu_pop
     
 def perc_scbc_ind(parametros):
     pop_urb_scbc = pd.to_numeric(parametros[0], errors='coerce').fillna(0)
@@ -287,20 +284,6 @@ def ihu_rel(parametros):
         return resultado.round(2)
     else:
         return resultado
-
-# def ire_cs_ind(parametros):
-    # ihu_rel = parametros[0]
-    # peso_ihu_rel = parametros[1]
-    # igh_ind = parametros[2]
-    # peso_igh_ind = parametros[3]
-    # 
-    # resultado = np.where(
-        # ihu_rel < igh_ind,
-        # peso_igh_ind * igh_ind + peso_ihu_rel * ihu_rel,
-        # igh_ind
-    # )
-# 
-    # return pd.Series(resultado)
 
 
 def list_functions(dimensao):
