@@ -16,7 +16,7 @@ def main():
     for dimension in dimensions:
         dados_entregues = pd.read_csv(dimension['path'])
         for item in dimension['indicadores']:
-            nome_funcao = item['indicador']
+            nome_funcao = item['name']
             if nome_funcao in globals() and callable(globals()[nome_funcao]):
                 funcao = globals()[indicador]
                 if item['depends_on'] == True:

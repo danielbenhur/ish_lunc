@@ -3,22 +3,28 @@ import numpy as np
 import yaml
 import sys
 
-def disp_por_dem(parametros):
-    # bal_perc_series = parametros[0]
-    # return np.where((pd.isna(bal_perc_series)) | (bal_perc_series == 0), 0, 100/bal_perc_series)
-    bal_perc_series = pd.to_numeric(parametros[0], errors='coerce')
+def disp_por_dem(df):
+    bal_perc = pd.to_numeric(df['bal_perc'].str.replace(',', '.'), errors='coerce')
+    with np.errstate(divide='ignore', invalid='ignore'):
+        resultado = np.where(
+            (bal_perc == 0) | pd.isna(bal_perc),  # condição
+            0,                                     # valor se for zero ou NaN
+            100 / bal_perc                         # valor caso contrário
+        )
     
-    # Substitui 0 por NaN para a divisão não quebrar, faz a conta e limpa os NaNs restando 0
-    resultado = 100 / bal_perc_series.replace(0, np.nan)
-    return resultado.fillna(0)
+    # Converte para Series para manter compatibilidade
+    resultado = np.where(np.isinf(resultado), 0, resultado)
 
-def ft_imi(parametros):
-    disp_dem = pd.to_numeric(parametros[0], errors='coerce')
+    return pd.Series(resultado, index=df.index)
+
+def fator_iminente(df):
+    disp_por_dem = pd.to_numeric(df['disp_por_dem'].str.replace(',', '.'), errors='coerce')
     return np.where(
-        disp_dem >=1,
-        (1/3)*(disp_dem**(-2)),
-        (1/3)*(disp_dem)
+        disp_por_dem >=1,
+        (1/3)*(disp_por__dem**(-2)),
+        (1/3)*(disp_por_dem)
     )
+
 
 def ft_pd(parametros):
     disp_dem = pd.to_numeric(parametros[0], errors='coerce')
@@ -244,47 +250,6 @@ def ire_cs_hum(ire_hu_pop, peso_ire_hu_pop, ire_hu_cobred, peso_ire_hu_cobred):
         return impacto_hu_cobred + impacto_hu_pop
     else:
         return ire_hu_pop
-    
-def perc_scbc_ind(parametros):
-    pop_urb_scbc = pd.to_numeric(parametros[0], errors='coerce').fillna(0)
-    deman_indus = pd.to_numeric(parametros[1], errors='coerce').fillna(0)
-    
-    # Usa operações vetorizadas do pandas
-    resultado = pop_urb_scbc / deman_indus.replace(0, np.nan)
-    resultado = resultado.fillna(0).round(2)
-    
-    return resultado
-
-def igh_ind(parametros):
-    disp_q95 = parametros[0]
-    deman_indus = parametros[1]
-
-    disp_q95 = disp_q95.fillna(0)
-    deman_indus = deman_indus.fillna(0)
-
-    resultado = np.where(
-        deman_indus != 0,
-        disp_q95 / deman_indus,
-        0
-    )
-    
-    return resultado.round(2)
-
-def ihu_rel(parametros):
-    perc_scbc = pd.to_numeric(parametros[0], errors='coerce').fillna(0)
-    ihu_cs_ish = pd.to_numeric(parametros[1], errors='coerce').fillna(0)
-
-    resultado = perc_scbc * ihu_cs_ish
-    
-    # Convert to numeric, coercing errors to NaN
-    resultado = pd.to_numeric(resultado, errors='coerce')
-    
-    # Round only if not all values are NaN
-    if resultado.notna().any():
-        return resultado.round(2)
-    else:
-        return resultado
-
 
 def list_functions(dimensao):
     return_list = []
@@ -293,7 +258,7 @@ def list_functions(dimensao):
         if item == None:
             continue
 
-        nome_funcao = item['indicador']
+        nome_funcao = item['name']
 
         # Verifica se a função existe no módulo importado
         if nome_funcao in globals() and callable(globals()[nome_funcao]):
@@ -311,7 +276,7 @@ def calcular_indicador(indicador, dados_calculados, functions_to_work, calculado
 
     # Encontrar a função
     item_func = next((item for item in functions_to_work 
-                     if item['indicador'] == indicador), None)
+                     if item['name'] == indicador), None)
 
     if not item_func:
         raise ValueError(f"Indicador {indicador} não encontrado")

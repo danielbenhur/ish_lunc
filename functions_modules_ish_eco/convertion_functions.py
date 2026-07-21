@@ -13,8 +13,8 @@ def ire_cs_eco(ind, peso_ind, irri, peso_irri, pec, peso_pec):
     impacto_agro = pec*peso_pec + irri*peso_irri
     impacto_ind  = ind*peso_ind
 
-    if impacto_agro > impacto_ind:
-        return impacto_agro+impacto_ind
+    if impacto_agro < impacto_ind:
+        return impacto_agro
     else:
         return impacto_ind
 

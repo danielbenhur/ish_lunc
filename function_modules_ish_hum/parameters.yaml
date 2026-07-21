@@ -7,72 +7,82 @@ bho:
 
 dimensions:
   - name: ire_cs_hum
-    path: "./function_modules_planilha_ish_hum/arquivo_br.csv"
-    weight: default
+    path: "./dimensao_humana.csv"
     indicadores:
-      - indicador: disp_por_dem
-        weight: default
-        depends_on: [bal_perc]
-        column: disp/dem
-      - indicador: fator_iminente
-        weight: default
-        depends_on: [disp/dem]
-      - indicador: fator_pos_deficit
-        weight: default
-        depends_on: [disp/dem]
-        column: fator_pós_deficit
-      - indicador: fator_de_risco_total
-        weight: default
-        depends_on: [fator_iminente, fator_pós_deficit]
-      - indicador: ihu_nu_popriscoinerente
-        weight: default
-        depends_on: [fator_iminente, dmu_nu_popurbana]
-      - indicador: ihu_pc_risco_inerente
-        weight: default
-        depends_on: [ihu_nu_popriscoinerente, dmu_nu_popurbana]
-      - indicador: ihu_nu_popriscoposdeficit
-        weight: default
-        depends_on: [fator_pós_deficit, dmu_nu_popurbana]
-      - indicador: ihu_pc_riscoposdeficit
-        weight: default
-        depends_on: [ihu_nu_popriscoposdeficit, dmu_nu_popurbana]
-      - indicador: ihu_nu_popriscototal
-        weight: default
-        depends_on: [fator_de_risco_total, dmu_nu_popurbana]
-      - indicador: ihu_pc_risco
-        weight: default
-        depends_on: [ihu_nu_popriscototal, dmu_nu_popurbana]
-      - indicador: densidade
-        weight: default
-        depends_on: [pop, area_setor]
-      - indicador: cs_risco
-        weight: default
-        depends_on: [ihu_nu_popriscototal, ihu_pc_risco]
-      - indicador: cs_cobred
-        weight: default
-        depends_on: [ihu_pc_cobrede]
-      - indicador: perc_scbc
-        weight: default
-        depends_on: [pop_urb_scbc, pop_urb_bacia]
-      - indicador: ihu_cs_ish
-        weight: default
-        depends_on: [cs_risco, 0.7, cs_cobred, 0.3] # isso é maracutaia, que fique claro
-      - indicador: ihu_rel_pop
-        weight: default
-        depends_on: [perc_scbc, cs_risco]
-      - indicador: ihu_rel_cobred
-        weight: default
-        depends_on: [perc_scbc, cs_cobred]
-      - indicador: ire_hu_pop
-        weight: default
-        depends_on: [df, ihu_rel_pop, COBACIA]
-      - indicador: ire_hu_cobred
-        weight: default
-        depends_on: [df, ihu_rel_cobred, COBACIA]
-      - indicador: ire_cs_hum
-        weight: default
-        depends_on: [ire_hu_pop, 0.7, ire_hu_cobred, 0.3]
-      
+      - name: disp_por_dem
+        depends_on: 
+          - name: bal_perc
+      - name: fator_iminente
+        depends_on: 
+          - name: disp_por_dem
+      - name: fator_pos_deficit
+        depends_on: 
+          - name: disp_por_dem
+      - name: fator_de_risco_total
+        depends_on: 
+          - name: fator_iminente
+          - name: fator_pos_deficit
+      - name: ihu_nu_popriscoinerente
+        depends_on: 
+          - name: fator_iminente
+          - name: dmu_nu_popurbana
+      - name: ihu_pc_risco_inerente
+        depends_on: 
+          - name: ihu_nu_popriscoinerente
+          - name: dmu_nu_popurbana
+      - name: ihu_nu_popriscoposdeficit
+        depends_on: 
+          - name: fator_pos_deficit
+          - name: dmu_nu_popurbana
+      - name: ihu_pc_riscoposdeficit
+        depends_on: 
+          - name: ihu_nu_popriscoposdeficit
+          - name: dmu_nu_popurbana
+      - name: ihu_nu_popriscototal
+        depends_on: 
+          - name: fator_de_risco_total
+          - name: dmu_nu_popurbana
+      - name: ihu_pc_risco
+        depends_on: 
+          - name: ihu_nu_popriscototal
+          - name: dmu_nu_popurbana
+      - name: densidade
+        depends_on: 
+          - name: pop
+          - name: area_setor
+      - name: cs_risco
+        depends_on: 
+          - name: ihu_nu_popriscototal
+          - name: ihu_pc_risco
+      - name: cs_cobred
+        depends_on: 
+          - name: ihu_pc_cobrede
+      - name: perc_scbc
+        depends_on: 
+          - name: pop_urb_scbc
+          - name: pop_urb_bacia
+      - name: ihu_cs_ish
+        depends_on:
+          - name: cs_risco
+            peso: 0.7
+          - name: cs_cobred
+            peso: 0.3
+      - name: ihu_rel_pop
+        depends_on: 
+          - name: perc_scbc
+          - name: cs_risco
+      - name: ihu_rel_cobred
+        depends_on: 
+          - name: perc_scbc
+          - name: cs_cobred
+      - name: ire_hu_pop
+        depends_on: 
+          - name: ihu_rel_pop
+          - name: COBACIA
+      - name: ire_hu_cobred
+        depends_on: 
+         - name: ihu_rel_cobred
+         - name: COBACIA
     descritor: tipo_setor
 
 result:
