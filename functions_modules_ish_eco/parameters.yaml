@@ -1,0 +1,42 @@
+# scenario_test.yaml -exemplo mínimo
+# O ideal é que esse arquivo esteja dentro da pasta do cenário, ao lado das subpastas input e output
+# id: cenario
+id: economico
+description: "Calculando a dimensão econômica"
+base_dir: "."
+
+bho:
+  path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/cnr_A/input/BHO_area.gpkg"
+
+dimensions:
+  - name: ire_cs_ind_eco
+    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_modules_ish_eco/VAB2020 - VAB2020.csv
+    indicadores:
+      - indicador: ire_cs_ind_eco
+  - name: ire_cs_irri_eco
+    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_modules_ish_eco/PAM2021 - PAM2021.csv
+    indicadores:
+      - indicador: ire_cs_irri_eco
+  - name: ire_cs_pec_eco
+    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_modules_ish_eco/PPM2024 - PPM2024.csv
+    indicadores:
+      - indicador: ire_cs_pec_eco
+
+result:
+  - name: ire_cs_eco
+    depends_on:
+      - name: ire_cs_ind_eco
+        peso: 1
+      - name: ire_cs_irri_eco
+        peso: 0.7
+      - name: ire_cs_pec_eco
+        peso: 0.3
+
+# Saída: pode opcionalmente sobrescrever pasta output/gpkg final
+output:
+  path: "./output/ish_eco.csv"
+
+# logging / metadados (opcional)
+metadata:
+  manifest: "./output/my_new_dimensions_cenario_manifest.json"
+ 

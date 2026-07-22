@@ -31,6 +31,7 @@ logs/
 */output/*
 /cnr_*/output/
 /cnr*
+*/testing_joinISH
 
 # IDEs
 .vscode/
@@ -40,3 +41,15 @@ logs/
 # system files
 .DS_Store
 Thumbs.db
+.git_backup
+
+# pastas extra
+pasta_1
+my_data.csv
+lendo_yaml.py
+.git_backup/
+output/
+
+# arquivos externos
+ish_discretizado.qml
+ish_graduado.qml

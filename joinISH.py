@@ -10,6 +10,7 @@ from pathlib import Path
 import json
 import yaml
 from scripts.aplica_recortes import aplica_recortes_gpkg
+from function_modules_ish_hum.convertion_functions import *
 
 def load_gpkg_with_fid(filename, layer):
     """
@@ -38,77 +39,82 @@ def compute_cs_ish(gdf, dim_cols):
     Recebe um GeoDataFrame e uma lista de colunas de dimensão (por exemplo,
     ['ire_cs_hum', 'ire_cs_eco', ...]). Retorna uma Series contendo a média
     das colunas, considerando apenas valores maiores que 0.0 (ignorando zeros e NaN).
+    Quando não tiver valores na linha, o cs_ish será 0
     """
+    df_numeric = gdf[dim_cols].apply(pd.to_numeric, errors='coerce')
     # Para cada linha, filtra apenas valores > 0 e calcula a média
-    return gdf[dim_cols].apply(lambda row: row[row > 0.0].mean(), axis=1)
+
+    return df_numeric.apply(lambda row: row[row > 0.0].mean() if (row[row > 0.0].count() > 0) else 0.0, axis=1)
+
+# Converte apenas colunas específicas (ou todas exceto algumas)
+def convert_columns(df, columns=None, exclude=[]):
+    if columns is None:
+        columns = [col for col in df.columns if col not in exclude]
+    
+    for col in columns:
+        if col in df.columns:
+            def clean_value(x):
+                if pd.isna(x):
+                    return x
+                
+                s = str(x).strip()
+                
+                # Verifica se parece um número (com vírgula/ponto)
+                # Aceita padrões: 123, 123.45, 1.234,56, 1234,56
+                import re
+                # Remove espaços e R$ se existir
+                s = s.replace('R$', '').replace(' ', '').strip()
+                
+                # Se tem letras, mantém como está
+                if re.search(r'[A-Za-zÀ-ÿ]', s) and not re.match(r'^[\d\.,]+$', s):
+                    return x  # Retorna o valor original
+                
+                # Tenta converter
+                try:
+                    # Caso "1.234,56"
+                    if '.' in s and ',' in s and s.rfind(',') > s.rfind('.'):
+                        s = s.replace('.', '').replace(',', '.')
+                    # Caso "1234,56"
+                    elif ',' in s and '.' not in s:
+                        s = s.replace(',', '.')
+                    
+                    return pd.to_numeric(s)
+                except:
+                    return x  # Se falhar, mantém original
+            
+            df[col] = df[col].apply(clean_value)
+    
+    return df
+
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Gera o GPKG de ISH para um cenário e aplica recortes opcionais")
-    parser.add_argument("cenario", help="Nome do cenário (ex: atlas2035)")
-    parser.add_argument("-r", "--recorte", action="append", default=[],
-                        help="Nome do recorte (arquivo .gpkg dentro de recortes/) sem extensão. Pode repetir para vários recortes.")
-    parser.add_argument("-s", "--scenario-file", default=None,
-                        help="(opcional) arquivo YAML de cenário. Se informado, parametros do YAML (bho.path, bho.layer, base_dir, dimensions, output.folder) serão usados.")
-    parser.add_argument("--dry-run", action="store_true",
-                        help="Mostra o que seria executado, mas NÃO roda nada e não salva arquivos.")
-  
-    args = parser.parse_args()
-
-    nome_cenario = args.cenario
-    recortes_escolhidos = args.recorte  # lista de strings, pode ser vazia
-    scenario_yaml = args.scenario_file
-    scenario = None
-    dry_run = args.dry_run
-    # se foi especificado um YAML de cenário, carregue e valide
-    if scenario_yaml:
-        if yaml is None:
-            print("ERRO: 'pyyaml' não está instalado. Instale com 'pip install pyyaml' para usar --scenario-file.")
-            sys.exit(1)
-        try:
-            scenario_path = Path(scenario_yaml).expanduser().resolve()
-            with open(scenario_path, "r", encoding="utf-8") as sf:
-                scenario = yaml.safe_load(sf)
-            print("Cenário YAML carregado de:", scenario_path)
-        except Exception as e:
-            print("Erro ao ler o YAML de cenário:", e)
-            sys.exit(1)
+    yaml_file_path = "parameters.yaml"
+    with open(yaml_file_path, 'r') as file:
+        config = yaml.safe_load(file)
+    dry_run = False
     if dry_run:
         print("\n==============================")
         print("        DRY RUN ATIVO")
         print("==============================\n")
     
+    # print(config)
     # Define a pasta base do cenário e cria as subpastas necessárias
     root_folder = os.getcwd()
-    # se o YAML definiu base_dir, use-o (resolvido relativo ao YAML); senão use o padrão ./cnr_<nome_cenario>
-    if scenario and scenario.get("base_dir"):
-        base_dir_raw = scenario.get("base_dir")
-        # se caminho for relativo, resolva em relação ao diretório do YAML
-        yaml_dir = Path(scenario_yaml).parent if scenario_yaml else Path(root_folder)
-        base_dir = str((yaml_dir / base_dir_raw).resolve()) if not os.path.isabs(base_dir_raw) else base_dir_raw
-    else:
-        base_dir = os.path.expanduser(f"{root_folder}/cnr_{nome_cenario}")
+    
+    
+    # o base_dir precisa ser um parametro dentro do arquivo yaml (não iremos criar pastas nesse código)
+    base_dir = config.get('base_dir')
+    
     if dry_run:
         print(f"[dry-run] Base dir seria: {base_dir}")
+
+    # TODO: ajustar o input e o output para englobar direito o que se uer fazer no YAML
     for subfolder in ["input", "output"]:
-        os.makedirs(os.path.join(base_dir, subfolder), exist_ok=True)
+        os.makedirs(os.path.join(base_dir, subfolder), exist_ok=True) # TODO: entender como isso será plenamente usado
+        # proposta de colocar input como padrão obrigatório com os arquivos base definidos (o jeito que está agora não propõe isso)
 
-    # Define as pastas de input e output (possíveis overrides via YAML)
-    input_folder = os.path.join(base_dir, "input")
-    output_folder = os.path.join(base_dir, "output")
-    if scenario and scenario.get("output") and scenario["output"].get("folder"):
-        out_raw = scenario["output"].get("folder")
-        yaml_dir = Path(scenario_yaml).parent if scenario_yaml else Path(root_folder)
-        output_folder = str((yaml_dir / out_raw).resolve()) if not os.path.isabs(out_raw) else out_raw
-        os.makedirs(output_folder, exist_ok=True)
+    gpkg_file = config['bho'].get('path') # bho é pra definir gpkg
 
-    # O arquivo GeoPackage do BHO: prefer value do YAML, senão o padrão input/BHO_area.gpkg
-    if scenario and scenario.get("bho") and scenario["bho"].get("path"):
-        bho_raw = scenario["bho"].get("path")
-        yaml_dir = Path(scenario_yaml).parent if scenario_yaml else Path(root_folder)
-        gpkg_file = str((yaml_dir / bho_raw).resolve()) if not os.path.isabs(bho_raw) else bho_raw
-    else:
-        gpkg_file = os.path.join(input_folder, "BHO_area.gpkg")
     if dry_run:
         print(f"[dry-run] BHO GPKG seria: {gpkg_file}")
     
@@ -117,8 +123,8 @@ def main():
     print("Camadas disponíveis:", layers)
     # camada do BHO: pode ser sobrescrita no YAML
     layer = "bho_area"  # default
-    if scenario and scenario.get("bho") and scenario["bho"].get("layer"):
-        layer = scenario["bho"].get("layer")
+    if config["bho"].get("layer"):
+        layer = config["bho"].get("layer")
     
     try:
         with fiona.open(gpkg_file, layer=layer) as src:
@@ -156,82 +162,69 @@ def main():
     else:
         gdf = gdf.to_crs(epsg=4674)
     
-    # Procura por arquivos CSV de dimensão.
-    # Se o YAML tiver 'dimensions', respeitamos essa lista (cada item pode ter 'path' ou 'file_glob').
-    csv_files = []
-    if scenario and scenario.get("dimensions"):
-        yaml_dir = Path(scenario_yaml).parent if scenario_yaml else Path(root_folder)
-        for dim in scenario.get("dimensions", []):
-            if dim is None:
-                continue
-            # item pode ser string path ou dict
-            if isinstance(dim, str):
-                # interpret as path relative ao base_dir / yaml_dir
-                p = Path(dim)
-                if not p.is_absolute():
-                    p = (yaml_dir / dim)
-                csv_files.append(str(p))
-            elif isinstance(dim, dict):
-                if dim.get("path"):
-                    p = Path(dim["path"])
-                    if not p.is_absolute():
-                        p = (yaml_dir / dim["path"])
-                    csv_files.append(str(p))
-                elif dim.get("file_glob"):
-                    pat = dim["file_glob"]
-                    p = Path(pat)
-                    if not p.is_absolute():
-                        pat = str((yaml_dir / pat))
-                    matches = glob.glob(pat)
-                    csv_files.extend(matches)
-    # fallback: procura padrão dim_*.csv dentro da pasta input
-    if not csv_files:
-        csv_pattern = os.path.join(input_folder, f"dim_*.csv")
-        csv_files = glob.glob(csv_pattern)
-    if dry_run:
-        print("[dry-run] Arquivos CSV detectados:")
-        for c in csv_files:
-            print("   -", c)
+    # Aqui usaremos as funções de convertion_functions.py para calcular as dimensões
+    dimensions = config['dimensions']
+    functions_to_work = []
     
-    # Itera sobre cada arquivo CSV: imprime preview e faz o merge com o GeoDataFrame
-    for csv_file in csv_files:
-        try:
-            df = pd.read_csv(csv_file, sep=None, engine='python')
-        except Exception as e:
-            print(f"Erro ao ler o arquivo {csv_file}: {e}")
-            continue
-        
-        # Padroniza os nomes das colunas para letras minúsculas
-        df.columns = df.columns.str.strip().str.lower()
-        print(f"\nPreview (head) do arquivo CSV '{os.path.basename(csv_file)}':")
-        print(df.head())
-        
-        if "cobacia" not in df.columns:
-            print(f"Aviso: A coluna 'cobacia' não foi encontrada no arquivo {csv_file}.")
-            continue
-        try:
-            df["cobacia"] = df["cobacia"].astype("Int64")
+    dados_entregues = None
+    for dimensao in dimensions:
+        functions_to_work.extend(list_functions(dimensao))
+    
+        # Define os tipos das colunas específicas
+        dtype_dict = {
+            'COBACIA': 'Int64',
+            'cod_mun': 'Int64',
+            'cd_setor': 'Int64'
+        }
 
-        except Exception as e:
-            print(f"Erro convertendo 'cobacia' no CSV {csv_file} para int: {e}")
-            continue
-        
-        # Identifica a coluna de dimensão (excluindo 'cobacia')
-        dimension_columns = [col for col in df.columns if col != "cobacia"]
-        if len(dimension_columns) != 1:
-            print(f"Aviso: O arquivo {csv_file} não possui exatamente uma coluna de dimensão.")
-            continue
-        
-        dim_col = dimension_columns[0]
-        # Converte os valores da dimensão para float, tratando vírgulas como separador decimal
-        df[dim_col] = pd.to_numeric(df[dim_col].astype(str).str.replace(",", "."), errors="coerce")
-        
-        # Realiza a junção (merge) com o GeoDataFrame usando a coluna "cobacia"
-        gdf = gdf.merge(df[["cobacia", dim_col]], on="cobacia", how="left")
+        df_temp = pd.read_csv(dimensao['path'],
+            decimal=',',  # trata vírgula como separador decimal
+            thousands='.',  # trata ponto como separador de milhar
+            dtype=dtype_dict  # força o tipo das colunas
+        )
+
+        if dados_entregues is None:
+            dados_entregues = df_temp
+        else:
+            dados_entregues = pd.concat([dados_entregues, df_temp], ignore_index=True)
+
+    coluna_cobacia_csv = 'COBACIA' 
+    coluna_cobacia_gdf = 'cobacia'
     
+    # "dados_entregues" é o que vem do csv lido
+    # "dados_calculados" são depois das contas usando as funções em "convertion_functions", com dados não calculados presentes em "colunas_desejadas"
+    colunas_desejadas = ['fid', 'COBACIA', 'cod_setor', 'tipo_setor', 'cod_mun', 'mun_nm', 'uf', 'situacao_setor']
+
+    # solução inicial: criar uma lista das funções a partir dos itens do yaml
+    # eu não gosto de fazer isso porque tem que conferir o dicionário duas vezes, deve ter jeito melhor de fazer isso
+    lista_funcoes = []
+    for item in functions_to_work:
+        lista_funcoes.append(item['indicador'])
+    
+    for item in functions_to_work:
+        for dependencia in item['depends_on']:
+            if dependencia not in lista_funcoes and isinstance(dependencia, float) == False:
+                # verifica se o que um item depende para ser calculado está pra ser calculado pelo próprio código ou tem que ser entregue antes
+                colunas_desejadas.append(dependencia)
+    
+    # remove colunas duplicadas
+    colunas_desejadas = list(dict.fromkeys(colunas_desejadas))
+    dados_calculados = dados_entregues.filter(colunas_desejadas).copy()
+
+    # solução recursiva para calculo de indicadores considerando as dependências que tem
+    # tem uma checklist das funções que precisam ser calculadas ao invés de entregues
+    # a aplicação dessa função leva isso em consideração
+    for item in functions_to_work:
+        if item['indicador'] not in dados_calculados.columns:
+            calcular_indicador(item['indicador'], dados_calculados, functions_to_work)
+    
+    gdf = gdf.merge(dados_calculados, left_on='cobacia', right_on='COBACIA', how='left')
+    # Remove a coluna COBACIA (maiúscula) se existir
+    if 'COBACIA' in gdf.columns and 'cobacia' in gdf.columns:
+        gdf = gdf.drop(columns=['COBACIA'])
+
     # Seleciona todas as colunas que começam com "ire_cs_"
     dimension_cols = [col for col in gdf.columns if col.startswith("ire_cs_")]
-    
     # Cria a coluna "cs_ish" a partir da média das dimensões não nulas
     gdf["cs_ish"] = compute_cs_ish(gdf, dimension_cols)
     
@@ -242,15 +235,21 @@ def main():
     
     # Imprime o cabeçalho (head) do GeoDataFrame final para verificação
     print("\nPreview (head) do GeoDataFrame final:")
-    print(gdf_final.head())
+    print(gdf.head())
     
+    print(config['id'])
     # Salva a camada "regiao_completa"
     # nome do gpkg final: pode ser sobrescrito no YAML (output.gpkg_name), senão usa padrão
-    gpkg_name = f"ish_cnr_{nome_cenario}.gpkg"
-    if scenario and scenario.get("output") and scenario["output"].get("gpkg_name"):
-        gpkg_name = scenario["output"].get("gpkg_name")
+    gpkg_name = f"ish_cnr_{config['id']}.gpkg"
+    output_folder = "./"
+    if config and config.get("output") and config["output"].get("gpkg_name"):
+        gpkg_name = config["output"].get("gpkg_name")
+        output_folder = config["output"].get('folder')
     output_file = os.path.join(output_folder, gpkg_name)
 
+    # fid duplicado estava causando problema
+    if 'fid' in gdf.columns:
+        gdf = gdf.drop(columns=['fid'])
     if dry_run:
         print(f"[dry-run] Arquivo final GPKG seria salvo em: {output_file}")
         print("\n[dry-run] Nada será executado. Finalizando.")
@@ -258,15 +257,10 @@ def main():
     
     if os.path.isfile(output_file):
         os.remove(output_file)
-    gdf_final.to_file(output_file, driver="GPKG", layer="regiao_completa")
+    gdf.to_file(output_file, driver="GPKG", layer="regiao_completa")
+    gdf.to_csv("./output/5.csv", index=False)
+    # gdf.to_csv("./function_modules_ish_hum/dados_calculados.csv", index=False)
     print(f"Arquivo salvo em {output_file}")
-
-    ## Chama a função do script externo para gerar as demais camadas de recorte
-    # recs = aplica_recortes_gpkg(root_folder, recortes_escolhidos)
-    # if recs:
-        # print("###### Recortes aplicados:", ", ".join(recs))
-    # else:
-        # print("###### Nenhum recorte aplicado.")
         
 if __name__ == "__main__":
     main()

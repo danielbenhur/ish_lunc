@@ -1,0 +1,38 @@
+# scenario_test.yaml -exemplo mínimo
+# O ideal é que esse arquivo esteja dentro da pasta do cenário, ao lado das subpastas input e output
+# id: cenario
+id: juntando_dimensoes
+description: "Cenário teste dados de 2020 - exemplo de uso com juntando_dimensoes"
+base_dir: "."
+
+bho:
+  path: "./cnr_A/input/BHO_area.gpkg"
+
+dimensions:
+  - name: ire_cs_ind_eco
+    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/teste-17-07/VAB2020 - VAB2020.csv
+    indicadores: 
+      - indicador: ire_cs_ind_eco
+  - name: ire_cs_irri_eco
+    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_modules_ish_ind_eco/PAM2021 - PAM2021.csv
+    indicadores: 
+      - indicador: ire_cs_irri_eco
+  - name: ire_cs_pec_eco
+    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_modules_ish_ind_eco/PPM2024 - PPM2024.csv
+    indicadores:
+      - indicador: ire_cs_pec_eco 
+  
+  - name: ire_cs_hum
+    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/teste-17-07/BQ2020 - BQ2020.csv
+    indicadores:
+      - indicador: ire_cs_hum
+
+# Saída: pode opcionalmente sobrescrever pasta output/gpkg final
+output:
+  folder: "./output"
+  gpkg_name: "my_new_dimensions.gpkg"
+
+# logging / metadados (opcional)
+metadata:
+  manifest: "./output/my_new_dimensions_cenario_manifest.json"
+

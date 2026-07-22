@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AtualizadorAutomaticoDialogBase</class>
+ <widget class="QDialog" name="AtualizadorAutomaticoDialogBase">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>450</width>
+    <height>350</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Atualizador Automático</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label_titulo">
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;⚡ Atualizador Automático de Campos&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_info">
+     <property name="title">
+      <string>📋 Regra de Atualização</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QLabel" name="label_regra">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quando o campo &lt;span style=&quot; font-weight:600; color:#2196F3;&quot;&gt;bal_perc&lt;/span&gt; for alterado:&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; color:#4CAF50;&quot;&gt;pop = bal_perc + 60&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_controle">
+     <property name="title">
+      <string>🎮 Controle do Ouvinte</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QLabel" name="label_status">
+        <property name="text">
+         <string>Status: Aguardando ativação...</string>
+        </property>
+        <property name="styleSheet">
+         <string>font-weight: bold; color: #666;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QPushButton" name="button_ativar">
+          <property name="text">
+           <string>▶️ Ativar Ouvinte</string>
+          </property>
+          <property name="styleSheet">
+           <string>QPushButton {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 5px;
+}
+QPushButton:hover {
+    background-color: #45a049;
+}</string>
+          </property>
+          <property name="toolTip">
+           <string>Ativa o monitoramento automático na camada ativa</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="button_desativar">
+          <property name="text">
+           <string>⏹️ Desativar</string>
+          </property>
+          <property name="styleSheet">
+           <string>QPushButton {
+    background-color: #f44336;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 5px;
+}
+QPushButton:hover {
+    background-color: #D32F2F;
+}</string>
+          </property>
+          <property name="toolTip">
+           <string>Desativa todos os ouvintes ativos</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_instrucoes">
+     <property name="title">
+      <string>📖 Como usar</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="QLabel" name="label_instrucoes">
+        <property name="text">
+         <string>1. Selecione a camada desejada na legenda do QGIS
+2. Clique em "Ativar Ouvinte"
+3. Edite o campo 'bal_perc' na tabela de atributos
+4. O campo 'pop' será atualizado automaticamente</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="button_info">
+     <property name="text">
+      <string>ℹ️ Verificar Status do Ouvinte</string>
+     </property>
+     <property name="styleSheet">
+      <string>QPushButton {
+    background-color: #FF9800;
+    color: white;
+    font-weight: bold;
+    padding: 8px;
+    border-radius: 5px;
+}
+QPushButton:hover {
+    background-color: #F57C00;
+}</string>
+     </property>
+     <property name="toolTip">
+      <string>Mostra informações sobre os ouvintes ativos</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="button_box">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>button_box</sender>
+   <signal>rejected()</signal>
+   <receiver>AtualizadorAutomaticoDialogBase</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
