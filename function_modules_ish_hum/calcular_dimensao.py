@@ -24,6 +24,9 @@ def main():
                 funcao = globals()[nome_funcao]
                 dados_entregues[nome_funcao] = funcao(dados_entregues)
                 i+= 1
+                # funcoes = ['cs_cobred', 'ihu_pc_risco_inerente', 'ire_hu_pop', 'ire_hu_cobred']
+                # if nome_funcao in funcoes:
+                    # print(dados_entregues[nome_funcao])
 
             
 

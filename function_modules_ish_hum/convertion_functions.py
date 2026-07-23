@@ -162,7 +162,14 @@ def cs_risco(df):
     return pd.Series(resultado)
 
 def cs_cobred(df):
-    ihu_pc_cobrede = pd.to_numeric(df['ihu_pc_cobrede'], errors='coerce')
+    ihu_pc_cobrede = (df['ihu_pc_cobrede']
+                    .astype(str)
+                    .str.replace(',', '.')
+                    .str.replace('#DIV/0!', 'nan')
+                    .str.replace('#N/A', 'nan')
+                    .str.strip()
+                    .pipe(pd.to_numeric, errors='coerce'))
+
     bins = [-float('inf'), 0, 0.8, 0.9, 0.95, 0.98, 1, float('inf')]
     labels = [0, 1, 2, 3, 4, 5, 5]  
     return pd.cut(ihu_pc_cobrede.fillna(-1), bins=bins, labels=labels, right=False, ordered=False).astype(int)
