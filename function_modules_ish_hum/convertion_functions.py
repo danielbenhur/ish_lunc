@@ -109,8 +109,20 @@ def ihu_pc_risco(df):
     return resultado
 
 def densidade(df):
-    pop = df['pop']
-    area_setor = df['area_setor']
+    pop = (df['pop']
+                    .astype(str)
+                    .str.replace(',', '.')
+                    .str.replace('#DIV/0!', 'nan')
+                    .str.replace('#N/A', 'nan')
+                    .str.strip()
+                    .pipe(pd.to_numeric, errors='coerce'))
+    area_setor = (df['area_setor']
+                    .astype(str)
+                    .str.replace(',', '.')
+                    .str.replace('#DIV/0!', 'nan')
+                    .str.replace('#N/A', 'nan')
+                    .str.strip()
+                    .pipe(pd.to_numeric, errors='coerce'))
 
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
@@ -150,7 +162,7 @@ def cs_risco(df):
     return pd.Series(resultado)
 
 def cs_cobred(df):
-    ihu_pc_cobrede = df['ihu_pc_cobrede']
+    ihu_pc_cobrede = pd.to_numeric(df['ihu_pc_cobrede'], errors='coerce')
     bins = [-float('inf'), 0, 0.8, 0.9, 0.95, 0.98, 1, float('inf')]
     labels = [0, 1, 2, 3, 4, 5, 5]  
     return pd.cut(ihu_pc_cobrede.fillna(-1), bins=bins, labels=labels, right=False, ordered=False).astype(int)
@@ -173,18 +185,30 @@ def pop_urb_bacia(df):
 
     return resultado
 
-def perc_scbc(parametros):
-    pop_urb_scbc = df['pop_urb_scbc']
-    pop_urb_bacia = df['pop_urb_bacia']
-
-    # Evitar divisão por zero
-    resultado = np.where(
-        pop_urb_bacia != 0,
-        pop_urb_scbc / pop_urb_bacia,
-        0
-    )
-  
-    return pd.Series(resultado, index=pop_urb_scbc.index)
+def perc_scbc(df):
+    # Limpeza da primeira coluna
+    pop_urb_scbc = (df['pop_urb_scbc']
+                    .astype(str)
+                    .str.replace(',', '.')
+                    .str.replace('#DIV/0!', 'nan')
+                    .str.replace('#N/A', 'nan')
+                    .str.strip()
+                    .pipe(pd.to_numeric, errors='coerce'))
+    
+    # Limpeza da segunda coluna
+    pop_urb_bacia = (df['pop_urb_bacia']
+                     .astype(str)
+                     .str.replace(',', '.')
+                     .str.replace('#DIV/0!', 'nan')
+                     .str.replace('#N/A', 'nan')
+                     .str.strip()
+                     .pipe(pd.to_numeric, errors='coerce'))
+    
+    # Cálculo seguro
+    resultado = pop_urb_scbc / pop_urb_bacia
+    resultado = resultado.fillna(0).replace([np.inf, -np.inf], 0)
+    
+    return resultado
 
 def ihu_cs_ish(df, peso_cs_cobred=0.7, peso_cs_risco=0.3):
     cs_risco = df['cs_risco']
@@ -210,13 +234,13 @@ def ihu_rel_cobred(df):
 
 def ire_hu_pop(df):
     cobacia = df['COBACIA']
-    ihu_rel_pop = df['ihu_rel_pop']
+    ihu_rel_pop = pd.to_numeric(df['ihu_rel_pop'], errors='coerce')
     
     return ihu_rel_pop.groupby(cobacia).transform('sum')
     
-def ire_hu_cobred(parametros):
+def ire_hu_cobred(df):
     cobacia = df['COBACIA']
-    ihu_rel_cobred = df['ihu_rel_cobred']
+    ihu_rel_cobred = pd.to_numeric(df['ihu_rel_cobred'], errors='coerce')
     
     return ihu_rel_cobred.groupby(cobacia).transform('sum')
 
