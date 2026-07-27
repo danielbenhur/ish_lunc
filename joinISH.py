@@ -2,10 +2,21 @@ import pandas as pd
 import os
 import glob
 
-# 1. Definir o caminho da pasta principal onde estão as pastas functions_module_ish_
+def compute_cs_ish(df, dim_cols):
+    """
+    Recebe um GeoDataFrame e uma lista de colunas de dimensão (por exemplo,
+    ['ire_cs_hum', 'ire_cs_eco', ...]). Retorna uma Series contendo a média
+    das colunas, considerando apenas valores maiores que 0.0 (ignorando zeros e NaN).
+    Quando não tiver valores na linha, o cs_ish será 0
+    """
+    df_numeric = df[dim_cols].apply(pd.to_numeric, errors='coerce')
+    # Para cada linha, filtra apenas valores > 0 e calcula a média
+    return df_numeric.apply(lambda row: row[row > 0.0].mean() if (row[row > 0.0].count() > 0) else 0.0, axis=1)
+
+# Definir o caminho da pasta principal onde estão as pastas functions_module_ish_
 caminho_base = "."  # Altere para o caminho correto, ex: "./dados"
 
-# 2. Encontrar todas as pastas que começam com "functions_module_ish_"
+# Encontrar todas as pastas que começam com "functions_module_ish_"
 padrao_pasta = os.path.join(caminho_base, "functions_module_ish_*")
 pastas_encontradas = glob.glob(padrao_pasta)
 
@@ -14,10 +25,10 @@ pastas_encontradas = [p for p in pastas_encontradas if os.path.isdir(p)]
 
 print(f"📁 Pastas functions_module_ish_ encontradas: {len(pastas_encontradas)}")
 
-# 3. Lista para armazenar os dataframes extraídos
-dataframes_lista = []
+#  Dicionário para armazenar os dataframes de cada arquivo
+dataframes_dict = {}
 
-# 4. Para cada pasta encontrada
+# Para cada pasta encontrada
 for pasta in pastas_encontradas:
     print(f"\n📂 Processando: {os.path.basename(pasta)}")
     
@@ -33,7 +44,6 @@ for pasta in pastas_encontradas:
     nome_pasta = os.path.basename(pasta)
     
     # Extrair o sufixo da pasta (hum, eco, etc.)
-    # Exemplo: "functions_module_ish_hum" -> "hum"
     sufixo = nome_pasta.replace("functions_module_ish_", "")
     
     # Construir o nome do arquivo correspondente
@@ -55,7 +65,7 @@ for pasta in pastas_encontradas:
         print(f"     Arquivos disponíveis: {os.listdir(pasta_output)}")
         continue
     
-    arquivo = arquivos_encontrados[0]  # Pega o primeiro arquivo encontrado
+    arquivo = arquivos_encontrados[0]
     nome_arquivo = os.path.basename(arquivo)
     print(f"  📄 Arquivo encontrado: {nome_arquivo}")
     
@@ -63,77 +73,65 @@ for pasta in pastas_encontradas:
         # 4.5. Ler o arquivo (assumindo CSV - ajuste se necessário)
         df_temp = pd.read_csv(arquivo)
         
-        # Se for Excel, use: df_temp = pd.read_excel(arquivo)
-        # Se for Parquet, use: df_temp = pd.read_parquet(arquivo)
-        
         # 4.6. Verificar se a coluna esperada existe
         if coluna_esperada not in df_temp.columns:
             print(f"  ⚠️ Coluna '{coluna_esperada}' não encontrada")
             print(f"     Colunas disponíveis: {df_temp.columns.tolist()}")
             continue
         
-        # 4.7. Extrair a coluna
-        # O nome da coluna no dataframe final será: ire_cs_hum
-        nome_coluna_final = f"{coluna_esperada}"
+        # 4.7. Verificar se a coluna COBACIA existe
+        if 'COBACIA' not in df_temp.columns:
+            print(f"  ⚠️ Coluna 'COBACIA' não encontrada em {nome_arquivo}")
+            print(f"     Colunas disponíveis: {df_temp.columns.tolist()}")
+            continue
         
-        df_coluna = pd.DataFrame({
-            nome_coluna_final: df_temp[coluna_esperada]
-        })
+        # 4.8. Armazenar o dataframe com COBACIA e a coluna de interesse
+        df_para_merge = df_temp[['COBACIA', coluna_esperada]].copy()
         
-        dataframes_lista.append(df_coluna)
+        # 4.9. Adicionar ao dicionário (usando o sufixo como chave)
+        dataframes_dict[sufixo] = df_para_merge
         
         print(f"  ✅ Coluna '{coluna_esperada}' extraída com sucesso!")
-        print(f"     📊 {len(df_temp[coluna_esperada])} linhas")
+        print(f"     📊 {len(df_temp)} linhas")
+        print(f"     🔑 COBACIA: {df_temp['COBACIA'].nunique()} valores únicos")
         
     except Exception as e:
         print(f"  ❌ Erro ao ler {arquivo}: {e}")
         continue
 
-# 5. Verificar se encontramos algum dataframe
-if not dataframes_lista:
-    print("\n❌ Nenhum dataframe foi extraído. Verifique:")
-    print("  - Se as pastas 'output' existem dentro de cada functions_module_ish_")
-    print("  - Se os arquivos seguem o padrão: ish_[sufixo] (ex: ish_hum, ish_eco)")
-    print("  - Se os arquivos contêm colunas no padrão: ire_cs_[sufixo] (ex: ire_cs_hum, ire_cs_eco)")
-    print("  - Se os arquivos são CSV (ou ajuste o formato no código)")
+# Verificar se encontramos dataframes para fazer o merge
+if len(dataframes_dict) < 2:
+    print("\n❌ Não foram encontrados arquivos suficientes para fazer o merge.")
+    print(f"   Encontrados: {list(dataframes_dict.keys())}")
+    print("   Esperados: hum, eco (pelo menos 2)")
     exit()
 
-# 6. Juntar todos os dataframes lado a lado (horizontalmente)
-print("\n🔗 Juntando todos os dataframes...")
-df_final = pd.concat(dataframes_lista, axis=1)
+# Fazer o merge dos dataframes usando COBACIA como chave
+print("\n🔗 Fazendo merge dos dataframes usando COBACIA...")
 
-# 7. Salvar o dataframe final
-df_final.to_csv("dataframe_final_ire_cs.csv", index=False)
-print(f"\n✅ Dataframe final criado com sucesso!")
-print(f"   📊 Linhas: {df_final.shape[0]}")
-print(f"   📊 Colunas: {df_final.shape[1]}")
-print(f"   📋 Nomes das colunas:")
+# Começar com o primeiro dataframe
+chaves = list(dataframes_dict.keys())
+df_final = dataframes_dict[chaves[0]]
+
+# Fazer merge com os demais
+for chave in chaves[1:]:
+    df_final = pd.merge(df_final, dataframes_dict[chave], on='COBACIA', how='outer')
+    print(f"  ✅ Merge com '{chave}' concluído")
+
+# Ordenar por COBACIA 
+df_final = df_final.sort_values('COBACIA').reset_index(drop=True)
+
+# Verificar se há valores nulos após o merge
+# print(f"\n🔍 Verificando valores nulos após o merge:")
+# print(df_final.isnull().sum())
+
+# Calcular o cs_ish (apenas com as colunas ire_cs_*)
+colunas_ire_cs = [col for col in df_final.columns if col.startswith('ire_cs_')]
+df_final["cs_ish"] = compute_cs_ish(df_final, colunas_ire_cs)
+
+
+# Mostrar quantos COBACIA únicos em cada coluna
+print(f"\n🔑 Quantidade de COBACIA únicos por coluna:")
 for col in df_final.columns:
-    print(f"      - {col}")
-
-# 8. Mostrar as primeiras linhas do dataframe final
-print("\n📊 Primeiras 5 linhas do dataframe final:")
-print(df_final.head())
-
-# 9. Mostrar estatísticas básicas
-print("\n📊 Estatísticas básicas:")
-print(df_final.describe())
-
-# 10. Salvar também em Excel (opcional)
-# df_final.to_excel("dataframe_final_ire_cs.xlsx", index=False)
-# print("\n✅ Arquivo Excel também salvo como 'dataframe_final_ire_cs.xlsx'")
-
-# 11. Verificar se há valores nulos
-print(f"\n🔍 Valores nulos por coluna:")
-print(df_final.isnull().sum())
-
-# 12. Mostrar resumo das pastas processadas
-print(f"\n📋 Resumo das pastas processadas:")
-for i, col in enumerate(df_final.columns):
-    # Extrair o sufixo do nome da coluna
-    if 'ire_cs_' in col:
-        partes = col.split('_')
-        sufixo = partes[2] if len(partes) > 2 else 'desconhecido'
-        pasta_origem = col.replace(f"ire_cs_{sufixo}_", "")
-        print(f"   {i+1}. {col}")
-        print(f"      → Sufixo: {sufixo}, Pasta: {pasta_origem}")
+    if col != 'cs_ish':
+        print(f"   {col}: {df_final[col].count()} valores não-nulos")
