@@ -10,15 +10,15 @@ bho:
 
 dimensions:
   - name: ire_cs_ind_eco
-    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/function_modules_ish_eco/VAB2020 - VAB2020.csv
+    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/VAB2020 - VAB2020.csv
     indicadores:
       - name: ire_cs_ind_eco
   - name: ire_cs_irri_eco
-    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/function_modules_ish_eco/PAM2021 - PAM2021.csv
+    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/PAM2021 - PAM2021.csv
     indicadores:
       - name: ire_cs_irri_eco
   - name: ire_cs_pec_eco
-    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/function_modules_ish_eco/PPM2024 - PPM2024.csv
+    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/PPM2024 - PPM2024.csv
     indicadores:
       - name: ire_cs_pec_eco
 

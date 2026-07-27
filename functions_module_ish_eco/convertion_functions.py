@@ -10,10 +10,21 @@ import sys
 # def ire_cs_pec_eco(parametros):
 
 def ire_cs_eco(ind, peso_ind, irri, peso_irri, pec, peso_pec):
+    # =SE(E(B4=0; C4=0); ""; (SE(B4=0; 5; B4)*0,3 + SE(C4=0; 5; C4)*0,7))
+    if irri == 0 and pec == 0:
+        impacto_agro = 0
+    elif irri == 0:
+        irri = 5
+    elif pec == 0:
+        pec = 5
+    
     impacto_agro = pec*peso_pec + irri*peso_irri
     impacto_ind  = ind*peso_ind
 
-    if impacto_agro < impacto_ind:
+    # =LET(agropec; SE(E(B2=0; C2=0); 0; SE(B2=0; 5; B2)*0,3 + SE(C2=0; 5; C2)*0,7); ind; E2; SE(agropec>0; SE(ind>0; MÍNIMO(agropec; ind); ind); SE(agropec>0; agropec; "")))
+    if impacto_ind == 0:
+        return impacto_agro
+    elif impacto_agro < impacto_ind:
         return impacto_agro
     else:
         return impacto_ind

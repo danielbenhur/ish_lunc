@@ -80,7 +80,7 @@ def main():
     # Calcular o cs_ish (apenas um valor por COBACIA)
     colunas_ire_cs = [col for col in df_final.columns if col.startswith('ire_cs_')]
     df_final["cs_ish"] = compute_cs_ish(df_final, colunas_ire_cs)
-    # print(df_final.head())
+    print(df_final.head())
 
     # Integrando o GPKG ao projeto
     gpkg_file = config['bho']['path']

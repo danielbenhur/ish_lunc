@@ -8,9 +8,11 @@ bho:
 
 dimensions:
   - name: ire_cs_hum
-    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum.csv"
+    path: "./functions_module_ish_hum/output/ish_hum.csv"
   - name: ire_cs_eco
-    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/output/ish_eco.csv"
+    path: "./functions_module_ish_eco/output/ish_eco.csv"
+  # - name: ire_cs_amb
+    # path: ""
 
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:
