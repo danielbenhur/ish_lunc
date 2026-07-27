@@ -32,6 +32,7 @@ logs/
 /cnr_*/output/
 /cnr*
 */testing_joinISH
+cs_ish.txt
 
 # IDEs
 .vscode/
