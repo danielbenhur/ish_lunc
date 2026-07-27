@@ -1,68 +1,79 @@
 import pandas as pd
 import os
 import glob
+import geopandas as gpd
+from shapely.geometry import Point
+import fiona
+
+def load_gpkg_with_fid(filename, layer):
+    """
+    Lê um GeoPackage usando fiona e inclui o FID (feature id)
+    no dicionário de propriedades como 'cobacia'
+    """
+    features = []
+    with fiona.open(filename, layer=layer) as src:
+        for feat in src:
+            props = dict(feat['properties'])
+            try:
+                props['cobacia'] = int(feat['id'])
+            except ValueError:
+                props['cobacia'] = feat['id']
+            features.append({
+                "properties": props,
+                "geometry": feat["geometry"]
+            })
+        crs = src.crs
+    return gpd.GeoDataFrame.from_features(features, crs=crs)
 
 def compute_cs_ish(df, dim_cols):
     """
-    Recebe um GeoDataFrame e uma lista de colunas de dimensão (por exemplo,
-    ['ire_cs_hum', 'ire_cs_eco', ...]). Retorna uma Series contendo a média
-    das colunas, considerando apenas valores maiores que 0.0 (ignorando zeros e NaN).
-    Quando não tiver valores na linha, o cs_ish será 0
+    Calcula a média das colunas de dimensão, considerando apenas valores > 0.
+    Retorna uma Series com um único cs_ish por COBACIA.
     """
+    # Converte para numérico
     df_numeric = df[dim_cols].apply(pd.to_numeric, errors='coerce')
-    # Para cada linha, filtra apenas valores > 0 e calcula a média
-    return df_numeric.apply(lambda row: row[row > 0.0].mean() if (row[row > 0.0].count() > 0) else 0.0, axis=1)
+    
+    # Calcula a média para cada linha (ignorando valores <= 0 e NaN)
+    cs_ish = df_numeric.apply(lambda row: row[row > 0.0].mean() if (row[row > 0.0].count() > 0) else 0.0, axis=1)
+    
+    return cs_ish
 
-# Definir o caminho da pasta principal onde estão as pastas functions_module_ish_
-caminho_base = "."  # Altere para o caminho correto, ex: "./dados"
+# 1. Definir o caminho da pasta principal
+caminho_base = "."
 
-# Encontrar todas as pastas que começam com "functions_module_ish_"
+# 2. Encontrar todas as pastas que começam com "functions_module_ish_"
 padrao_pasta = os.path.join(caminho_base, "functions_module_ish_*")
 pastas_encontradas = glob.glob(padrao_pasta)
-
-# Filtrar apenas pastas (não arquivos)
 pastas_encontradas = [p for p in pastas_encontradas if os.path.isdir(p)]
 
 print(f"📁 Pastas functions_module_ish_ encontradas: {len(pastas_encontradas)}")
 
-#  Dicionário para armazenar os dataframes de cada arquivo
+# 3. Dicionário para armazenar os dataframes
 dataframes_dict = {}
 
-# Para cada pasta encontrada
+# 4. Para cada pasta encontrada
 for pasta in pastas_encontradas:
     print(f"\n📂 Processando: {os.path.basename(pasta)}")
     
-    # 4.1. Construir o caminho para a subpasta output
     pasta_output = os.path.join(pasta, "output")
-    
-    # 4.2. Verificar se a pasta output existe
     if not os.path.exists(pasta_output):
         print(f"  ⚠️ Pasta 'output' não encontrada")
         continue
     
-    # 4.3. Determinar qual arquivo procurar baseado no nome da pasta
     nome_pasta = os.path.basename(pasta)
-    
-    # Extrair o sufixo da pasta (hum, eco, etc.)
     sufixo = nome_pasta.replace("functions_module_ish_", "")
-    
-    # Construir o nome do arquivo correspondente
     nome_arquivo_esperado = f"ish_{sufixo}"
     coluna_esperada = f"ire_cs_{sufixo}"
     
     print(f"  🔍 Procurando arquivo: {nome_arquivo_esperado}")
     print(f"  🔍 Procurando coluna: {coluna_esperada}")
     
-    # 4.4. Procurar o arquivo específico
     padrao_arquivo = os.path.join(pasta_output, f"{nome_arquivo_esperado}*")
     arquivos_encontrados = glob.glob(padrao_arquivo)
-    
-    # Filtrar apenas arquivos (não pastas)
     arquivos_encontrados = [a for a in arquivos_encontrados if os.path.isfile(a)]
     
     if not arquivos_encontrados:
-        print(f"  ⚠️ Arquivo '{nome_arquivo_esperado}' não encontrado em {pasta_output}")
-        print(f"     Arquivos disponíveis: {os.listdir(pasta_output)}")
+        print(f"  ⚠️ Arquivo '{nome_arquivo_esperado}' não encontrado")
         continue
     
     arquivo = arquivos_encontrados[0]
@@ -70,68 +81,112 @@ for pasta in pastas_encontradas:
     print(f"  📄 Arquivo encontrado: {nome_arquivo}")
     
     try:
-        # 4.5. Ler o arquivo (assumindo CSV - ajuste se necessário)
         df_temp = pd.read_csv(arquivo)
         
-        # 4.6. Verificar se a coluna esperada existe
         if coluna_esperada not in df_temp.columns:
             print(f"  ⚠️ Coluna '{coluna_esperada}' não encontrada")
-            print(f"     Colunas disponíveis: {df_temp.columns.tolist()}")
             continue
         
-        # 4.7. Verificar se a coluna COBACIA existe
         if 'COBACIA' not in df_temp.columns:
-            print(f"  ⚠️ Coluna 'COBACIA' não encontrada em {nome_arquivo}")
-            print(f"     Colunas disponíveis: {df_temp.columns.tolist()}")
+            print(f"  ⚠️ Coluna 'COBACIA' não encontrada")
             continue
         
-        # 4.8. Armazenar o dataframe com COBACIA e a coluna de interesse
+        # 🔥 IMPORTANTE: Garantir que cada COBACIA tenha apenas um valor
+        # Se houver duplicatas, mantém a média ou o primeiro valor
         df_para_merge = df_temp[['COBACIA', coluna_esperada]].copy()
         
-        # 4.9. Adicionar ao dicionário (usando o sufixo como chave)
+        # Verifica se há duplicatas e as agrega (média)
+        if df_para_merge['COBACIA'].duplicated().any():
+            print(f"  ⚠️ Duplicatas encontradas para COBACIA. Calculando média...")
+            df_para_merge = df_para_merge.groupby('COBACIA', as_index=False)[coluna_esperada].mean()
+        
         dataframes_dict[sufixo] = df_para_merge
         
         print(f"  ✅ Coluna '{coluna_esperada}' extraída com sucesso!")
-        print(f"     📊 {len(df_temp)} linhas")
-        print(f"     🔑 COBACIA: {df_temp['COBACIA'].nunique()} valores únicos")
+        print(f"     📊 {len(df_para_merge)} COBACIAS únicas")
         
     except Exception as e:
         print(f"  ❌ Erro ao ler {arquivo}: {e}")
         continue
 
-# Verificar se encontramos dataframes para fazer o merge
+# 5. Verificar se encontramos dataframes
 if len(dataframes_dict) < 2:
-    print("\n❌ Não foram encontrados arquivos suficientes para fazer o merge.")
-    print(f"   Encontrados: {list(dataframes_dict.keys())}")
-    print("   Esperados: hum, eco (pelo menos 2)")
+    print("\n❌ Não foram encontrados arquivos suficientes.")
     exit()
 
-# Fazer o merge dos dataframes usando COBACIA como chave
+# 6. Fazer o merge dos dataframes usando COBACIA
 print("\n🔗 Fazendo merge dos dataframes usando COBACIA...")
-
-# Começar com o primeiro dataframe
 chaves = list(dataframes_dict.keys())
 df_final = dataframes_dict[chaves[0]]
 
-# Fazer merge com os demais
 for chave in chaves[1:]:
-    df_final = pd.merge(df_final, dataframes_dict[chave], on='COBACIA', how='outer')
+    df_final = pd.merge(df_final, dataframes_dict[chave], on='COBACIA', how='inner')
     print(f"  ✅ Merge com '{chave}' concluído")
+    
+    # Verifica se houve duplicação após o merge
+    if df_final['COBACIA'].duplicated().any():
+        print(f"  ⚠️ Duplicatas detectadas após merge com {chave}. Agregando...")
+        # Agrega todas as colunas que não são COBACIA pela média
+        cols_to_agg = [col for col in df_final.columns if col != 'COBACIA']
+        df_final = df_final.groupby('COBACIA', as_index=False)[cols_to_agg].mean()
 
-# Ordenar por COBACIA 
+# 7. Ordenar por COBACIA
 df_final = df_final.sort_values('COBACIA').reset_index(drop=True)
 
-# Verificar se há valores nulos após o merge
-# print(f"\n🔍 Verificando valores nulos após o merge:")
-# print(df_final.isnull().sum())
-
-# Calcular o cs_ish (apenas com as colunas ire_cs_*)
+# 8. Calcular o cs_ish (apenas um valor por COBACIA)
 colunas_ire_cs = [col for col in df_final.columns if col.startswith('ire_cs_')]
 df_final["cs_ish"] = compute_cs_ish(df_final, colunas_ire_cs)
 
+print(f"\n✅ Dataframe final com {len(df_final)} COBACIAS")
+print(f"   Colunas: {df_final.columns.tolist()}")
+print(f"   cs_ish - Mín: {df_final['cs_ish'].min():.2f}, Máx: {df_final['cs_ish'].max():.2f}, Média: {df_final['cs_ish'].mean():.2f}")
 
-# Mostrar quantos COBACIA únicos em cada coluna
-print(f"\n🔑 Quantidade de COBACIA únicos por coluna:")
-for col in df_final.columns:
-    if col != 'cs_ish':
-        print(f"   {col}: {df_final[col].count()} valores não-nulos")
+# 9. Salvar CSV (backup)
+df_final.to_csv("dataframe_final_ire_cs.csv", index=False)
+print(f"\n✅ CSV salvo: dataframe_final_ire_cs.csv")
+
+# =====================================================
+# 10. LER O GEODATAFRAME BHO_area.gpkg E FAZER JOIN
+# =====================================================
+
+print("\n🗺️ Carregando o GeoPackage BHO_area.gpkg...")
+
+# 10.1. Verificar se o arquivo BHO_area.gpkg existe
+gpkg_file = "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/cnr_A/input/BHO_area.gpkg"
+layer = "bho_area"  # default
+
+try:
+    # Carrega o GeoPackage utilizando a função que extrai a FID como 'cobacia'
+    gdf = load_gpkg_with_fid(gpkg_file, layer)
+    
+    # Converte COBACIA para float para fazer o merge
+    gdf['COBACIA'] = gdf['cobacia'].astype(float)
+    gdf = gdf.drop(columns=['cobacia'])
+    
+    # 🔥 FAZ O MERGE FINAL - Garantindo que cada COBACIA tenha apenas um registro
+    print(f"📊 GeoDataFrame: {len(gdf)} registros")
+    print(f"📊 DataFrame final: {len(df_final)} registros")
+    
+    gdf_final = gdf.merge(df_final, on='COBACIA', how='inner')
+    
+    # Verifica duplicatas no resultado final
+    if gdf_final['COBACIA'].duplicated().any():
+        print("⚠️ Duplicatas detectadas no resultado final. Removendo...")
+        gdf_final = gdf_final.drop_duplicates(subset=['COBACIA'], keep='first')
+    
+    print(f"✅ Merge final concluído: {len(gdf_final)} COBACIAS")
+    
+    # Salva como CSV
+    gdf_final.to_csv('resultado.csv', index=False)
+    print(f"✅ CSV salvo: resultado.csv")
+    
+    # Salva como GeoPackage se quiser
+    gdf_final.to_file('resultado.gpkg', layer='resultado', driver='GPKG')
+    
+except FileNotFoundError:
+    print(f"❌ Arquivo não encontrado: {gpkg_file}")
+except Exception as e:
+    print(f"❌ Erro ao processar GeoPackage: {e}")
+
+print("\n🎯 Processamento concluído!")
+print(f"   Últimas 5 COBACIAs: {gdf_final.head()}")

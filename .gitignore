@@ -34,6 +34,7 @@ logs/
 */testing_joinISH
 cs_ish.txt
 
+
 # IDEs
 .vscode/
 .idea/
@@ -57,3 +58,4 @@ ish_graduado.qml
 
 # resultados
 dataframe_final_ire_cs.csv
+resultado.csv
