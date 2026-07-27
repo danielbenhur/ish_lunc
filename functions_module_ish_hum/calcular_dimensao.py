@@ -7,28 +7,33 @@ def main():
     with open(yaml_file_path, 'r') as file:
         config = yaml.safe_load(file)
     
-    # Aqui usaremos as funções de convertion_functions.py para calcular as dimensões
     dimensions = config['dimensions']
-    parametros = []
-
-    dados_calculados = pd.DataFrame()
-    resultado = None # correção de chamada de variável local antes de atribuição
-    i = 0
-    # lista de funções estabelecidas no YAML de parâmetros
+    dataframes = []  # Lista para armazenar todos os DataFrames
+    
+    # Processar cada arquivo e aplicar as funções
     for dimension in dimensions:
-        dados_entregues = pd.read_csv(dimension['path'])
-       
+        df = pd.read_csv(dimension['path'])
+        
+        # Aplicar as funções específicas para cada dimensão
         for item in dimension['indicadores']:
             nome_funcao = item['name']
             if nome_funcao in globals() and callable(globals()[nome_funcao]):
                 funcao = globals()[nome_funcao]
-                dados_entregues[nome_funcao] = funcao(dados_entregues)
-                i+= 1
-                # funcoes = ['cs_cobred', 'ihu_pc_risco_inerente', 'ire_hu_pop', 'ire_hu_cobred']
-                # if nome_funcao in funcoes:
-                    # print(dados_entregues[nome_funcao])
-
-            
+                df[nome_funcao] = funcao(df)
+        
+        dataframes.append(df)
+        print(f"Arquivo {dimension['path']} processado. Colunas: {df.columns.tolist()}")
+    
+    # Fazer merge de todos os DataFrames
+    # Assumindo que todos têm uma coluna de identificação comum (ex: 'id', 'municipio', etc.)
+    # Você precisa identificar qual é a chave comum entre os arquivos
+    
+    dados_entregues = dataframes[0]
+    for df in dataframes[1:]:
+        # Encontre colunas comuns para fazer o merge
+        # Ajuste a coluna de merge conforme seus dados
+        coluna_chave = 'COBACIA'  # ALTERE PARA A COLUNA QUE É COMUM ENTRE SEUS ARQUIVOS
+        dados_entregues = pd.merge(dados_entregues, df, on=coluna_chave, how='outer')
 
     # resultado: ire_cs_hum - resolução provisória: formação da função geral em código dentro da main
     pesos = {}
