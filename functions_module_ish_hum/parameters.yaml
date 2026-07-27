@@ -89,9 +89,9 @@ result:
   - name: ire_cs_hum
     depends_on:
       - name: ire_hu_cobred
-        peso: 0.7
-      - name: ire_hu_pop
         peso: 0.3
+      - name: ire_hu_pop
+        peso: 0.7
 
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:

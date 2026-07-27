@@ -53,3 +53,6 @@ output/
 # arquivos externos
 ish_discretizado.qml
 ish_graduado.qml
+
+# resultados
+dataframe_final_ire_cs.csv
