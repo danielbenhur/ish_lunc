@@ -1,91 +1,19 @@
-# scenario_test.yaml -exemplo mínimo
-# O ideal é que esse arquivo esteja dentro da pasta do cenário, ao lado das subpastas input e output
 id: cenario
 description: "Cenário teste dados de 2020 - exemplo de uso com joinISH"
-# Base_dir relativo ao arquivo YAML ou caminho absoluto
 base_dir: "."
 
 bho:
-  # caminho para o gpkg do BHO; se relativo, será resolvido em relação ao base_dir (ou ao diretório do YAML)
   path: "./cnr_A/input/BHO_area.gpkg"
-  # opcional: nome da camada dentro do gpkg (ex: bho_area)
-#  layer: "bho_area"
+  layer: "bho_area"
 
-# dimensions: lista opcional que substitui o glob dim_*.csv
-# Cada item pode ter 'path' (arquivo exato) ou 'file_glob' (padrão glob).
-# Caminhos relativos são resolvidos em relação a base_dir (ou ao diretório do YAML).
 dimensions:
-  # - name: ire_cs_ind # nome da coluna final
-    # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/function_modules_ish_ind/entrada.csv" # arquivo de onde extrair
-    # 
-    # indicadores:
-      # - indicador: perc_scbc_ind
-        # depends_on: [pop_urb_scbc_ind, deman_indus]
-      # - indicador: igh_ind
-        # depends_on: [disp_q95, deman_indus]
-      # - indicador: ihu_rel
-        # depends_on: [perc_scbc_ind, ihu_cs_ish]
-      # - indicador: ire_cs_ind
-        # depends_on: [ihu_rel, 0.7, igh_ind, 0.3]
-  
   - name: ire_cs_hum
-    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/function_modules_ish_hum/entrada.csv"
-    indicadores:
-      - indicador: disp_por_dem
-        depends_on: [bal_perc]
-      - indicador: ft_imi
-        depends_on: [disp_por_dem]
-      - indicador: ft_pd
-        depends_on: [disp_por_dem]
-        column: fator_pós_deficit
-      - indicador: ft_tot
-        depends_on: [ft_imi, ft_pd]
-      - indicador: ihu_nu_popriscoinerente
-        depends_on: [ft_imi, dmu_nu_popurbana]
-      - indicador: ihu_pc_risco_inerente
-        depends_on: [ihu_nu_popriscoinerente, dmu_nu_popurbana]
-      - indicador: ihu_nu_popriscoposdeficit
-        depends_on: [ft_pd, dmu_nu_popurbana]
-      - indicador: ihu_pc_riscoposdeficit
-        depends_on: [ihu_nu_popriscoposdeficit, dmu_nu_popurbana]
-      - indicador: ihu_nu_popriscototal
-        depends_on: [ft_tot, dmu_nu_popurbana]
-      - indicador: ihu_pc_risco
-        depends_on: [ihu_nu_popriscototal, dmu_nu_popurbana]
-      - indicador: densidade
-        depends_on: [pop, area_setor]
-      - indicador: cs_risco
-        depends_on: [ihu_nu_popriscototal, ihu_pc_risco]
-      - indicador: cs_cobred
-        depends_on: [ihu_pc_cobrede]
-      - indicador: pop_urb_scbc
-        depends_on: [situacao_setor, densidade, area_scbc, 100]
-      - indicador: pop_urb_bacia
-        depends_on: [COBACIA, pop_urb_scbc]
-      - indicador: perc_scbc
-        depends_on: [pop_urb_scbc, pop_urb_bacia]
-      # - indicador: ihu_cs_ish
-        # depends_on: [cs_risco, 0.7, cs_cobred, 0.3]
-      - indicador: ihu_rel_pop
-        depends_on: [perc_scbc, cs_risco]
-      - indicador: ihu_rel_cobred
-        depends_on: [perc_scbc, cs_cobred]
-      - indicador: ire_hu_pop
-        depends_on: [COBACIA, ihu_rel_pop]
-      - indicador: ire_hu_cobred
-        depends_on: [COBACIA, ihu_rel_cobred]
-      - indicador: ire_cs_hum
-        depends_on: [ire_hu_pop, 0.7, ire_hu_cobred, 0.3]
-        # depends_on: [ire_hu_pop, 0.7, 5, 0.3]
-    
-    descritor: tipo_setor
+    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum.csv"
+  - name: ire_cs_eco
+    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/output/ish_eco.csv"
 
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:
   folder: "./output"
-  gpkg_name: "original.gpkg"
-
-# logging / metadados (opcional)
-metadata:
-  manifest: "./output/scenario_manifest.json"
-
+  gpkg_name: "resultado.gpkg"
+  csv_name: "resultado.csv"
