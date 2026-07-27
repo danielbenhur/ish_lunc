@@ -64,7 +64,7 @@ def main():
     df_final = dataframes_dict[chaves[0]]
 
     for chave in chaves[1:]:
-        df_final = pd.merge(df_final, dataframes_dict[chave], on='COBACIA', how='inner')
+        df_final = pd.merge(df_final, dataframes_dict[chave], on='COBACIA', how='left')
         # print(f"  ✅ Merge com '{chave}' concluído")
 
         # Verifica se houve duplicação após o merge
@@ -91,9 +91,13 @@ def main():
     gdf['COBACIA'] = gdf['COBACIA'].astype(float)
 
     # juntando as colunas calculadas com o mapa
-    gdf_final = gdf.merge(df_final, on='COBACIA', how='inner')
-    gdf_final.to_csv('resultado.csv', index=False)
-    gdf_final.to_file('resultado.gpkg', layer='resultado', driver='GPKG')
+    gdf_final = gdf.merge(df_final, on='COBACIA', how='left')
+
+    caminho_final = config['output']
+    caminho_csv = caminho_final['folder'] + '/' + caminho_final['csv_name']
+    caminho_gpkg = caminho_final['folder'] + '/' + caminho_final['gpkg_name']
+    gdf_final.to_csv(caminho_csv, index=False)
+    gdf_final.to_file(caminho_gpkg, layer='resultado', driver='GPKG')
     
 if __name__ == "__main__":
     main()
