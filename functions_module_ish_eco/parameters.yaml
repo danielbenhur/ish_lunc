@@ -1,6 +1,5 @@
 # scenario_test.yaml -exemplo mínimo
 # O ideal é que esse arquivo esteja dentro da pasta do cenário, ao lado das subpastas input e output
-# id: cenario
 id: economico
 description: "Calculando a dimensão econômica"
 base_dir: "."

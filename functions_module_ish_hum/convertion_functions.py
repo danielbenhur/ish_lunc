@@ -18,7 +18,6 @@ def disp_por_dem(df):
     
     # Converte para Series para manter compatibilidade
     resultado = np.where(np.isinf(resultado), 0, resultado)
-
     return pd.Series(resultado, index=df.index)
 
 def fator_iminente(df):
@@ -44,7 +43,7 @@ def fator_de_risco_total(df):
 
 def ihu_nu_popriscoinerente(df):
     fator_iminente = df['fator_iminente'] 
-    dmu_nu_popurbana = df['dmu_nu_popurbana']
+    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')
     
     resultado = fator_iminente*dmu_nu_popurbana
 
@@ -52,7 +51,7 @@ def ihu_nu_popriscoinerente(df):
 
 def ihu_pc_risco_inerente(df):
     ihu_nu_popriscoinerente = df['ihu_nu_popriscoinerente']
-    dmu_nu_popurbana = df['dmu_nu_popurbana']
+    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')
 
     ihu_nu_popriscoinerente = ihu_nu_popriscoinerente.fillna(0)
     dmu_nu_popurbana = dmu_nu_popurbana.fillna(0)
@@ -68,7 +67,7 @@ def ihu_pc_risco_inerente(df):
 
 def ihu_nu_popriscoposdeficit(df):
     fator_pos_deficit = df['fator_pos_deficit']
-    dmu_nu_popurbana = df['dmu_nu_popurbana']
+    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')
 
     resultado = fator_pos_deficit*dmu_nu_popurbana
     
@@ -76,7 +75,7 @@ def ihu_nu_popriscoposdeficit(df):
 
 def ihu_pc_riscoposdeficit(df):
     ihu_nu_popriscoposdeficit = df['ihu_nu_popriscoposdeficit']
-    dmu_nu_popurbana = df['dmu_nu_popurbana']
+    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')
 
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
@@ -89,7 +88,7 @@ def ihu_pc_riscoposdeficit(df):
 
 def ihu_nu_popriscototal(df):
     fator_de_risco_total = df['fator_de_risco_total']
-    dmu_nu_popurbana = df['dmu_nu_popurbana']
+    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')
 
     resultado = fator_de_risco_total*dmu_nu_popurbana
     
@@ -97,7 +96,7 @@ def ihu_nu_popriscototal(df):
 
 def ihu_pc_risco(df):
     ihu_nu_popriscototal = df['ihu_nu_popriscototal']
-    dmu_nu_popurbana = df['dmu_nu_popurbana']
+    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')
 
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
@@ -175,10 +174,10 @@ def cs_cobred(df):
     return pd.cut(ihu_pc_cobrede.fillna(-1), bins=bins, labels=labels, right=False, ordered=False).astype(int)
 
 def pop_urb_scbc(df):
-    situacao_setor = df['situacao_setor']
+    situacao_setor = pd.to_numeric(df['situacao_setor'], errors='coerce')
     densidade = df['densidade']
-    area_scbc = df['area_scbc']
-    fator_analisavel = df['fator_analisavel']
+    area_scbc = pd.to_numeric(df['area_scbc'], errors='coerce')
+    fator_analisavel = pd.to_numeric(df['fator_analisavel'], errors='coerce')
     return np.where(
         situacao_setor < fator_analisavel,
         densidade*area_scbc,

@@ -12,7 +12,7 @@ def main():
     
     # Processar cada arquivo e aplicar as funções
     for dimension in dimensions:
-        df = pd.read_csv(dimension['path'])
+        df = pd.read_csv(dimension['path'], dtype='str')
         
         # Aplicar as funções específicas para cada dimensão
         for item in dimension['indicadores']:

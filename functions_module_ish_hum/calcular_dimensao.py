@@ -12,17 +12,18 @@ def main():
     
     # Processar cada arquivo e aplicar as funções
     for dimension in dimensions:
-        df = pd.read_csv(dimension['path'])
-        
+        df = pd.read_csv(dimension['path'], dtype='str')
         # Aplicar as funções específicas para cada dimensão
         for item in dimension['indicadores']:
             nome_funcao = item['name']
             if nome_funcao in globals() and callable(globals()[nome_funcao]):
                 funcao = globals()[nome_funcao]
                 df[nome_funcao] = funcao(df)
+                if(nome_funcao == "fator_de_risco_total"):
+                    df.to_csv('arquivo_intermediario.csv')
         
         dataframes.append(df)
-        print(f"Arquivo {dimension['path']} processado. Colunas: {df.columns.tolist()}")
+        # print(f"Arquivo {dimension['path']} processado. Colunas: {df.columns.tolist()}")
     
     # Fazer merge de todos os DataFrames
     # Assumindo que todos têm uma coluna de identificação comum (ex: 'id', 'municipio', etc.)

@@ -87,9 +87,6 @@ def main():
     layer = config['bho']['layer']
     gdf = load_gpkg_with_fid(gpkg_file, layer)
 
-    # convertendo todas as colunas de COBACIA em float
-    gdf['COBACIA'] = gdf['COBACIA'].astype(float)
-
     # juntando as colunas calculadas com o mapa
     gdf_final = gdf.merge(df_final, on='COBACIA', how='left')
 
