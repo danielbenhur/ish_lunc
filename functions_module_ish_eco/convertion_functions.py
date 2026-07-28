@@ -3,8 +3,7 @@ import numpy as np
 import yaml
 import sys
 
-# def ire_cs_ind_eco(parametros):
-# 
+
 # def ire_cs_irri_eco(parametros):
 # 
 # def ire_cs_pec_eco(parametros):

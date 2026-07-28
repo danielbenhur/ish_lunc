@@ -9,15 +9,80 @@ bho:
 
 dimensions:
   - name: ire_cs_ind_eco
-    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/VAB2020 - VAB2020.csv
+    path: "./Indicador Industria - Bernardo - Ind_sc_otto.csv"
     indicadores:
+      - name: disp_por_dem
+        depends_on:
+          - name: bal_perc
+      - name: fator_iminente
+        depends_on: 
+          - name: disp_por_dem
+      - name: fator_pos_deficit
+        depends_on: 
+          - name: disp_por_dem
+      - name: fator_de_risco_total
+        depends_on: 
+          - name: fator_iminente
+          - name: fator_pos_deficit
+      - name: ihu_nu_popriscoinerente
+        depends_on: 
+          - name: fator_iminente
+          - name: dmu_nu_popurbana
+      - name: ihu_pc_risco_inerente
+        depends_on: 
+          - name: ihu_nu_popriscoinerente
+          - name: dmu_nu_popurbana
+      - name: ihu_nu_popriscoposdeficit
+        depends_on: 
+          - name: fator_pos_deficit
+          - name: dmu_nu_popurbana
+      - name: ihu_pc_riscoposdeficit
+        depends_on: 
+          - name: ihu_nu_popriscoposdeficit
+          - name: dmu_nu_popurbana
+      - name: ihu_nu_popriscototal
+        depends_on: 
+          - name: fator_de_risco_total
+          - name: dmu_nu_popurbana
+      - name: ihu_cs_ish
+        depends_on:
+          - name: ihu_nu_popriscototal
+          - name: fator_de_risco_total
+      - name: deman_indus
+        depends_on:
+          - name: COBACIA
+      - name: densidade
+        depends_on:
+          - name: deman_indus
+          - name: area_otto
+      - name: pop_urb_scbc
+        depends_on:
+          - name: situacao_setor
+          - name: densidade
+          - name: area_scbc
+      - name: pop_urb_bacia
+        depends_on:
+          - name: COBACIA
+          - name: pop_urb_scbc
+      - name: perc_scbc
+        depends_on:
+          - name: pop_urb_scbc
+          - name: deman_indus
+      - name: ihu_rel
+        depends_on:
+          - name: perc_scbc
+          - name: ihu_cs_ish
       - name: ire_cs_ind_eco
+        depends_on:
+          - name: COBACIA
+          - name: ihu_rel
+    
   - name: ire_cs_irri_eco
-    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/PAM2021 - PAM2021.csv
+    path: "./PAM - ES - Agr_otto.csv"
     indicadores:
       - name: ire_cs_irri_eco
   - name: ire_cs_pec_eco
-    path: /home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/PPM2024 - PPM2024.csv
+    path: "./PPM - ES - Pec_otto.csv"
     indicadores:
       - name: ire_cs_pec_eco
 
