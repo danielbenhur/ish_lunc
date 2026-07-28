@@ -80,10 +80,56 @@ dimensions:
   - name: ire_cs_irri_eco
     path: "./PAM - ES - Agr_otto.csv"
     indicadores:
+      - name: irri_arroz
+      - name: irri_cafe
+      - name: irri_oc
+      - name: irri_total
+      - name: irri_arroz_risco_iminente
+      - name: irri_arroz_risco_pos_deficit
+      - name: irri_arroz_risco_total
+      - name: irri_cafe_risco_iminente
+      - name: irri_cafe_risco_pos_deficit
+      - name: irri_cafe_risco_total
+      - name: irri_cana_risco_iminente
+      - name: irri_cana_risco_pos_deficit
+      - name: irri_cana_risco_total
+      - name: irri_oc_risco_iminente
+      - name: irri_oc_risco_pos_deficit
+      - name: irri_oc_risco_total
+      - name: irri_total_risco_iminente
+      - name: irri_total_risco_pos_deficit
+      - name: irri_total_risco_total
+      - name: ihu_cs_ish
+      - name: deman_agri
+      - name: densidade
+      - name: deman_agri_scbc
+      - name: deman_agri_otto
+      - name: perc_scbc
+      - name: irri_risco_scbc
+      - name: cs_ish_scbc
+      - name: irri_scbc
       - name: ire_cs_irri_eco
+
   - name: ire_cs_pec_eco
     path: "./PPM - ES - Pec_otto.csv"
     indicadores:
+      - name: pec_bov
+      - name: pec_bub
+      - name: pec_sui
+      - name: pec_cap
+      - name: pec_ovi
+      - name: pec_gal
+      - name: pec_total
+      - name: pec_risco_iminente
+      - name: pec_risco_pos_deficit
+      - name: pec_risco_total
+      - name: cs_ish_urb
+      - name: deman_pecuaria
+      - name: densidade
+      - name: deman_pecuaria_scbc
+      - name: deman_pecuaria_otto
+      - name: perc_deman_pecuaria
+      - name: cs_ish
       - name: ire_cs_pec_eco
 
 result:
