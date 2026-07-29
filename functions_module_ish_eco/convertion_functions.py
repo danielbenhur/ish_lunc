@@ -192,18 +192,34 @@ def ire_cs_pec_eco(df):
     return 0
 
 # ind_eco
+# =SEERRO(ÍNDICE(demanda!$D:$D;CORRESP($B3;VALOR(ESQUERDA(demanda!$A:$A;15));0));0)
+# depende da tabela demanda
 def deman_indus(df):
     return 0
-def pop_urb_scbc(df): # conferir se está em arquivo intermediário
+
+# =ARRAY_CONSTRAIN(ARRAYFORMULA(ÍNDICE(classificacao!$B$3:$F$7;CORRESP(T3;classificacao!$A$3:$A$7;1);CORRESP($P3;classificacao!$B$2:$F$2;1))); 1; 1)
+# depende da tabela classificacao
+def ihu_cs_ish(df):
     return 0
+# não é a mesma coisa que está no arquivo intermediário
+# =SE($H3<=10;$Z3*$X3;0)
+def pop_urb_scbc(df):
+    if situacao_setor <= 10:
+        return densidade*deman_indus
+    else:
+        return 0
+# =SOMASE($B:$B;$B3;AA:AA)
 def pop_urb_bacia(df):
-    return 0
+    return pop_urb_scbc.groupby(cobacia).transform('sum')
+
+# =SEERRO(AA3/Y3;0)
 def perc_scbc(df):
-    return 0
+    return pop_urb_scbc/deman_indus
 def ihu_rel(df):
-    return 0
+    return ihu_cs_ish*perc_scbc
+
 def ire_cs_ind_eco(df):
-    return 0
+    return ihu_rel.groupby(cobacia).transform('sum')
 
 def ire_cs_eco(ind, peso_ind, irri, peso_irri, pec, peso_pec):
     # =SE(E(B4=0; C4=0); ""; (SE(B4=0; 5; B4)*0,3 + SE(C4=0; 5; C4)*0,7))
