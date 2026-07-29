@@ -4,7 +4,7 @@ import yaml
 import sys
 
 # irri_eco
-# funcoes dependem de tabela PAM
+# funcoes dependem de tabela PAM (extra)
 def irri_arroz(df):
     return 0
 def irri_cafe(df):
@@ -18,55 +18,139 @@ def irri_total(df):
 
 # derivados das dependentes de PAM
 def irri_arroz_risco_iminente(df):
-    return 0
+    irri_arroz = df['irri_arroz']
+    fator_iminente = df['fator_iminente']
+    return irri_arroz*fator_iminente
+
 def irri_arroz_risco_pos_deficit(df):
-    return 0
+    irri_arroz = df['irri_arroz']
+    fator_pos_deficit = df['fator_pos_deficit']
+    return irri_arroz*fator_iminente
+
 def irri_arroz_risco_total(df):
-    return 0
+    irri_arroz = df['irri_arroz']
+    fator_de_risco_total = df['fator_de_risco_total']
+    return irri_arroz*fator_de_risco_total
+
 def irri_cafe_risco_iminente(df):
-    return 0
+    irri_cafe = df['irri_cafe']
+    fator_iminente = df['fator_iminente']
+    return irri_cafe*fator_iminente
+
 def irri_cafe_risco_pos_deficit(df):
-    return 0
+    irri_cafe = df['irri_cafe']
+    fator_pos_deficit = df['fator_pos_deficit']
+    return irri_cafe*fator_iminente
+
 def irri_cafe_risco_total(df):
-    return 0
+    irri_cafe = df['irri_cafe']
+    fator_de_risco_total = df['fator_de_risco_total']
+    return irri_cafe*fator_de_risco_total
+
 def irri_cana_risco_iminente(df):
-    return 0
+    irri_cana = df['irri_cana']
+    fator_iminente = df['fator_iminente']
+    return irri_cana*fator_iminente
+
 def irri_cana_risco_pos_deficit(df):
-    return 0
+    irri_cana = df['irri_cana']
+    fator_pos_deficit = df['fator_pos_deficit']
+    return irri_cana*fator_iminente
+
 def irri_cana_risco_total(df):
-    return 0
+    irri_cana = df['irri_cana']
+    fator_de_risco_total = df['fator_de_risco_total']
+    return irri_cana*fator_de_risco_total
+
 def irri_oc_risco_iminente(df):
-    return 0
+    irri_oc = df['irri_oc']
+    fator_iminente = df['fator_iminente']
+    return irri_oc*fator_iminente
+
 def irri_oc_risco_pos_deficit(df):
-    return 0
+    irri_oc = df['irri_oc']
+    fator_pos_deficit = df['fator_pos_deficit']
+    return irri_oc*fator_pos_deficit
+
 def irri_oc_risco_total(df):
-    return 0
+    irri_oc = df['irri_oc']
+    fator_de_risco_total = df['fator_de_risco_total']
+    return irri_oc*fator_de_risco_total
+
 def irri_total_risco_iminente(df):
-    return 0
+    irri_total = df['irri_total']
+    fator_iminente = df['fator_iminente']
+    return irri_total*fator_iminente
+
 def irri_total_risco_pos_deficit(df):
-    return 0
+    irri_total = df['irri_total']
+    fator_pos_deficit = df['fator_pos_deficit']
+    return irri_total*fator_pos_deficit
+
 def irri_total_risco_total(df):
-    return 0
+    irri_total = df['irri_total']
+    fator_de_risco_total = df['fator_de_risco_total']
+    return irri_total*fator_de_risco_total
+
+# depende da tabela classificação (extra)
 def cs_ish(df):
     return 0
+# depende da tabela demanda (extra)
 def deman_agri(df):
     return 0
 def densidade(df):
-    return 0
+    area_setor = df['area_setor']
+    deman_agri = df['deman_agri']
+    return deman_agri/area_setor
+
+# =SE($H2<=10;$AP2*$AN2;0)
 def deman_agri_scbc(df):
-    return 0
+    # H2 - situacao_setor
+    # AP2 - densidade
+    # AN2 - area_setor
+    situacao_setor = df['situacao_setor']
+    densidade = df['densidade']
+    area_setor = df['area_setor']
+    if situacao_setor <= 10:
+        return densidade*area_setor
+    else: 
+        return 0
+# =SOMASE($B:$B;$B2;AQ:AQ)
 def deman_agri_otto(df):
-    return 0
+    # B - COBACIA
+    # AQ - deman_agri_scbc
+    cobacia = df['COBACIA']
+    deman_agri_scbc = df['deman_agri_scbc']
+    return deman_agri_scbc.groupby(cobacia).transform('sum') 
+
+# =SEERRO(AQ2/AO2;0)
 def perc_scbc(df):
-    return 0
+    # AQ - deman_agri_scbc
+    # AO - deman_agri
+    deman_agri_scbc = df['deman_agri_scbc']
+    deman_agri = df['deman_agri']
+
+    return deman_agri_scbc/deman_agri
+
 def irri_risco_scbc(df):
-    return 0
+    perc_scbc = df['perc_scbc']
+    irri_total_risco_total = df['irri_total_risco_total']
+    return perc_scbc*irri_total_risco_total
+
+# =SEERRO(AS2*$AK2;0)
 def cs_ish_scbc(df):
-    return 0
+    cs_ish = df['cs_ish']
+    perc_scbc = df['perc_scbc']
+    return cs_ish*perc_scbc
+
 def irri_scbc(df):
     return 0
+
+# =SOMASE($B:$B;$B2;AU:AU)
 def ire_cs_irri_eco(df):
-    return 0
+    cobacia = df['COBACIA']
+    cs_ish_scbc = df['cs_ish_scbc']
+    return cs_ish_scbc.groupby(cobacia).transform('sum')
 
 
 # pec_eco
