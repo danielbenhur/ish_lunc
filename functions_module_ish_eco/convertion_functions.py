@@ -3,10 +3,123 @@ import numpy as np
 import yaml
 import sys
 
+# irri_eco
+# funcoes dependem de tabela PAM
+def irri_arroz(df):
+    return 0
+def irri_cafe(df):
+    return 0
+def irri_cana(df):
+    return 0
+def irri_oc(df):
+    return 0
+def irri_total(df):
+    return 0
 
-# def ire_cs_irri_eco(parametros):
-# 
-# def ire_cs_pec_eco(parametros):
+# derivados das dependentes de PAM
+def irri_arroz_risco_iminente(df):
+    return 0
+def irri_arroz_risco_pos_deficit(df):
+    return 0
+def irri_arroz_risco_total(df):
+    return 0
+def irri_cafe_risco_iminente(df):
+    return 0
+def irri_cafe_risco_pos_deficit(df):
+    return 0
+def irri_cafe_risco_total(df):
+    return 0
+def irri_cana_risco_iminente(df):
+    return 0
+def irri_cana_risco_pos_deficit(df):
+    return 0
+def irri_cana_risco_total(df):
+    return 0
+def irri_oc_risco_iminente(df):
+    return 0
+def irri_oc_risco_pos_deficit(df):
+    return 0
+def irri_oc_risco_total(df):
+    return 0
+def irri_total_risco_iminente(df):
+    return 0
+def irri_total_risco_pos_deficit(df):
+    return 0
+def irri_total_risco_total(df):
+    return 0
+def cs_ish(df):
+    return 0
+def deman_agri(df):
+    return 0
+def densidade(df):
+    return 0
+def deman_agri_scbc(df):
+    return 0
+def deman_agri_otto(df):
+    return 0
+def perc_scbc(df):
+    return 0
+def irri_risco_scbc(df):
+    return 0
+def cs_ish_scbc(df):
+    return 0
+def irri_scbc(df):
+    return 0
+def ire_cs_irri_eco(df):
+    return 0
+
+
+# pec_eco
+def pec_bov(df):
+    return 0
+def pec_bub(df):
+    return 0
+def pec_sui(df):
+    return 0
+def pec_cap(df):
+    return 0
+def pec_ovi(df):
+    return 0
+def pec_gal(df):
+    return 0
+def pec_total(df):
+    return 0
+def pec_risco_iminente(df):
+    return 0
+def pec_risco_pos_deficit(df):
+    return 0
+def pec_risco_total(df):
+    return 0
+def cs_ish_urb(df):
+    return 0
+def deman_pecuaria(df):
+    return 0
+def densidade(df):
+    return 0
+def deman_pecuaria_scbc(df):
+    return 0
+def deman_pecuaria_otto(df):
+    return 0
+def perc_deman_pecuaria(df):
+    return 0
+def cs_ish(df):
+    return 0
+def ire_cs_pec_eco(df):
+    return 0
+
+# ind_eco
+def deman_indus(df):
+    return 0
+def pop_urb_scbc(df): # conferir se está em arquivo intermediário
+    return 0
+def pop_urb_bacia(df):
+    return 0
+def perc_scbc(df):
+    return 0
+def ihu_rel(df):
+    return 0
+def ire_cs_ind_eco(df):
+    return 0
 
 def ire_cs_eco(ind, peso_ind, irri, peso_irri, pec, peso_pec):
     # =SE(E(B4=0; C4=0); ""; (SE(B4=0; 5; B4)*0,3 + SE(C4=0; 5; C4)*0,7))
