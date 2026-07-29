@@ -154,6 +154,7 @@ def ire_cs_irri_eco(df):
 
 
 # pec_eco
+# dependem da tabela PPM
 def pec_bov(df):
     return 0
 def pec_bub(df):
@@ -166,30 +167,49 @@ def pec_ovi(df):
     return 0
 def pec_gal(df):
     return 0
+# =SOMA(Q2:V2)
 def pec_total(df):
-    return 0
+    resultado = pec_bov+pec_bub+pec_sui+pec_cap+pec_ovi+pec_gal
+    return resultado
+
 def pec_risco_iminente(df):
-    return 0
+    return pec_total*fator_iminente
+
 def pec_risco_pos_deficit(df):
-    return 0
+    return pec_total*fator_pos_deficit
 def pec_risco_total(df):
-    return 0
+    return pec_total*fator_de_risco_total
+
+# depende da tabela classificação
+# =ARRAY_CONSTRAIN(ARRAYFORMULA(ÍNDICE(classificacao!$B$3:$F$7;CORRESP($Z2;classificacao!$A$3:$A$7;1);CORRESP($P2;classificacao!$B$2:$F$2;1))); 1; 1)
 def cs_ish_urb(df):
     return 0
+
+# depende da tabela demanda
+# =SEERRO(ÍNDICE(demanda!$D:$D;CORRESP($B2;VALOR(ESQUERDA(demanda!$A:$A;15));0));0)
 def deman_pecuaria(df):
     return 0
+
 def densidade(df):
-    return 0
+    return deman_pecuaria/area_otto
+# =SE($H2<=10;$AF2*$AD2;0)
 def deman_pecuaria_scbc(df):
-    return 0
+    if situacao_setor <= 10:
+        return densidade*area_setor
+    else:
+        return 0
+
 def deman_pecuaria_otto(df):
-    return 0
+    return deman_pecuaria_scbc.groupby(cobacia).transform('sum')
+
+# =SEERRO(AG2/AE2;0)  
 def perc_deman_pecuaria(df):
-    return 0
+    return deman_pecuaria_scbc/deman_pecuaria
+
 def cs_ish(df):
-    return 0
+    return perc_deman_pecuaria*cs_ish_urb
 def ire_cs_pec_eco(df):
-    return 0
+    return cs_ish.groupby(cobacia).transform('sum')
 
 # ind_eco
 # =SEERRO(ÍNDICE(demanda!$D:$D;CORRESP($B3;VALOR(ESQUERDA(demanda!$A:$A;15));0));0)
