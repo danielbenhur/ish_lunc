@@ -8,6 +8,43 @@ bho:
   path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/cnr_A/input/BHO_area.gpkg"
 
 dimensions:
+  - name: PAM_analises_iniciais
+    path: "./PAM - ES - Producao irrigada .csv"
+    indicadores:
+      - name: irri_arroz
+      - name: irri_cafe
+      - name: irri_cana
+      - name: irri_oc
+      - name: irri_total
+  
+  - name: ire_cs_irri_eco
+    path: "./irri_arroz.csv"
+    indicadores:
+      - name: irri_arroz_risco_iminente
+      - name: irri_arroz_risco_pos_deficit
+      - name: irri_arroz_risco_total
+      - name: irri_cafe_risco_iminente
+      - name: irri_cafe_risco_pos_deficit
+      - name: irri_cafe_risco_total
+      - name: irri_cana_risco_iminente
+      - name: irri_cana_risco_pos_deficit
+      - name: irri_cana_risco_total
+      - name: irri_oc_risco_iminente
+      - name: irri_oc_risco_pos_deficit
+      - name: irri_oc_risco_total
+      - name: irri_total_risco_iminente
+      - name: irri_total_risco_pos_deficit
+      - name: irri_total_risco_total
+      - name: ihu_cs_ish
+      - name: deman_agri
+      - name: densidade
+      - name: deman_agri_scbc
+      - name: deman_agri_otto
+      - name: perc_scbc
+      - name: irri_risco_scbc
+      - name: cs_ish_scbc
+      - name: irri_scbc
+      - name: ire_cs_irri_eco
   - name: ire_cs_ind_eco
     path: "./Indicador Industria - Bernardo - Ind_sc_otto.csv"
     indicadores:
@@ -76,39 +113,6 @@ dimensions:
         depends_on:
           - name: COBACIA
           - name: ihu_rel
-    
-  - name: ire_cs_irri_eco
-    path: "./PAM - ES - Agr_otto.csv"
-    indicadores:
-      - name: irri_arroz
-      - name: irri_cafe
-      - name: irri_oc
-      - name: irri_total
-      - name: irri_arroz_risco_iminente
-      - name: irri_arroz_risco_pos_deficit
-      - name: irri_arroz_risco_total
-      - name: irri_cafe_risco_iminente
-      - name: irri_cafe_risco_pos_deficit
-      - name: irri_cafe_risco_total
-      - name: irri_cana_risco_iminente
-      - name: irri_cana_risco_pos_deficit
-      - name: irri_cana_risco_total
-      - name: irri_oc_risco_iminente
-      - name: irri_oc_risco_pos_deficit
-      - name: irri_oc_risco_total
-      - name: irri_total_risco_iminente
-      - name: irri_total_risco_pos_deficit
-      - name: irri_total_risco_total
-      - name: ihu_cs_ish
-      - name: deman_agri
-      - name: densidade
-      - name: deman_agri_scbc
-      - name: deman_agri_otto
-      - name: perc_scbc
-      - name: irri_risco_scbc
-      - name: cs_ish_scbc
-      - name: irri_scbc
-      - name: ire_cs_irri_eco
 
   - name: ire_cs_pec_eco
     path: "./PPM - ES - Pec_otto.csv"

@@ -8,8 +8,8 @@ def main():
         config = yaml.safe_load(file)
     
     dimensions = config['dimensions']
-    dataframes = []  # Lista para armazenar todos os DataFrames
-    
+    dados_entregues = pd.read_csv('arquivo_intermediario.csv', dtype='str')
+
     # Processar cada arquivo e aplicar as funções
     for dimension in dimensions:
         df = pd.read_csv(dimension['path'], dtype='str')
@@ -19,29 +19,12 @@ def main():
             nome_funcao = item['name']
             if nome_funcao in globals() and callable(globals()[nome_funcao]):
                 funcao = globals()[nome_funcao]
+                # entregando a coluna aos dados finais
                 df[nome_funcao] = funcao(df)
-        
-        dataframes.append(df)
-        print(f"Arquivo {dimension['path']} processado. Colunas: {df.columns.tolist()}")
-    
-    # Fazer merge de todos os DataFrames
-    # Assumindo que todos têm uma coluna de identificação comum (ex: 'id', 'municipio', etc.)
-    # Você precisa identificar qual é a chave comum entre os arquivos
-    
-    # Exemplo 1: Se todos têm a mesma coluna 'id' como chave
-    dados_entregues = dataframes[0]
-    for df in dataframes[1:]:
-        # Encontre colunas comuns para fazer o merge
-        # Ajuste a coluna de merge conforme seus dados
-        coluna_chave = 'COBACIA'  # ALTERE PARA A COLUNA QUE É COMUM ENTRE SEUS ARQUIVOS
-        dados_entregues = pd.merge(dados_entregues, df, on=coluna_chave, how='outer')
-    
-    # Exemplo 2: Se não há uma chave comum e os DataFrames têm a mesma estrutura
-    # (mesmas linhas na mesma ordem)
-    # dados_entregues = pd.concat(dataframes, axis=1)
-    
-    print(f"\nDataFrame final - Colunas: {dados_entregues.columns.tolist()}")
-    print(f"DataFrame final - Shape: {dados_entregues.shape}")
+                if('COBACIA' not in df):
+                    dados_entregues = pd.merge(dados_entregues, df[['cod_mun', nome_funcao]], on='cod_mun', how='left')
+                
+                dados_entregues.to_csv('./irri_arroz.csv', index=False)
     
     # Verificar se as colunas necessárias existem
     colunas_necessarias = ['ire_cs_ind_eco', 'ire_cs_irri_eco', 'ire_cs_pec_eco']

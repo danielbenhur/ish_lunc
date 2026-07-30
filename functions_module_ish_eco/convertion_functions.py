@@ -5,16 +5,31 @@ import sys
 
 # irri_eco
 # funcoes dependem de tabela PAM (extra)
+# =ÍNDICE('Producao irrigada '!$AC$3:$AC$1442;CORRESP($E2;'Producao irrigada '!$A$3:$A$1442;0);)
 def irri_arroz(df):
-    return 0
+    # E - código do município
+    area_potencial = pd.to_numeric(df['area_arroz'].str.replace('.', '').str.replace(',', '.'), errors='coerce')
+    taxa_media     = pd.to_numeric(df['taxa_arroz'].str.replace('.', '').str.replace(',', '.'), errors='coerce')
+    return area_potencial*taxa_media
 def irri_cafe(df):
-    return 0
+    area_potencial = pd.to_numeric(df['Area potencial de ser colhida irrigada por municipio por cultura  (Café)'].str.replace('.', '').str.replace(',', '.'), errors='coerce')
+    taxa_media     = pd.to_numeric(df['Taxa regional media de produção de Café (1000R$/ha) '].str.replace('.', '').str.replace(',', '.'), errors='coerce')
+    return area_potencial*taxa_media
 def irri_cana(df):
-    return 0
+    area_potencial = pd.to_numeric(df['Area potencial de ser colhida irrigada por municipio por cultura (Cana)'].str.replace('.', '').str.replace(',', '.'), errors='coerce')
+    taxa_media     = pd.to_numeric(df['Taxa regional media de produção de Cana (1000R$/ha) '].str.replace('.', '').str.replace(',', '.'), errors='coerce')
+    return area_potencial*taxa_media
 def irri_oc(df):
-    return 0
+    area_potencial = pd.to_numeric(df['Area potencial de ser colhida irrigada por municipio por cultura (Outras Culturas)'].str.replace('.', '').str.replace(',', '.'), errors='coerce')
+    taxa_media     = pd.to_numeric(df['Taxa regional media de produção de Demais culturas (1000R$/ha) '].str.replace('.', '').str.replace(',', '.'), errors='coerce')
+    return area_potencial*taxa_media
 def irri_total(df):
-    return 0
+    irri_arroz = df['irri_arroz']
+    irri_cafe = df['irri_cafe']
+    irri_cana = df['irri_cana']
+    irri_oc   = df['irri_oc']
+    resultado = irri_arroz + irri_cafe + irri_cana + irri_oc
+    return resultado
 
 # derivados das dependentes de PAM
 def irri_arroz_risco_iminente(df):
