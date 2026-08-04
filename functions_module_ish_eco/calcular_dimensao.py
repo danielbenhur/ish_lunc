@@ -20,11 +20,34 @@ def main():
             if nome_funcao in globals() and callable(globals()[nome_funcao]):
                 funcao = globals()[nome_funcao]
                 # entregando a coluna aos dados finais
-                df[nome_funcao] = funcao(df)
-                if('COBACIA' not in df):
-                    dados_entregues = pd.merge(dados_entregues, df[['cod_mun', nome_funcao]], on='cod_mun', how='left')
+                coluna_resultado = funcao(df)
+                if 'COBACIA' in df.columns:
+                    chave = 'COBACIA'
+                    resultado_temp = pd.DataFrame({
+                        chave: df[chave],
+                        nome_funcao: coluna_resultado
+                    })
+                else:
+                    chave = 'cod_mun'
+                    resultado_temp = pd.DataFrame({
+                        chave: df[chave],
+                        nome_funcao: coluna_resultado
+                    })
+                resultado_temp = resultado_temp.drop_duplicates(subset=[chave])
+
+                if chave in dados_entregues.columns:
+                    dados_entregues = pd.merge(dados_entregues, 
+                                            resultado_temp, 
+                                            on=chave, 
+                                            how='left')
+                #  Verificar se não houve duplicação indesejada
+                if dados_entregues.duplicated().any():
+                    print(f"Aviso: Duplicatas detectadas após merge de {nome_funcao}")
+                    dados_entregues = dados_entregues.drop_duplicates()
                 
-                dados_entregues.to_csv('./irri_arroz.csv', index=False)
+                if nome_funcao == 'irri_total_risco_total':
+                    print(dados_entregues.head())
+                    exit(1) 
     
     # Verificar se as colunas necessárias existem
     colunas_necessarias = ['ire_cs_ind_eco', 'ire_cs_irri_eco', 'ire_cs_pec_eco']

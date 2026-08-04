@@ -15,11 +15,11 @@ dimensions:
       - name: irri_cafe
       - name: irri_cana
       - name: irri_oc
-      - name: irri_total
   
   - name: ire_cs_irri_eco
     path: "./irri_arroz.csv"
     indicadores:
+      - name: irri_total
       - name: irri_arroz_risco_iminente
       - name: irri_arroz_risco_pos_deficit
       - name: irri_arroz_risco_total
@@ -35,7 +35,7 @@ dimensions:
       - name: irri_total_risco_iminente
       - name: irri_total_risco_pos_deficit
       - name: irri_total_risco_total
-      - name: ihu_cs_ish
+      - name: cs_ish_irri
       - name: deman_agri
       - name: densidade
       - name: deman_agri_scbc

@@ -23,6 +23,8 @@ def irri_oc(df):
     area_potencial = pd.to_numeric(df['Area potencial de ser colhida irrigada por municipio por cultura (Outras Culturas)'].str.replace('.', '').str.replace(',', '.'), errors='coerce')
     taxa_media     = pd.to_numeric(df['Taxa regional media de produção de Demais culturas (1000R$/ha) '].str.replace('.', '').str.replace(',', '.'), errors='coerce')
     return area_potencial*taxa_media
+
+# função nos parâmetros jogada para outra parte no yaml de configuração 
 def irri_total(df):
     irri_arroz = df['irri_arroz']
     irri_cafe = df['irri_cafe']
@@ -33,83 +35,113 @@ def irri_total(df):
 
 # derivados das dependentes de PAM
 def irri_arroz_risco_iminente(df):
-    irri_arroz = df['irri_arroz']
-    fator_iminente = df['fator_iminente']
+    irri_arroz = pd.to_numeric(df['irri_arroz'], errors='coerce')
+    fator_iminente = pd.to_numeric(df['fator_iminente'], errors='coerce')
     return irri_arroz*fator_iminente
 
 def irri_arroz_risco_pos_deficit(df):
-    irri_arroz = df['irri_arroz']
-    fator_pos_deficit = df['fator_pos_deficit']
-    return irri_arroz*fator_iminente
+    irri_arroz = pd.to_numeric(df['irri_arroz'], errors='coerce')
+    fator_pos_deficit = pd.to_numeric(df['fator_pos_deficit'], errors='coerce')
+    return irri_arroz*fator_pos_deficit
 
 def irri_arroz_risco_total(df):
-    irri_arroz = df['irri_arroz']
-    fator_de_risco_total = df['fator_de_risco_total']
+    irri_arroz = pd.to_numeric(df['irri_arroz'], errors='coerce')
+    fator_de_risco_total = pd.to_numeric(df['fator_de_risco_total'], errors='coerce')
     return irri_arroz*fator_de_risco_total
 
 def irri_cafe_risco_iminente(df):
-    irri_cafe = df['irri_cafe']
-    fator_iminente = df['fator_iminente']
+    irri_cafe = pd.to_numeric(df['irri_cafe'], errors='coerce')
+    fator_iminente = pd.to_numeric(df['fator_iminente'], errors='coerce')
     return irri_cafe*fator_iminente
 
 def irri_cafe_risco_pos_deficit(df):
-    irri_cafe = df['irri_cafe']
-    fator_pos_deficit = df['fator_pos_deficit']
-    return irri_cafe*fator_iminente
+    irri_cafe = pd.to_numeric(df['irri_cafe'], errors='coerce')
+    fator_pos_deficit = pd.to_numeric(df['fator_pos_deficit'], errors='coerce')
+    return irri_cafe*fator_pos_deficit
 
 def irri_cafe_risco_total(df):
-    irri_cafe = df['irri_cafe']
-    fator_de_risco_total = df['fator_de_risco_total']
+    irri_cafe = pd.to_numeric(df['irri_cafe'], errors='coerce')
+    fator_de_risco_total = pd.to_numeric(df['fator_de_risco_total'], errors='coerce')
     return irri_cafe*fator_de_risco_total
 
 def irri_cana_risco_iminente(df):
-    irri_cana = df['irri_cana']
-    fator_iminente = df['fator_iminente']
+    irri_cana = pd.to_numeric(df['irri_cana'], errors='coerce')
+    fator_iminente = pd.to_numeric(df['fator_iminente'], errors='coerce')
     return irri_cana*fator_iminente
 
 def irri_cana_risco_pos_deficit(df):
-    irri_cana = df['irri_cana']
-    fator_pos_deficit = df['fator_pos_deficit']
-    return irri_cana*fator_iminente
+    irri_cana = pd.to_numeric(df['irri_cana'], errors='coerce')
+    fator_pos_deficit = pd.to_numeric(df['fator_pos_deficit'], errors='coerce')
+    return irri_cana*fator_pos_deficit
 
 def irri_cana_risco_total(df):
-    irri_cana = df['irri_cana']
-    fator_de_risco_total = df['fator_de_risco_total']
+    irri_cana = pd.to_numeric(df['irri_cana'], errors='coerce')
+    fator_de_risco_total = pd.to_numeric(df['fator_de_risco_total'], errors='coerce')
     return irri_cana*fator_de_risco_total
 
 def irri_oc_risco_iminente(df):
-    irri_oc = df['irri_oc']
-    fator_iminente = df['fator_iminente']
+    irri_oc = pd.to_numeric(df['irri_oc'], errors='coerce')
+    fator_iminente = pd.to_numeric(df['fator_iminente'], errors='coerce')
     return irri_oc*fator_iminente
 
 def irri_oc_risco_pos_deficit(df):
-    irri_oc = df['irri_oc']
-    fator_pos_deficit = df['fator_pos_deficit']
+    irri_oc = pd.to_numeric(df['irri_oc'], errors='coerce')
+    fator_pos_deficit = pd.to_numeric(df['fator_pos_deficit'], errors='coerce')
     return irri_oc*fator_pos_deficit
 
 def irri_oc_risco_total(df):
-    irri_oc = df['irri_oc']
-    fator_de_risco_total = df['fator_de_risco_total']
+    irri_oc = pd.to_numeric(df['irri_oc'], errors='coerce')
+    fator_de_risco_total = pd.to_numeric(df['fator_de_risco_total'], errors='coerce')
     return irri_oc*fator_de_risco_total
 
 def irri_total_risco_iminente(df):
-    irri_total = df['irri_total']
-    fator_iminente = df['fator_iminente']
+    irri_total = pd.to_numeric(df['irri_total'], errors='coerce')
+    fator_iminente = pd.to_numeric(df['fator_iminente'], errors='coerce')
     return irri_total*fator_iminente
 
 def irri_total_risco_pos_deficit(df):
-    irri_total = df['irri_total']
-    fator_pos_deficit = df['fator_pos_deficit']
+    irri_total = pd.to_numeric(df['irri_total'], errors='coerce')
+    fator_pos_deficit = pd.to_numeric(df['fator_pos_deficit'], errors='coerce')
     return irri_total*fator_pos_deficit
 
 def irri_total_risco_total(df):
-    irri_total = df['irri_total']
-    fator_de_risco_total = df['fator_de_risco_total']
+    irri_total = pd.to_numeric(df['irri_total'], errors='coerce')
+    fator_de_risco_total = pd.to_numeric(df['fator_de_risco_total'], errors='coerce')
     return irri_total*fator_de_risco_total
 
-# depende da tabela classificação (extra)
-def cs_ish(df):
-    return 0
+# =ARRAY_CONSTRAIN(ARRAYFORMULA(ÍNDICE(classificacao!$B$3:$F$7;CORRESP($AJ2;classificacao!$A$3:$A$7;1);CORRESP($P2;classificacao!$B$2:$F$2;1))); 1; 1)
+# AJ - irri_total
+# P - fator_de_risco_total
+def cs_ish_irri(df):
+    irri_total = df['irri_total'].fillna(-float('inf'))
+    fator_de_risco_total = df['fator_de_risco_total'].fillna(-float('inf'))
+    
+    # Valores de referência
+    irri_referencia = np.array([-float('inf'), 0, 5, 10, 50])
+    risco_referencia = np.array([-float('inf'), 0, 0.1, 0.2, 0.3, 0.4])
+    
+    # Matriz de risco
+    matriz_risco = np.array([
+        [5, 5, 4, 3, 3],
+        [5, 4, 3, 3, 2],
+        [4, 3, 3, 2, 2],
+        [3, 3, 2, 2, 1],
+        [3, 2, 2, 1, 1]
+    ])
+    
+    # Encontra índices usando busca binária (mais eficiente)
+    idx_irri = np.searchsorted(irri_referencia, irri_total, side='right') - 1
+    idx_risco = np.searchsorted(risco_referencia, fator_de_risco_total, side='right') - 1
+    
+    # Garante que os índices estão dentro dos limites
+    idx_irri = np.clip(idx_irri, 0, matriz_risco.shape[0] - 1)
+    idx_risco = np.clip(idx_risco, 0, matriz_risco.shape[1] - 1)
+    
+    # Mapeia os valores
+    resultado = matriz_risco[idx_irri, idx_risco]
+    
+    return pd.Series(resultado)
+    
 # depende da tabela demanda (extra)
 def deman_agri(df):
     return 0
@@ -154,7 +186,7 @@ def irri_risco_scbc(df):
 
 # =SEERRO(AS2*$AK2;0)
 def cs_ish_scbc(df):
-    cs_ish = df['cs_ish']
+    cs_ish_irri = df['cs_ish_irri']
     perc_scbc = df['perc_scbc']
     return cs_ish*perc_scbc
 
