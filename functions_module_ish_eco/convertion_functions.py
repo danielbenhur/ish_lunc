@@ -113,8 +113,8 @@ def irri_total_risco_total(df):
 # AJ - irri_total
 # P - fator_de_risco_total
 def cs_ish_irri(df):
-    irri_total = df['irri_total'].fillna(-float('inf'))
-    fator_de_risco_total = df['fator_de_risco_total'].fillna(-float('inf'))
+    irri_total = pd.to_numeric(df['irri_total'].fillna(-float('inf')), errors='coerce')
+    fator_de_risco_total = pd.to_numeric(df['fator_de_risco_total'].fillna(-float('inf')), errors='coerce')
     
     # Valores de referência
     irri_referencia = np.array([-float('inf'), 0, 5, 10, 50])
@@ -141,14 +141,37 @@ def cs_ish_irri(df):
     resultado = matriz_risco[idx_irri, idx_risco]
     
     return pd.Series(resultado)
-    
+
 # depende da tabela demanda (extra)
-def deman_agri(df):
-    return 0
-def densidade(df):
-    area_setor = df['area_setor']
-    deman_agri = df['deman_agri']
-    return deman_agri/area_setor
+# precisa de outro arquivo csv ainda
+# =SEERRO(ÍNDICE(demanda!$D:$D;CORRESP($B2;VALOR(ESQUERDA(demanda!$A:$A;15));0));0)
+# TODO: corrigir lógica, está entregando dados errado
+# A ideia aqui é extrair uma coluna e colocar ao final para fazer os cálculos
+def deman_irri(df):
+    # demanda!D - Valor que eu quero
+    # demanda!A - COBACIA
+    # B - COBACIA
+    demanda_df = pd.read_csv('./PAM - ES - demanda.csv')
+    coluna_D = 'Valor que eu quero '
+    demanda_df['COBACIA'] = demanda_df['COBACIA'].astype('object')
+    demanda_df[coluna_D] = pd.to_numeric(demanda_df[coluna_D].str.replace(',', '.'), errors='coerce')
+
+    return demanda_df[coluna_D]
+
+def densidade_irri(df):
+    print(df['irri_total'])
+    area_setor = pd.to_numeric(df['area_setor'], errors='coerce')
+    deman_irri = pd.to_numeric(df['deman_irri'], errors='coerce')
+    with np.errstate(divide='ignore', invalid='ignore'):
+        resultado = np.where(
+            (area_setor == 0) | pd.isna(area_setor),  # condição
+            0,                                     # valor se for zero ou NaN
+            deman_irri/area_setor                   # valor caso contrário
+        )
+    
+    # Converte para Series para manter compatibilidade
+    resultado = np.where(np.isinf(resultado), 0, resultado)
+    return pd.Series(resultado, index=df.index)
 
 # =SE($H2<=10;$AP2*$AN2;0)
 def deman_agri_scbc(df):

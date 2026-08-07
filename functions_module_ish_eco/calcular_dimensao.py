@@ -45,7 +45,7 @@ def main():
                     print(f"Aviso: Duplicatas detectadas após merge de {nome_funcao}")
                     dados_entregues = dados_entregues.drop_duplicates()
                 
-                if nome_funcao == 'irri_total_risco_total':
+                if nome_funcao == 'deman_irri':
                     print(dados_entregues.head())
                     exit(1) 
     
