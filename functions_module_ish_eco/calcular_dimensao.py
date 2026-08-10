@@ -9,7 +9,7 @@ def main():
     
     dimensions = config['dimensions']
     dados_gerais = pd.read_csv('arquivo_intermediario.csv', dtype='str')
-
+    dados_resultado = pd.read_csv('arquivo_intermediario.csv', dtype='str')
     # Processar cada arquivo e aplicar as funções
     for dimension in dimensions:
         df = pd.read_csv(dimension['path'], dtype='str')
@@ -46,14 +46,15 @@ def main():
                 funcao = globals()[nome_funcao]
                 # entregando a coluna aos dados finais
                 dados_gerais[nome_funcao] = funcao(dados_gerais)
+                dados_resultado[nome_funcao] = dados_gerais[nome_funcao]
 
     # Verificar se as colunas necessárias existem
     colunas_necessarias = ['ire_cs_ind_eco', 'ire_cs_irri_eco', 'ire_cs_pec_eco']
-    colunas_faltando = [col for col in colunas_necessarias if col not in dados_entregues.columns]
+    colunas_faltando = [col for col in colunas_necessarias if col not in dados_gerais.columns]
     
     if colunas_faltando:
         print(f"ERRO: Colunas faltando: {colunas_faltando}")
-        print("Colunas disponíveis:", dados_entregues.columns.tolist())
+        print("Colunas disponíveis:", dados_gerais.columns.tolist())
         return
     
     # Continuar com o processamento...
@@ -72,11 +73,11 @@ def main():
     # Converter colunas para numérico
     colunas_numericas = ['ire_cs_ind_eco', 'ire_cs_irri_eco', 'ire_cs_pec_eco']
     for col in colunas_numericas:
-        dados_entregues[col] = dados_entregues[col].astype(str).str.replace(',', '.')
-        dados_entregues[col] = pd.to_numeric(dados_entregues[col], errors='coerce')
+        dados_gerais[col] = dados_gerais[col].astype(str).str.replace(',', '.')
+        dados_gerais[col] = pd.to_numeric(dados_gerais[col], errors='coerce')
     
     # Aplicar função de cálculo do resultado final
-    dados_entregues['ire_cs_eco'] = dados_entregues.apply(
+    dados_gerais['ire_cs_eco'] = dados_gerais.apply(
         lambda row: ire_cs_eco(
             row['ire_cs_ind_eco'], peso_ind,
             row['ire_cs_irri_eco'], peso_irri,
@@ -84,10 +85,12 @@ def main():
         ), axis=1
     )
     
+    dados_resultado = dados_gerais['ire_cs_eco']
+
     # Salvar resultado
-    dados_entregues.to_csv(config['output']['path'], index=False)
+    dados_resultado.to_csv(config['output']['path'], index=False)
     print(f"\nResultado salvo em: {config['output']['path']}")
-    print(dados_entregues.head())
+    print(dados_resultado.head())
     
 if __name__ == "__main__":
     main()
