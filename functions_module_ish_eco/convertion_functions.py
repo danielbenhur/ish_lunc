@@ -6,12 +6,12 @@ import sys
 # irri_eco
 # funcoes dependem de tabela PAM (extra)
 # =ÍNDICE('Producao irrigada '!$AC$3:$AC$1442;CORRESP($E2;'Producao irrigada '!$A$3:$A$1442;0);)
-def irri_arroz(df):
+def irri_arroz(df, parametros=['area_arroz', 'taxa_arroz'], pesos=[1,1]):
     # E - código do município
     area_potencial = pd.to_numeric(df['area_arroz'].str.replace('.', '').str.replace(',', '.'), errors='coerce')
     taxa_media     = pd.to_numeric(df['taxa_arroz'].str.replace('.', '').str.replace(',', '.'), errors='coerce')
     return area_potencial*taxa_media
-def irri_cafe(df):
+def irri_cafe(df, parametros=['area_arroz', 'taxa_arroz'], pesos=[1,1]):
     area_potencial = pd.to_numeric(df['Area potencial de ser colhida irrigada por municipio por cultura  (Café)'].str.replace('.', '').str.replace(',', '.'), errors='coerce')
     taxa_media     = pd.to_numeric(df['Taxa regional media de produção de Café (1000R$/ha) '].str.replace('.', '').str.replace(',', '.'), errors='coerce')
     return area_potencial*taxa_media
@@ -159,7 +159,6 @@ def deman_irri(df):
     return demanda_df[coluna_D]
 
 def densidade_irri(df):
-    print(df['irri_total'])
     area_setor = pd.to_numeric(df['area_setor'], errors='coerce')
     deman_irri = pd.to_numeric(df['deman_irri'], errors='coerce')
     with np.errstate(divide='ignore', invalid='ignore'):
@@ -178,13 +177,20 @@ def deman_agri_scbc(df):
     # H2 - situacao_setor
     # AP2 - densidade
     # AN2 - area_setor
-    situacao_setor = df['situacao_setor']
-    densidade = df['densidade']
-    area_setor = df['area_setor']
-    if situacao_setor <= 10:
-        return densidade*area_setor
-    else: 
-        return 0
+    situacao_setor = pd.to_numeric(df['situacao_setor'], errors='coerce')
+    densidade = pd.to_numeric(df['densidade_irri'], errors='coerce')
+    area_setor = pd.to_numeric(df['area_setor'], errors='coerce')
+    with np.errstate(divide='ignore', invalid='ignore'):
+        resultado = np.where(
+            (situacao_setor <= 10),  # condição
+            densidade*area_setor,                                     
+            0                 # valor caso contrário
+        )
+    
+    # Converte para Series para manter compatibilidade
+    resultado = np.where(np.isinf(resultado), 0, resultado)
+    return pd.Series(resultado, index=df.index)
+
 # =SOMASE($B:$B;$B2;AQ:AQ)
 def deman_agri_otto(df):
     # B - COBACIA
