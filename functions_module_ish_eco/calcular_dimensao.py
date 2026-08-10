@@ -12,6 +12,7 @@ def main():
     dados_resultado = pd.read_csv('arquivo_intermediario.csv', dtype='str')
     # Processar cada arquivo e aplicar as funções
     for dimension in dimensions:
+        print(dimension['name'])
         df = pd.read_csv(dimension['path'], dtype='str')
         # verifica como juntar com um DataFrame geral
         chave = None
@@ -41,7 +42,8 @@ def main():
         # Aplicar as funções específicas para cada dimensão
         for item in dimension['indicadores']:
             nome_funcao = item['name']
-            if(nome_funcao == '')
+            if(nome_funcao == 'deman_indus'):
+                exit(1)
             if nome_funcao in globals() and callable(globals()[nome_funcao]):
                 funcao = globals()[nome_funcao]
                 # entregando a coluna aos dados finais

@@ -15,11 +15,6 @@ dimensions:
       - name: irri_cafe
       - name: irri_cana
       - name: irri_oc
-    output: "./irri_arroz.csv"
-  
-  - name: ire_cs_irri_eco
-    path: "./irri_arroz.csv"
-    indicadores:
       - name: irri_total
       - name: irri_arroz_risco_iminente
       - name: irri_arroz_risco_pos_deficit
@@ -41,13 +36,14 @@ dimensions:
       - name: densidade_irri
       - name: deman_agri_scbc
       - name: deman_agri_otto
-      - name: perc_scbc
+      - name: perc_scbc_irri
       - name: irri_risco_scbc
-      - name: cs_ish_scbc
+      - name: cs_ish_scbc_irri
       - name: irri_scbc
       - name: ire_cs_irri_eco
+
   - name: ire_cs_pec_eco
-    path: "./PPM - ES - Pec_otto.csv"
+    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/PPM - ES - PPM.csv"
     indicadores:
       - name: pec_bov
       - name: pec_bub
@@ -61,20 +57,26 @@ dimensions:
       - name: pec_risco_total
       - name: cs_ish_pec
       - name: deman_pecuaria
-      - name: densidade
+      - name: densidade_pec
       - name: deman_pecuaria_scbc
       - name: deman_pecuaria_otto
       - name: perc_deman_pecuaria
       - name: ire_cs_pec_eco
-      
+
   - name: ire_cs_ind_eco
     path: "./Indicador Industria - Bernardo - Ind_sc_otto.csv"
     indicadores:
+      - name: ihu_nu_indriscoinerente
+      - name: ihu_nu_indriscoposdeficit
+      - name: ihu_nu_indriscototal
       - name: ihu_cs_ish_ind
       - name: deman_indus
       - name: densidade_ind
+      - name: dem_ind_scbc
+      - name: dem_ind_bacia
       - name: perc_scbc_ind
-      - name: ihu_rel
+      - name: ihu_rel_ind
+      - name: ire_cs_ind_eco
 
 result:
   - name: ire_cs_eco

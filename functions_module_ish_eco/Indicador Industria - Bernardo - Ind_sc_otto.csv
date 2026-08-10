@@ -1,4 +1,4 @@
-fid,COBACIA,cod_setor,tipo_setor,cod_mun,mun_nm,uf,situacao_setor,disp_q95,dem_ret_ano,dem_acm,bal_perc,dmu_nu_popurbana,area_setor,area_otto,area_scbc
+fid,COBACIA,cod_setor,tipo_setor,cod_mun,mun_nm,uf,situacao_setor,disp_q95,dem_ret_ano,dem_acm,bal_perc,dmu_nu_vab,area_setor,area_otto,area_scbc
 1,7761879,320010205000001,Urbana,3200102,Afonso Cláudio,Espírito Santo,1,"1,804","0,003","0,299","16,575",48.980,"0,03969077389","5,412990806","0,04"
 2,7761879,320010205000002,Urbana,3200102,Afonso Cláudio,Espírito Santo,1,"1,804","0,003","0,299","16,575",48.980,"0,1875137391","5,412990806","0,115"
 3,7761881,320010205000002,Urbana,3200102,Afonso Cláudio,Espírito Santo,1,"0,719",0,"0,139","19,321",48.980,"0,1875137391","5,879590608","0,072"
