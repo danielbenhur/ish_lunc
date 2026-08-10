@@ -387,18 +387,18 @@ def ire_cs_pec_eco(df):
 
 # ind_eco
 def ihu_nu_indriscoinerente(df):
-    fator_iminente = df['fator_iminente']
+    fator_iminente = pd.to_numeric(df['fator_iminente'], errors='coerce')
     dmu_nu_vab = pd.to_numeric(df['dmu_nu_vab'].str.replace('.', ''), errors='coerce')
 
     return dmu_nu_vab*fator_iminente
 
 def ihu_nu_indriscoposdeficit(df):
-    fator_pos_deficit = df['fator_pos_deficit']
+    fator_pos_deficit = pd.to_numeric(df['fator_pos_deficit'], errors='coerce')
     dmu_nu_vab = pd.to_numeric(df['dmu_nu_vab'].str.replace('.', ''), errors='coerce')
     return dmu_nu_vab*fator_pos_deficit
 
 def ihu_nu_indriscototal(df):
-    fator_de_risco_total = df['fator_de_risco_total']
+    fator_de_risco_total = pd.to_numeric(df['fator_de_risco_total'], errors='coerce')
     dmu_nu_vab = pd.to_numeric(df['dmu_nu_vab'].str.replace('.', ''), errors='coerce')
     return dmu_nu_vab*fator_de_risco_total
 
@@ -452,12 +452,12 @@ def deman_indus(df):
 
 def densidade_ind(df):
     area_setor = pd.to_numeric(df['area_setor'], errors='coerce')
-    deman_ind = pd.to_numeric(df['deman_ind'], errors='coerce')
+    deman_indus = pd.to_numeric(df['deman_indus'], errors='coerce')
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
             (area_setor == 0) | pd.isna(area_setor),  # condição
             0,                                     # valor se for zero ou NaN
-            deman_ind/area_setor                   # valor caso contrário
+            deman_indus/area_setor                   # valor caso contrário
         )
     
     # Converte para Series para manter compatibilidade
@@ -487,7 +487,7 @@ def dem_ind_bacia(df):
     cobacia = df['COBACIA']
     return dem_ind_scbc.groupby(cobacia).transform('sum')
 
-def perc_ind_scbc(df):
+def perc_scbc_ind(df):
     # AQ - deman_agri_scbc
     # AO - deman_agri
     dem_ind_scbc = df['deman_agri_scbc']
@@ -505,13 +505,14 @@ def perc_ind_scbc(df):
     return pd.Series(resultado, index=df.index)
 
 def ihu_rel_ind(df):
-    perc_ind_scbc = df['perc_ind_scbc']
+    perc_scbc_ind = df['perc_scbc_ind']
     ihu_cs_ish_ind = df['ihu_cs_ish_ind']
 
-    return perc_ind_scbc*ihu_cs_ish_ind
+    return perc_scbc_ind*ihu_cs_ish_ind
 
 def ire_cs_ind_eco(df):
     ihu_rel = df['ihu_rel_ind']
+    cobacia = df['COBACIA']
     return ihu_rel.groupby(cobacia).transform('sum')
 
 def ire_cs_eco(ind, peso_ind, irri, peso_irri, pec, peso_pec):

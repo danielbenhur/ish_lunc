@@ -9,7 +9,6 @@ def main():
     
     dimensions = config['dimensions']
     dados_gerais = pd.read_csv('arquivo_intermediario.csv', dtype='str')
-    dados_resultado = pd.read_csv('arquivo_intermediario.csv', dtype='str')
     # Processar cada arquivo e aplicar as funções
     for dimension in dimensions:
         print(dimension['name'])
@@ -42,13 +41,11 @@ def main():
         # Aplicar as funções específicas para cada dimensão
         for item in dimension['indicadores']:
             nome_funcao = item['name']
-            if(nome_funcao == 'deman_indus'):
-                exit(1)
+            print(nome_funcao)
             if nome_funcao in globals() and callable(globals()[nome_funcao]):
                 funcao = globals()[nome_funcao]
                 # entregando a coluna aos dados finais
                 dados_gerais[nome_funcao] = funcao(dados_gerais)
-                dados_resultado[nome_funcao] = dados_gerais[nome_funcao]
 
     # Verificar se as colunas necessárias existem
     colunas_necessarias = ['ire_cs_ind_eco', 'ire_cs_irri_eco', 'ire_cs_pec_eco']
@@ -87,7 +84,7 @@ def main():
         ), axis=1
     )
     
-    dados_resultado = dados_gerais['ire_cs_eco']
+    dados_resultado = dados_gerais[['ire_cs_ind_eco', 'ire_cs_irri_eco', 'ire_cs_pec_eco', 'ire_cs_eco']]
 
     # Salvar resultado
     dados_resultado.to_csv(config['output']['path'], index=False)
