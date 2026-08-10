@@ -19,8 +19,7 @@ def main():
             if nome_funcao in globals() and callable(globals()[nome_funcao]):
                 funcao = globals()[nome_funcao]
                 df[nome_funcao] = funcao(df)
-                if(nome_funcao == "fator_de_risco_total"):
-                    df.to_csv('arquivo_intermediario.csv')
+    
         
         dataframes.append(df)
         # print(f"Arquivo {dimension['path']} processado. Colunas: {df.columns.tolist()}")

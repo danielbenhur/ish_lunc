@@ -51,3 +51,8 @@ Estrutura:
 - Código de leitura de YAML pronto, chamando funções pelo nome que está no yaml (funções precisam ser feitas uma a uma)
 - Código de todas as funções também está pronto: não tem um jeito simples de o usuário estabelecer qual a função que ele quer sem o nome devido, cada função precisa dos parâmetros e operações específicas precisam ser detalhadas na biblioteca convertion_functions
 - Retirada a necessidade de linha de comando do joinISH (tudo parametrizado em parameters.yaml)
+
+# ATIVIDADES PARA CONCLUIR
+- Fazer o JoinISH funcionar para juntar bem os arquivos
+- Criar um arquivo Python para rodar os arquivos propriamente ditos em cada pasta
+- Fazer o script que rode os arquivos e que faça o joinISH
