@@ -7,9 +7,9 @@ bho:
   layer: "bho_area"
 
 dimensions:
-  - name: ire_cs_hum
+  - name: hum
     path: "./functions_module_ish_hum/output/ish_hum.csv"
-  - name: ire_cs_eco
+  - name: eco
     path: "./functions_module_ish_eco/output/ish_eco.csv"
   # - name: ire_cs_amb
     # path: "./functions_module_ish_amb/output/ish_amb.csv"
