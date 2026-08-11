@@ -3,57 +3,71 @@ import yaml
 from convertion_functions import *
 
 def main():
-    yaml_file_path = "parameters.yaml"
+    yaml_file_path = "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/parameters.yaml"
     with open(yaml_file_path, 'r') as file:
         config = yaml.safe_load(file)
     
     dimensions = config['dimensions']
-    dados_gerais = pd.read_csv('arquivo_intermediario.csv', dtype='str')
+    dados_gerais = pd.read_csv('/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/arquivo_intermediario.csv', dtype='str')
+    
     # Processar cada arquivo e aplicar as funções
     for dimension in dimensions:
-        print(dimension['name'])
         df = pd.read_csv(dimension['path'], dtype='str')
-        # verifica como juntar com um DataFrame geral
-        chave = None
-        for possible_key in ['COBACIA', 'cod_mun']:
-            if possible_key in df.columns:
-                chave = possible_key
-                break
+        if dados_gerais.empty:
+            dados_gerais = df
+        else:
+            # verifica como juntar com um DataFrame geral
+            chave = None
+            for possible_key in ['COBACIA', 'cod_mun']:
+                if possible_key in df.columns:
+                    chave = possible_key
+                    break
+
+            if chave is None:
+                print(f"  ⚠️ Sem chave! Pulando...")
+                continue
+            df = df.dropna(subset=[chave])
         
-        if chave is None:
-            print(f"  ⚠️ Sem chave! Pulando...")
-            continue
-        df = df.dropna(subset=[chave])
-        # 🔥 CRIA UM DICIONÁRIO DE MAPPING (chave -> primeiro valor)
-        # Isso garante que cada chave tenha APENAS UM valor
-        mapping = {}
-        for col in df.columns:
-            if col != chave:
-                # Pega o primeiro valor para cada chave
-                mapping[col] = df.drop_duplicates(subset=[chave], keep='first').set_index(chave)[col].to_dict()
+            # CRIA UM DICIONÁRIO DE MAPPING (chave -> primeiro valor)
+            mapping = {}
+            for col in df.columns:
+                if col != chave:
+                    mapping[col] = df.drop_duplicates(subset=[chave], keep='first').set_index(chave)[col].to_dict()
         
-        # Aplica o mapping à base (sem multiplicar!)
-        for col in mapping:
-            if col not in dados_gerais.columns:
-                dados_gerais[col] = dados_gerais[chave].map(mapping[col])
-                print(f"  Adicionada coluna: {col}")
+            # Aplica o mapping à base (sem multiplicar!)
+            for col in mapping:
+                if col not in dados_gerais.columns:
+                    dados_gerais[col] = dados_gerais[chave].map(mapping[col])
+                    # print(f"  Adicionada coluna: {col}")
         
         # Aplicar as funções específicas para cada dimensão
         for item in dimension['indicadores']:
             nome_funcao = item['name']
-            print(nome_funcao)
+            
+            # Verifica se a função existe
             if nome_funcao in globals() and callable(globals()[nome_funcao]):
                 funcao = globals()[nome_funcao]
-                # entregando a coluna aos dados finais
-                dados_gerais[nome_funcao] = funcao(dados_gerais)
-
-    # Verificar se as colunas necessárias existem
+                try:
+                    # Executa a função
+                    resultado = funcao(dados_gerais)
+                    
+                    # Verifica se retornou algo
+                    if resultado is not None:
+                        dados_gerais[nome_funcao] = resultado
+                    else:
+                        print(f"    ⚠️ Função '{nome_funcao}' retornou None!")
+                        
+                except Exception as e:
+                    print(f"    ❌ Erro ao executar '{nome_funcao}': {e}")
+            else:
+                print(f"    ❌ Função '{nome_funcao}' não encontrada no escopo global!")
+                print(f"    Funções disponíveis: {[f for f in dir() if callable(globals().get(f)) and not f.startswith('_')]}")
+    
     colunas_necessarias = ['ire_cs_ind_eco', 'ire_cs_irri_eco', 'ire_cs_pec_eco']
     colunas_faltando = [col for col in colunas_necessarias if col not in dados_gerais.columns]
     
     if colunas_faltando:
         print(f"ERRO: Colunas faltando: {colunas_faltando}")
-        print("Colunas disponíveis:", dados_gerais.columns.tolist())
         return
     
     # Continuar com o processamento...
@@ -84,12 +98,12 @@ def main():
         ), axis=1
     )
     
-    dados_resultado = dados_gerais[['ire_cs_ind_eco', 'ire_cs_irri_eco', 'ire_cs_pec_eco', 'ire_cs_eco']]
+    dados_resultado = dados_gerais[['COBACIA','ire_cs_ind_eco', 'ire_cs_irri_eco', 'ire_cs_pec_eco', 'ire_cs_eco']]
 
     # Salvar resultado
     dados_resultado.to_csv(config['output']['path'], index=False)
-    print(f"\nResultado salvo em: {config['output']['path']}")
-    print(dados_resultado.head())
+    print(f"✅Resultado salvo em: {config['output']['path']}")
+    print(dados_resultado.head()) # para conferencia de consistência nos dados
     
 if __name__ == "__main__":
     main()

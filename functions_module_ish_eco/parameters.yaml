@@ -8,7 +8,7 @@ bho:
   path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/cnr_A/input/BHO_area.gpkg"
 
 dimensions:
-  - name: PAM_analises_iniciais
+  - name: ire_cs_irri_eco
     path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/PAM - ES - Producao irrigada .csv"
     indicadores:
       - name: irri_arroz
@@ -90,5 +90,4 @@ result:
 
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:
-  path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/output/ish_eco.csv"cko
- 
+  path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/output/ish_eco.csv"
