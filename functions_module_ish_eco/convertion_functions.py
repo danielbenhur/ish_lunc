@@ -159,7 +159,7 @@ def deman_irri(df):
     return demanda_df[coluna_D]
 
 def densidade_irri(df):
-    area_setor = pd.to_numeric(df['area_setor'], errors='coerce')
+    area_setor = pd.to_numeric(df['area_setor'].str.replace(',', '.'), errors='coerce')
     deman_irri = pd.to_numeric(df['deman_irri'], errors='coerce')
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
@@ -179,7 +179,7 @@ def deman_agri_scbc(df):
     # AN2 - area_setor
     situacao_setor = pd.to_numeric(df['situacao_setor'], errors='coerce')
     densidade = pd.to_numeric(df['densidade_irri'], errors='coerce')
-    area_setor = pd.to_numeric(df['area_setor'], errors='coerce')
+    area_setor = pd.to_numeric(df['area_setor'].str.replace(',', '.'), errors='coerce')
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
             (situacao_setor <= 10),  # condição
@@ -206,6 +206,7 @@ def perc_scbc_irri(df):
     deman_agri_scbc = df['deman_agri_scbc']
     deman_irri = df['deman_irri']
 
+
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
             (deman_irri == 0),  # condição
@@ -228,8 +229,6 @@ def cs_ish_scbc_irri(df):
     perc_scbc = df['perc_scbc_irri']
     return cs_ish_irri*perc_scbc
 
-def irri_scbc(df):
-    return 0
 
 # =SOMASE($B:$B;$B2;AU:AU)
 def ire_cs_irri_eco(df):
@@ -451,7 +450,7 @@ def deman_indus(df):
     return demanda_df[coluna_D]
 
 def densidade_ind(df):
-    area_setor = pd.to_numeric(df['area_setor'], errors='coerce')
+    area_setor = pd.to_numeric(df['area_setor'].str.replace(',', '.'), errors='coerce')
     deman_indus = pd.to_numeric(df['deman_indus'], errors='coerce')
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
@@ -470,14 +469,14 @@ def dem_ind_scbc(df):
     # AN2 - area_setor
     situacao_setor = pd.to_numeric(df['situacao_setor'], errors='coerce')
     densidade = pd.to_numeric(df['densidade_ind'], errors='coerce')
-    area_setor = pd.to_numeric(df['area_setor'], errors='coerce')
+    area_setor = pd.to_numeric(df['area_setor'].str.replace(',', '.'), errors='coerce')
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
             (situacao_setor <= 10),  # condição
             densidade*area_setor,                                     
             0                 # valor caso contrário
         )
-    
+        
     # Converte para Series para manter compatibilidade
     resultado = np.where(np.isinf(resultado), 0, resultado)
     return pd.Series(resultado, index=df.index)
@@ -490,7 +489,7 @@ def dem_ind_bacia(df):
 def perc_scbc_ind(df):
     # AQ - deman_agri_scbc
     # AO - deman_agri
-    dem_ind_scbc = df['deman_agri_scbc']
+    dem_ind_scbc = df['dem_ind_scbc']
     deman_indus = df['deman_indus']
 
     with np.errstate(divide='ignore', invalid='ignore'):
@@ -507,7 +506,6 @@ def perc_scbc_ind(df):
 def ihu_rel_ind(df):
     perc_scbc_ind = df['perc_scbc_ind']
     ihu_cs_ish_ind = df['ihu_cs_ish_ind']
-
     return perc_scbc_ind*ihu_cs_ish_ind
 
 def ire_cs_ind_eco(df):

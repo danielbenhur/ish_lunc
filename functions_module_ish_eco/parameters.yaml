@@ -39,7 +39,7 @@ dimensions:
       - name: perc_scbc_irri
       - name: irri_risco_scbc
       - name: cs_ish_scbc_irri
-      - name: irri_scbc
+      # - name: irri_scbc
       - name: ire_cs_irri_eco
 
   - name: ire_cs_pec_eco
