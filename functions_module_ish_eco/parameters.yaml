@@ -61,6 +61,7 @@ dimensions:
       - name: deman_pecuaria_scbc
       - name: deman_pecuaria_otto
       - name: perc_deman_pecuaria
+      - name: ihu_cs_ish_pec
       - name: ire_cs_pec_eco
 
   - name: ire_cs_ind_eco

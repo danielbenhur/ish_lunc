@@ -12,7 +12,7 @@ def main():
     
     # Processar cada arquivo e aplicar as funções
     for dimension in dimensions:
-        print(dimension)
+        # print(dimension)
         df = pd.read_csv(dimension['path'], dtype='str')
         if dados_gerais.empty:
             dados_gerais = df
@@ -45,12 +45,12 @@ def main():
         # 🔥 PRIMEIRO: Aplicar as funções específicas para cada dimensão
         for item in dimension['indicadores']:
             nome_funcao = item['name']
-            print(f"Aplicando função: {nome_funcao}")
+            # print(f"Aplicando função: {nome_funcao}")
             if nome_funcao in globals() and callable(globals()[nome_funcao]):
                 funcao = globals()[nome_funcao]
                 # entregando a coluna aos dados finais
                 dados_gerais[nome_funcao] = funcao(dados_gerais)
-                print(f"  ✅ Coluna criada: {nome_funcao}")
+                # print(f"  ✅ Coluna criada: {nome_funcao}")
             else:
                 print(f"  ⚠️ Função '{nome_funcao}' não encontrada!")
     
@@ -103,7 +103,7 @@ def main():
     dados_resultado = dados_gerais[['COBACIA', 'ire_cs_hum']]
     dados_resultado.to_csv(config['output']['path'], index=False)
     print(f"✅ Resultado salvo em: {config['output']['path']}")
-    print(dados_resultado.head)
+    # print(dados_resultado.head)
 
 if __name__ == "__main__":
     main()

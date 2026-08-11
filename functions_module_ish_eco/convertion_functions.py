@@ -327,7 +327,7 @@ def deman_pecuaria(df):
 
 # dúvida entre area_setor e area_otto
 def densidade_pec(df):
-    area_setor = pd.to_numeric(df['area_setor'], errors='coerce')
+    area_setor = pd.to_numeric(df['area_otto'].str.replace(',', '.'), errors='coerce')
     deman_pecuaria = pd.to_numeric(df['deman_pecuaria'], errors='coerce')
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
@@ -348,7 +348,7 @@ def deman_pecuaria_scbc(df):
     # AN2 - area_setor
     situacao_setor = pd.to_numeric(df['situacao_setor'], errors='coerce')
     densidade = pd.to_numeric(df['densidade_pec'], errors='coerce')
-    area_setor = pd.to_numeric(df['area_setor'], errors='coerce')
+    area_setor = pd.to_numeric(df['area_setor'].str.replace(',', '.'), errors='coerce')
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
             (situacao_setor <= 10),  # condição
@@ -379,10 +379,16 @@ def perc_deman_pecuaria(df):
     resultado = np.where(np.isinf(resultado), 0, resultado)
     return pd.Series(resultado, index=df.index)
 
-def ire_cs_pec_eco(df):
+def ihu_cs_ish_pec(df):
     cs_ish_pec = df['cs_ish_pec']
+    perc_deman_pecuaria = df['perc_deman_pecuaria']
+    return cs_ish_pec*perc_deman_pecuaria
+
+def ire_cs_pec_eco(df):
+    ihu_cs_ish_pec = df['ihu_cs_ish_pec']
+    print(ihu_cs_ish_pec)
     cobacia = df['COBACIA']
-    return cs_ish_pec.groupby(cobacia).transform('sum')
+    return ihu_cs_ish_pec.groupby(cobacia).transform('sum')
 
 # ind_eco
 def ihu_nu_indriscoinerente(df):

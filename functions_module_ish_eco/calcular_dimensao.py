@@ -43,7 +43,6 @@ def main():
         # Aplicar as funções específicas para cada dimensão
         for item in dimension['indicadores']:
             nome_funcao = item['name']
-            
             # Verifica se a função existe
             if nome_funcao in globals() and callable(globals()[nome_funcao]):
                 funcao = globals()[nome_funcao]
