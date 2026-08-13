@@ -48,7 +48,7 @@ def main():
         arquivo = dimension['path']
         df_temp = pd.read_csv(arquivo)
         # print(df_temp.head())
-        coluna_esperada = dimension['name']
+        coluna_esperada = dimension['column']
 
         df_para_merge = df_temp[['COBACIA', coluna_esperada]].copy()
         
