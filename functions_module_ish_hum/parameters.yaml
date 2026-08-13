@@ -2,9 +2,6 @@ id: humano
 description: "Calculando a dimensão humana"
 base_dir: "."
 
-bho:
-  path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/cnr_A/input/BHO_area.gpkg"
-
 dimensions:
   - name: ire_cs_hum
     path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/dimensao_humana.csv"

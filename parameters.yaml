@@ -3,7 +3,7 @@ description: "Cenário teste dados de 2020 - exemplo de uso com joinISH"
 base_dir: "."
 
 bho:
-  path: "./cnr_A/input/BHO_area.gpkg"
+  path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/BHO_area.gpkg"
   layer: "bho_area"
 
 dimensions:

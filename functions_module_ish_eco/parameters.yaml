@@ -4,9 +4,6 @@ id: economico
 description: "Calculando a dimensão econômica"
 base_dir: "."
 
-bho:
-  path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/cnr_A/input/BHO_area.gpkg"
-
 dimensions:
   - name: ire_cs_irri_eco
     path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/PAM - ES - Producao irrigada .csv"
