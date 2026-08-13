@@ -3,12 +3,13 @@ import numpy as np
 import yaml
 import sys
 
-def disp_por_dem(df):
+def disp_por_dem(df, parametros=['bal_perc'], pesos=[1]):
+    peso_bal_perc = pesos[0]
     if df['bal_perc'].dtype == 'object':  # object geralmente indica strings
-        bal_perc = pd.to_numeric(df['bal_perc'].str.replace(',', '.'), errors='coerce')
+        bal_perc = pd.to_numeric(df['bal_perc'].str.replace(',', '.'), errors='coerce')*peso_bal_perc
     else:
         # Se já for numérica, usa diretamente
-        bal_perc = pd.to_numeric(df['bal_perc'], errors='coerce')
+        bal_perc = pd.to_numeric(df['bal_perc'], errors='coerce')*peso_bal_perc
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
             (bal_perc == 0) | pd.isna(bal_perc),  # condição
@@ -20,41 +21,42 @@ def disp_por_dem(df):
     resultado = np.where(np.isinf(resultado), 0, resultado)
     return pd.Series(resultado, index=df.index)
 
-def fator_iminente(df):
+def fator_iminente(df, parametros=['disp_por_dem'], pesos=[1/3]):
     disp_por_dem = df['disp_por_dem']
-    
+    peso_disp_por_dem = pesos[0]
     return np.where(
         disp_por_dem >=1,
-        (1/3)*(disp_por_dem**(-2)),
-        (1/3)*(disp_por_dem)
+        peso_disp_por_dem*(disp_por_dem**(-2)),
+        peso_disp_por_dem*disp_por_dem
     )
 
 
-def fator_pos_deficit(df):
-    disp_por_dem = df['disp_por_dem']
+def fator_pos_deficit(df, parametros=['disp_por_dem'], pesos=[1]):
+    peso_disp_por_dem = pesos[0]
+    disp_por_dem = df['disp_por_dem']*peso_disp_por_dem
     
     return disp_por_dem.apply(lambda x: 0 if x >= 1 else 1 - x)
 
-def fator_de_risco_total(df):
-    fator_iminente = df['fator_iminente']
-    fator_pos_deficit = df['fator_pos_deficit']
+def fator_de_risco_total(df, parametros=['fator_iminente', 'fator_pos_deficit'], pesos=[1, 1]):
+    fator_iminente = df['fator_iminente']*pesos[0]
+    fator_pos_deficit = df['fator_pos_deficit']*pesos[1]
     
     return fator_iminente + fator_pos_deficit
 
-def ihu_nu_popriscoinerente(df):
-    fator_iminente = df['fator_iminente'] 
-    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')
+def ihu_nu_popriscoinerente(df, parametros=['fator_iminente', 'dmu_nu_popurbana'], pesos=[1, 1]):
+    fator_iminente = df['fator_iminente']*pesos[0] 
+    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')*pesos[1]
     
     resultado = fator_iminente*dmu_nu_popurbana
 
     return resultado.round(2)
 
-def ihu_pc_risco_inerente(df):
+def ihu_pc_risco_inerente(df, parametros=['ihu_nu_popriscoinerente', 'dmu_nu_popurbana'], pesos=[1, 1]):
     ihu_nu_popriscoinerente = df['ihu_nu_popriscoinerente']
     dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')
 
-    ihu_nu_popriscoinerente = ihu_nu_popriscoinerente.fillna(0)
-    dmu_nu_popurbana = dmu_nu_popurbana.fillna(0)
+    ihu_nu_popriscoinerente = ihu_nu_popriscoinerente.fillna(0)*pesos[0]
+    dmu_nu_popurbana = dmu_nu_popurbana.fillna(0)*pesos[1]
 
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
@@ -65,17 +67,17 @@ def ihu_pc_risco_inerente(df):
     
     return resultado
 
-def ihu_nu_popriscoposdeficit(df):
-    fator_pos_deficit = df['fator_pos_deficit']
-    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')
+def ihu_nu_popriscoposdeficit(df, parametros=['fator_pos_deficit', 'dmu_nu_popurbana'], pesos=[1, 1]):
+    fator_pos_deficit = df['fator_pos_deficit']*pesos[0]
+    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')*pesos[1]
 
     resultado = fator_pos_deficit*dmu_nu_popurbana
     
     return resultado
 
-def ihu_pc_riscoposdeficit(df):
-    ihu_nu_popriscoposdeficit = df['ihu_nu_popriscoposdeficit']
-    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')
+def ihu_pc_riscoposdeficit(df, parametros=['ihu_nu_popriscoposdeficit', 'dmu_nu_popurbana'], pesos=[1, 1]):
+    ihu_nu_popriscoposdeficit = df['ihu_nu_popriscoposdeficit']*pesos[0]
+    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')*pesos[1]
 
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
@@ -86,7 +88,7 @@ def ihu_pc_riscoposdeficit(df):
 
     return resultado
 
-def ihu_nu_popriscototal(df):
+def ihu_nu_popriscototal(df, parametros=['fator_de_risco_total', 'dmu_nu_popurbana'], pesos=[1, 1]):
     fator_de_risco_total = df['fator_de_risco_total']
     dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')
 
@@ -94,7 +96,7 @@ def ihu_nu_popriscototal(df):
     
     return resultado
 
-def ihu_pc_risco(df):
+def ihu_pc_risco(df, parametros=['ihu_nu_popriscototal', 'dmu_nu_popurbana'], pesos=[1, 1]):
     ihu_nu_popriscototal = df['ihu_nu_popriscototal']
     dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')
 
@@ -107,7 +109,7 @@ def ihu_pc_risco(df):
     
     return resultado
 
-def densidade(df):
+def densidade(df, parametros=['pop', 'area_setor'], pesos=[1, 1]):
     pop = (df['pop']
                     .astype(str)
                     .str.replace(',', '.')
@@ -133,7 +135,7 @@ def densidade(df):
     return resultado
 
 # cs_risco: busca de dados em matriz
-def cs_risco(df):
+def cs_risco(df, parametros=['ihu_nu_popriscototal', 'ihu_pc_risco'], pesos=[1, 1]):
     ihu_nu_popriscototal = df['ihu_nu_popriscototal']
     ihu_pc_risco = df['ihu_pc_risco']
     
@@ -160,7 +162,7 @@ def cs_risco(df):
     
     return pd.Series(resultado)
 
-def cs_cobred(df):
+def cs_cobred(df, parametros=['ihu_pc_cobrede'], pesos=[1]):
     ihu_pc_cobrede = (df['ihu_pc_cobrede']
                     .astype(str)
                     .str.replace(',', '.')
@@ -173,7 +175,7 @@ def cs_cobred(df):
     labels = [0, 1, 2, 3, 4, 5, 5]  
     return pd.cut(ihu_pc_cobrede.fillna(-1), bins=bins, labels=labels, right=False, ordered=False).astype(int)
 
-def pop_urb_scbc(df):
+def pop_urb_scbc(df, parametros=['situacao_setor', 'densidade', 'area_scbc', 'fator_analisavel'], pesos=[1, 1, 1, 1]):
     situacao_setor = pd.to_numeric(df['situacao_setor'], errors='coerce')
     densidade = df['densidade']
     area_scbc = pd.to_numeric(df['area_scbc'], errors='coerce')
@@ -184,14 +186,14 @@ def pop_urb_scbc(df):
         0
     )
 
-def pop_urb_bacia(df):
+def pop_urb_bacia(df, parametros=['COBACIA', 'pop_urb_scbc'], pesos=[1, 1]):
     cobacia = df['COBACIA']
     pop_urb_scbc = df['pop_urb_scbc']
     resultado = pop_urb_scbc.groupby(cobacia).transform('sum')
 
     return resultado
 
-def perc_scbc(df):
+def perc_scbc(df, parametros=['pop_urb_scbc', 'pop_urb_bacia'], pesos=[1, 1]):
     # Limpeza da primeira coluna
     pop_urb_scbc = (df['pop_urb_scbc']
                     .astype(str)
@@ -216,10 +218,12 @@ def perc_scbc(df):
     
     return resultado
 
-def ihu_cs_ish(df, peso_cs_cobred=0.7, peso_cs_risco=0.3):
+def ihu_cs_ish(df, parametros=['cs_cobred', 'cs_risco'], pesos=[0.7, 0.3]):
     cs_risco = df['cs_risco']
     cs_cobred = df['cs_cobred']
-    
+    peso_cs_risco = pesos[0]
+    peso_cs_cobred = pesos[1]
+
     resultado = np.where(
         cs_cobred < cs_risco,
         peso_cs_risco * cs_risco + peso_cs_cobred * cs_cobred,
@@ -228,23 +232,23 @@ def ihu_cs_ish(df, peso_cs_cobred=0.7, peso_cs_risco=0.3):
 
     return pd.Series(resultado)
     
-def ihu_rel_pop(df):
+def ihu_rel_pop(df, parametros=['perc_scbc', 'cs_risco'], pesos=[1, 1]):
     perc_scbc = df['perc_scbc']
     cs_risco = df['cs_risco']
     return perc_scbc*cs_risco
 
-def ihu_rel_cobred(df):
+def ihu_rel_cobred(df, parametros=['perc_scbc', 'cs_cobred'], pesos=[1, 1]):
     perc_scbc = df['perc_scbc']
     cs_cobred = df['cs_cobred']
     return perc_scbc*cs_cobred
 
-def ire_hu_pop(df):
+def ire_hu_pop(df, parametros=['COBACIA', 'ihu_rel_pop'], pesos=[1, 1]):
     cobacia = df['COBACIA']
     ihu_rel_pop = pd.to_numeric(df['ihu_rel_pop'], errors='coerce')
     
     return ihu_rel_pop.groupby(cobacia).transform('sum')
     
-def ire_hu_cobred(df):
+def ire_hu_cobred(df, parametros=['COBACIA', 'ihu_rel_cobred'], pesos=[1, 1]):
     cobacia = df['COBACIA']
     ihu_rel_cobred = pd.to_numeric(df['ihu_rel_cobred'], errors='coerce')
     
