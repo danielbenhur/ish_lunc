@@ -89,16 +89,16 @@ def ihu_pc_riscoposdeficit(df, parametros=['ihu_nu_popriscoposdeficit', 'dmu_nu_
     return resultado
 
 def ihu_nu_popriscototal(df, parametros=['fator_de_risco_total', 'dmu_nu_popurbana'], pesos=[1, 1]):
-    fator_de_risco_total = df['fator_de_risco_total']
-    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')
+    fator_de_risco_total = df['fator_de_risco_total']*pesos[0]
+    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')*pesos[1]
 
     resultado = fator_de_risco_total*dmu_nu_popurbana
     
     return resultado
 
 def ihu_pc_risco(df, parametros=['ihu_nu_popriscototal', 'dmu_nu_popurbana'], pesos=[1, 1]):
-    ihu_nu_popriscototal = df['ihu_nu_popriscototal']
-    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')
+    ihu_nu_popriscototal = df['ihu_nu_popriscototal']*pesos[0]
+    dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')*pesos[1]
 
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
@@ -116,14 +116,14 @@ def densidade(df, parametros=['pop', 'area_setor'], pesos=[1, 1]):
                     .str.replace('#DIV/0!', 'nan')
                     .str.replace('#N/A', 'nan')
                     .str.strip()
-                    .pipe(pd.to_numeric, errors='coerce'))
+                    .pipe(pd.to_numeric, errors='coerce'))*pesos[0]
     area_setor = (df['area_setor']
                     .astype(str)
                     .str.replace(',', '.')
                     .str.replace('#DIV/0!', 'nan')
                     .str.replace('#N/A', 'nan')
                     .str.strip()
-                    .pipe(pd.to_numeric, errors='coerce'))
+                    .pipe(pd.to_numeric, errors='coerce'))*pesos[1]
 
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
@@ -136,8 +136,8 @@ def densidade(df, parametros=['pop', 'area_setor'], pesos=[1, 1]):
 
 # cs_risco: busca de dados em matriz
 def cs_risco(df, parametros=['ihu_nu_popriscototal', 'ihu_pc_risco'], pesos=[1, 1]):
-    ihu_nu_popriscototal = df['ihu_nu_popriscototal']
-    ihu_pc_risco = df['ihu_pc_risco']
+    ihu_nu_popriscototal = df['ihu_nu_popriscototal']*pesos[0]
+    ihu_pc_risco = df['ihu_pc_risco']*pesos[1]
     
     bins_pop = [-float('inf'), 0, 2000, 5000, 10000, 50000, float('inf')]
     labels_pop = [0, 0, 1, 2, 3, 4]
@@ -169,16 +169,17 @@ def cs_cobred(df, parametros=['ihu_pc_cobrede'], pesos=[1]):
                     .str.replace('#DIV/0!', 'nan')
                     .str.replace('#N/A', 'nan')
                     .str.strip()
-                    .pipe(pd.to_numeric, errors='coerce'))
+                    .pipe(pd.to_numeric, errors='coerce'))*pesos[0]
 
     bins = [-float('inf'), 0, 0.8, 0.9, 0.95, 0.98, 1, float('inf')]
     labels = [0, 1, 2, 3, 4, 5, 5]  
     return pd.cut(ihu_pc_cobrede.fillna(-1), bins=bins, labels=labels, right=False, ordered=False).astype(int)
 
-def pop_urb_scbc(df, parametros=['situacao_setor', 'densidade', 'area_scbc', 'fator_analisavel'], pesos=[1, 1, 1, 1]):
+def pop_urb_scbc(df, parametros=['situacao_setor', 'densidade', 'area_scbc', 'fator_analisavel'], pesos=[1, 1]):
+    # pesos aplicados apenas naquilo que faz parte de conta
     situacao_setor = pd.to_numeric(df['situacao_setor'], errors='coerce')
-    densidade = df['densidade']
-    area_scbc = pd.to_numeric(df['area_scbc'], errors='coerce')
+    densidade = df['densidade']*pesos[0]
+    area_scbc = pd.to_numeric(df['area_scbc'], errors='coerce')*pesos[1]
     fator_analisavel = pd.to_numeric(df['fator_analisavel'], errors='coerce')
     return np.where(
         situacao_setor < fator_analisavel,
@@ -186,9 +187,9 @@ def pop_urb_scbc(df, parametros=['situacao_setor', 'densidade', 'area_scbc', 'fa
         0
     )
 
-def pop_urb_bacia(df, parametros=['COBACIA', 'pop_urb_scbc'], pesos=[1, 1]):
+def pop_urb_bacia(df, parametros=['COBACIA', 'pop_urb_scbc'], pesos=[1]):
     cobacia = df['COBACIA']
-    pop_urb_scbc = df['pop_urb_scbc']
+    pop_urb_scbc = df['pop_urb_scbc']*pesos[0]
     resultado = pop_urb_scbc.groupby(cobacia).transform('sum')
 
     return resultado
@@ -201,7 +202,7 @@ def perc_scbc(df, parametros=['pop_urb_scbc', 'pop_urb_bacia'], pesos=[1, 1]):
                     .str.replace('#DIV/0!', 'nan')
                     .str.replace('#N/A', 'nan')
                     .str.strip()
-                    .pipe(pd.to_numeric, errors='coerce'))
+                    .pipe(pd.to_numeric, errors='coerce'))*pesos[0]
     
     # Limpeza da segunda coluna
     pop_urb_bacia = (df['pop_urb_bacia']
@@ -210,7 +211,7 @@ def perc_scbc(df, parametros=['pop_urb_scbc', 'pop_urb_bacia'], pesos=[1, 1]):
                      .str.replace('#DIV/0!', 'nan')
                      .str.replace('#N/A', 'nan')
                      .str.strip()
-                     .pipe(pd.to_numeric, errors='coerce'))
+                     .pipe(pd.to_numeric, errors='coerce'))*pesos[1]
     
     # Cálculo seguro
     resultado = pop_urb_scbc / pop_urb_bacia
@@ -233,24 +234,24 @@ def ihu_cs_ish(df, parametros=['cs_cobred', 'cs_risco'], pesos=[0.7, 0.3]):
     return pd.Series(resultado)
     
 def ihu_rel_pop(df, parametros=['perc_scbc', 'cs_risco'], pesos=[1, 1]):
-    perc_scbc = df['perc_scbc']
-    cs_risco = df['cs_risco']
+    perc_scbc = df['perc_scbc']*pesos[0]
+    cs_risco = df['cs_risco']*pesos[1]
     return perc_scbc*cs_risco
 
 def ihu_rel_cobred(df, parametros=['perc_scbc', 'cs_cobred'], pesos=[1, 1]):
-    perc_scbc = df['perc_scbc']
-    cs_cobred = df['cs_cobred']
+    perc_scbc = df['perc_scbc']*pesos[0]
+    cs_cobred = df['cs_cobred']*pesos[1]
     return perc_scbc*cs_cobred
 
-def ire_hu_pop(df, parametros=['COBACIA', 'ihu_rel_pop'], pesos=[1, 1]):
+def ire_hu_pop(df, parametros=['COBACIA', 'ihu_rel_pop'], pesos=[1]):
     cobacia = df['COBACIA']
-    ihu_rel_pop = pd.to_numeric(df['ihu_rel_pop'], errors='coerce')
+    ihu_rel_pop = pd.to_numeric(df['ihu_rel_pop'], errors='coerce')*pesos[0]
     
     return ihu_rel_pop.groupby(cobacia).transform('sum')
     
-def ire_hu_cobred(df, parametros=['COBACIA', 'ihu_rel_cobred'], pesos=[1, 1]):
+def ire_hu_cobred(df, parametros=['COBACIA', 'ihu_rel_cobred'], pesos=[1]):
     cobacia = df['COBACIA']
-    ihu_rel_cobred = pd.to_numeric(df['ihu_rel_cobred'], errors='coerce')
+    ihu_rel_cobred = pd.to_numeric(df['ihu_rel_cobred'], errors='coerce')*pesos[0]
     
     return ihu_rel_cobred.groupby(cobacia).transform('sum')
 
@@ -262,62 +263,3 @@ def ire_cs_hum(ire_hu_pop, peso_ire_hu_pop, ire_hu_cobred, peso_ire_hu_cobred):
         return impacto_hu_cobred + impacto_hu_pop
     else:
         return ire_hu_pop
-
-def list_functions(dimensao):
-    return_list = []
-    
-    for item in dimensao['indicadores']:
-        if item == None:
-            continue
-
-        nome_funcao = item['name']
-
-        # Verifica se a função existe no módulo importado
-        if nome_funcao in globals() and callable(globals()[nome_funcao]):
-            return_list.append(item)
-
-    return return_list
-
-def calcular_indicador(indicador, dados_calculados, functions_to_work, calculados=None):
-    if calculados is None:
-        calculados = set()
-    
-    # Se já foi calculado, retornar
-    if indicador in dados_calculados.columns:
-        return dados_calculados[indicador]
-
-    # Encontrar a função
-    item_func = next((item for item in functions_to_work 
-                     if item['name'] == indicador), None)
-
-    if not item_func:
-        raise ValueError(f"Indicador {indicador} não encontrado")
-    
-    # Calcular dependências primeiro (recursivamente)
-    parametros = []
-    for dependencia in item_func['depends_on']:
-        if dependencia in dados_calculados.columns:
-            parametros.append(dados_calculados[dependencia])
-        else:
-            # Tentar como constante
-            try:
-                valor_constante = float(dependencia)
-                coluna_constante = pd.Series([valor_constante] * len(dados_calculados),
-                                            index=dados_calculados.index)
-                parametros.append(coluna_constante)
-            except (ValueError, TypeError):
-                # É outro indicador, calcular recursivamente
-                coluna_dep = calcular_indicador(dependencia, dados_calculados, 
-                                               functions_to_work, calculados)
-                parametros.append(coluna_dep)
-    
-    # Calcular o indicador atual
-    funcao = globals()[indicador]
-    resultado = funcao(parametros)
-    # Armazenar resultado
-    if 'column' in item_func:
-        dados_calculados[item_func['column']] = resultado
-    else:
-        dados_calculados[indicador] = resultado
-    
-    return resultado

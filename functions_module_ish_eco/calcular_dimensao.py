@@ -47,8 +47,12 @@ def main():
             if nome_funcao in globals() and callable(globals()[nome_funcao]):
                 funcao = globals()[nome_funcao]
                 try:
-                    # Executa a função
-                    resultado = funcao(dados_gerais)
+                    # Executa a função aplicando pesos se necessário
+                    if 'pesos' in item:
+                        pesos = item['pesos']
+                        resultado = funcao(dados_gerais, pesos=pesos)
+                    else:
+                        resultado = funcao(dados_gerais)
                     
                     # Verifica se retornou algo
                     if resultado is not None:
