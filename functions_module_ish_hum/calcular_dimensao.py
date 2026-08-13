@@ -49,7 +49,12 @@ def main():
             if nome_funcao in globals() and callable(globals()[nome_funcao]):
                 funcao = globals()[nome_funcao]
                 # entregando a coluna aos dados finais
-                dados_gerais[nome_funcao] = funcao(dados_gerais)
+                # aplicando peso diferentes do padrão já pré-estabelecido na função
+                if 'pesos' in item:
+                    pesos = item['pesos']
+                    dados_gerais[nome_funcao] = funcao(dados_gerais, pesos=pesos)
+                else:
+                    dados_gerais[nome_funcao] = funcao(dados_gerais)
                 # print(f"  ✅ Coluna criada: {nome_funcao}")
             else:
                 print(f"  ⚠️ Função '{nome_funcao}' não encontrada!")

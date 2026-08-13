@@ -10,6 +10,8 @@ dimensions:
     path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/dimensao_humana.csv"
     indicadores:
       - name: disp_por_dem
+        depends_on: bal_perc
+        pesos: [3]
       - name: fator_iminente
       - name: fator_pos_deficit
       - name: fator_de_risco_total
