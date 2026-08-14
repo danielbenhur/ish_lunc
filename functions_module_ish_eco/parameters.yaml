@@ -9,7 +9,7 @@ intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gera
 
 dimensions:
   - name: ire_cs_irri_eco
-    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/PAM - ES - Producao irrigada .csv"
+    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/input/PAM - ES - Producao irrigada .csv"
     indicadores:
       - name: irri_arroz
         depends_on: []
@@ -101,7 +101,7 @@ dimensions:
         pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
 
   - name: ire_cs_pec_eco
-    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/PPM - ES - PPM.csv"
+    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/input/functions_module_ish_eco/PPM - ES - PPM.csv"
     indicadores:
       - name: pec_bov
       - name: pec_bub
@@ -123,7 +123,7 @@ dimensions:
       - name: ire_cs_pec_eco
 
   - name: ire_cs_ind_eco
-    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/Indicador Industria - Bernardo - Ind_sc_otto.csv"
+    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/input/Indicador Industria - Bernardo - Ind_sc_otto.csv"
     indicadores:
       - name: ihu_nu_indriscoinerente
       - name: ihu_nu_indriscoposdeficit

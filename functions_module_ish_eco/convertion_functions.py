@@ -159,7 +159,7 @@ def deman_irri(df, parametros=['Valor que eu quero '], pesos=[1]):
     # demanda!D - Valor que eu quero
     # demanda!A - COBACIA
     # B - COBACIA
-    demanda_df = pd.read_csv('/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/PAM - ES - demanda.csv')
+    demanda_df = pd.read_csv('/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/input/PAM - ES - demanda.csv')
     coluna_D = 'Valor que eu quero '
     demanda_df['COBACIA'] = demanda_df['COBACIA'].astype('object')
     demanda_df[coluna_D] = pd.to_numeric(demanda_df[coluna_D].str.replace(',', '.'), errors='coerce')*pesos[0]
@@ -327,7 +327,7 @@ def deman_pecuaria(df, parametros=[], pesos=[1]):
     # demanda!D - Valor que eu quero
     # demanda!A - COBACIA
     # B - COBACIA
-    demanda_df = pd.read_csv('/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/PPM - ES - demanda.csv')
+    demanda_df = pd.read_csv('/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/input/PPM - ES - demanda.csv')
     coluna_D = 'Valor que eu quero '
     demanda_df['COBACIA'] = demanda_df['COBACIA'].astype('object')
     demanda_df[coluna_D] = pd.to_numeric(demanda_df[coluna_D].str.replace(',', '.'), errors='coerce')
@@ -456,7 +456,7 @@ def deman_indus(df, parametros=[], pesos=[1]):
     # demanda!D - Valor que eu quero
     # demanda!A - COBACIA
     # B - COBACIA
-    demanda_df = pd.read_csv('/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/Indicador Industria - Bernardo - demanda.csv')
+    demanda_df = pd.read_csv('/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/input/Indicador Industria - Bernardo - demanda.csv')
     coluna_D = 'Valor que eu quero '
     demanda_df['COBACIA'] = demanda_df['COBACIA'].astype('object')
     demanda_df[coluna_D] = pd.to_numeric(demanda_df[coluna_D].str.replace(',', '.'), errors='coerce')
