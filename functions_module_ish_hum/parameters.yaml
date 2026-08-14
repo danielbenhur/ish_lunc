@@ -8,26 +8,64 @@ dimensions:
     indicadores:
       - name: disp_por_dem
         depends_on: bal_perc
-        pesos: [3]
+        pesos: [1]
       - name: fator_iminente
+        depends_on: []
       - name: fator_pos_deficit
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: fator_de_risco_total
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: ihu_nu_popriscoinerente
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: ihu_pc_risco_inerente
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: ihu_nu_popriscoposdeficit
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: ihu_pc_riscoposdeficit
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: ihu_nu_popriscototal
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: ihu_pc_risco
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: densidade
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: cs_risco
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: cs_cobred
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: perc_scbc
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: ihu_cs_ish
+        depends_on: []
+        pesos: [0.7,0.3,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: ihu_rel_pop
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: ihu_rel_cobred
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: ire_hu_pop
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
       - name: ire_hu_cobred
+        depends_on: []
+        pesos: [1,1,1,1,1,1] # número de pesos bem além do necessário em qualquer caso
     descritor: tipo_setor
+
+# aqui fica o DataFrame geral, que congrega todos os dados usados
+intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gerais/arquivo_intermediario.csv"
 
 result:
   - name: ire_cs_hum

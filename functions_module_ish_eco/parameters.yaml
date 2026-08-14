@@ -4,40 +4,101 @@ id: economico
 description: "Calculando a dimensão econômica"
 base_dir: "."
 
+# aqui fica o DataFrame geral, que congrega todos os dados usados
+intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gerais/arquivo_intermediario.csv"
+
 dimensions:
   - name: ire_cs_irri_eco
     path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/PAM - ES - Producao irrigada .csv"
     indicadores:
       - name: irri_arroz
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_cafe
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_cana
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_oc
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_total
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_arroz_risco_iminente
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_arroz_risco_pos_deficit
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_arroz_risco_total
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_cafe_risco_iminente
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_cafe_risco_pos_deficit
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_cafe_risco_total
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_cana_risco_iminente
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_cana_risco_pos_deficit
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_cana_risco_total
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_oc_risco_iminente
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_oc_risco_pos_deficit
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_oc_risco_total
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_total_risco_iminente
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_total_risco_pos_deficit
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_total_risco_total
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: cs_ish_irri
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: deman_irri
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: densidade_irri
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: deman_agri_scbc
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: deman_agri_otto
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: perc_scbc_irri
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: irri_risco_scbc
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       - name: cs_ish_scbc_irri
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
       # - name: irri_scbc
       - name: ire_cs_irri_eco
+        depends_on: []
+        pesos: [1,1,1,1,1,1,1] # número de pesos bem acima de qualquer necessidade
 
   - name: ire_cs_pec_eco
     path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/PPM - ES - PPM.csv"

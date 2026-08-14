@@ -2,7 +2,7 @@ import pandas as pd
 import yaml
 from convertion_functions import *
 
-def main():
+def functions_module_ish_hum():
     yaml_file_path = "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/parameters.yaml"
     with open(yaml_file_path, 'r') as file:
         config = yaml.safe_load(file)
@@ -58,7 +58,8 @@ def main():
                 # print(f"  ✅ Coluna criada: {nome_funcao}")
             else:
                 print(f"  ⚠️ Função '{nome_funcao}' não encontrada!")
-    
+
+    dados_gerais.to_csv(config['intermediario'], index=False)
     # 🔥 SEGUNDO: Verifica se as colunas existem antes de processar
     # print("\nColunas disponíveis após processamento:", dados_gerais.columns.tolist())
     
@@ -111,4 +112,4 @@ def main():
     # print(dados_resultado.head)
 
 if __name__ == "__main__":
-    main()
+    functions_module_ish_hum()

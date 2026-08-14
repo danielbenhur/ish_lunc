@@ -10,7 +10,6 @@ with open(yaml_file_path, 'r') as file:
     config = yaml.safe_load(file)
 
 for dimension in config['dimensions']:
-    print(dimension['name'])
     folder = 'functions_module_ish_'+ dimension['name']
     if os.path.isdir(folder):
         script_path = os.path.join(folder, 'calcular_dimensao.py')

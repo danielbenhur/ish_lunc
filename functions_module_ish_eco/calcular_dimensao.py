@@ -2,13 +2,13 @@ import pandas as pd
 import yaml
 from convertion_functions import *
 
-def main():
+def functions_module_ish_eco():
     yaml_file_path = "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/parameters.yaml"
     with open(yaml_file_path, 'r') as file:
         config = yaml.safe_load(file)
     
     dimensions = config['dimensions']
-    dados_gerais = pd.read_csv('/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/arquivo_intermediario.csv', dtype='str')
+    dados_gerais = pd.read_csv(config['intermediario'], dtype='str')
     
     # Processar cada arquivo e aplicar as funções
     for dimension in dimensions:
@@ -106,7 +106,6 @@ def main():
     # Salvar resultado
     dados_resultado.to_csv(config['output']['path'], index=False)
     print(f"✅Resultado salvo em: {config['output']['path']}")
-    print(dados_resultado.head()) # para conferencia de consistência nos dados
     
 if __name__ == "__main__":
-    main()
+    functions_module_ish_eco()
