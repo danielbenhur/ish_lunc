@@ -108,6 +108,7 @@ def functions_module_ish_hum():
     
     dados_resultado = dados_gerais[['COBACIA', 'ire_cs_hum']]
     dados_resultado.to_csv(config['output']['path'], index=False)
+    dados_gerais.to_csv(config['intermediario'])
     print(f"✅ Resultado salvo em: {config['output']['path']}")
     # print(dados_resultado.head)
 

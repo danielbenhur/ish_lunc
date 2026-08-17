@@ -166,14 +166,14 @@ def deman_irri(df, parametros=['Valor que eu quero '], pesos=[1]):
 
     return demanda_df[coluna_D]
 
-def densidade_irri(df, parametros=['area_setor', 'deman_irri'], pesos=[1, 1]):
-    area_setor = pd.to_numeric(df['area_setor'].str.replace(',', '.'), errors='coerce')*pesos[0]
+def densidade_irri(df, parametros=['area_otto', 'deman_irri'], pesos=[1, 1]):
+    area_otto = pd.to_numeric(df['area_otto'].str.replace(',', '.'), errors='coerce')*pesos[0]
     deman_irri = pd.to_numeric(df['deman_irri'], errors='coerce')*pesos[1]
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
-            (area_setor == 0) | pd.isna(area_setor),  # condição
+            (area_otto == 0) | pd.isna(area_otto),  # condição
             0,                                     # valor se for zero ou NaN
-            deman_irri/area_setor                   # valor caso contrário
+            deman_irri/area_otto                   # valor caso contrário
         )
     
     # Converte para Series para manter compatibilidade
@@ -207,14 +207,14 @@ def deman_agri_otto(df, parametros=['COBACIA', 'deman_agri_scbc'], pesos=[1]):
     deman_agri_scbc = df['deman_agri_scbc']*pesos[0]
     return deman_agri_scbc.groupby(cobacia).transform('sum') 
 
+# TODO: análise se faz sentido usar a demanda da Ottobacia para verificar porcentagem
 # =SEERRO(AQ2/AO2;0)
 def perc_scbc_irri(df, parametros=['deman_agri_scbc', 'deman_irri'], pesos=[1, 1]):
     # AQ - deman_agri_scbc
     # AO - deman_agri
     deman_agri_scbc = df['deman_agri_scbc']*pesos[0]
-    deman_irri = df['deman_irri']*pesos[1]
-
-
+    deman_irri = df['deman_agri_otto']*pesos[1]
+    # print(df[['deman_agri_scbc', 'deman_irri']])
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
             (deman_irri == 0),  # condição
@@ -336,13 +336,13 @@ def deman_pecuaria(df, parametros=[], pesos=[1]):
 
 # dúvida entre area_setor e area_otto
 def densidade_pec(df, parametros=['area_otto', 'deman_pecuaria'], pesos=[1, 1]):
-    area_setor = pd.to_numeric(df['area_otto'].str.replace(',', '.'), errors='coerce')*pesos[0]
+    area_otto = pd.to_numeric(df['area_otto'].str.replace(',', '.'), errors='coerce')*pesos[0]
     deman_pecuaria = pd.to_numeric(df['deman_pecuaria'], errors='coerce')*pesos[1]
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
-            (area_setor == 0) | pd.isna(area_setor),  # condição
+            (area_otto == 0) | pd.isna(area_otto),  # condição
             0,                                     # valor se for zero ou NaN
-            deman_pecuaria/area_setor                   # valor caso contrário
+            deman_pecuaria/area_otto                  # valor caso contrário
         )
     
     # Converte para Series para manter compatibilidade
@@ -374,10 +374,11 @@ def deman_pecuaria_otto(df, parametros=['deman_pecuaria_scbc', 'COBACIA'], pesos
     cobacia = df['COBACIA']
     return deman_pecuaria_scbc.groupby(cobacia).transform('sum')
 
+# TODO: verificar se faz sentido usar a demanda da Ottobacia para calcular essa
 # =SEERRO(AG2/AE2;0)  
 def perc_deman_pecuaria(df, parametros=['deman_pecuaria_scbc', 'deman_pecuaria'], pesos=[1, 1]):
     deman_pecuaria_scbc = df['deman_pecuaria_scbc']*pesos[0]
-    deman_pecuaria = df['deman_pecuaria']*pesos[1]
+    deman_pecuaria = df['deman_pecuaria_otto']*pesos[1]
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
             deman_pecuaria == 0,
@@ -463,14 +464,14 @@ def deman_indus(df, parametros=[], pesos=[1]):
 
     return demanda_df[coluna_D]*pesos[0]
 
-def densidade_ind(df, parametros=['area_setor', 'deman_indus'], pesos=[1, 1]):
-    area_setor = pd.to_numeric(df['area_setor'].str.replace(',', '.'), errors='coerce')*pesos[0]
+def densidade_ind(df, parametros=['area_otto', 'deman_indus'], pesos=[1, 1]):
+    area_otto = pd.to_numeric(df['area_otto'].str.replace(',', '.'), errors='coerce')*pesos[0]
     deman_indus = pd.to_numeric(df['deman_indus'], errors='coerce')*pesos[1]
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
-            (area_setor == 0) | pd.isna(area_setor),  # condição
+            (area_otto == 0) | pd.isna(area_otto),  # condição
             0,                                     # valor se for zero ou NaN
-            deman_indus/area_setor                   # valor caso contrário
+            deman_indus/area_otto                  # valor caso contrário
         )
     
     # Converte para Series para manter compatibilidade

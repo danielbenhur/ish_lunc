@@ -105,7 +105,9 @@ def functions_module_ish_eco():
 
     # Salvar resultado
     dados_resultado.to_csv(config['output']['path'], index=False)
+    dados_gerais.to_csv(config['intermediario'])
     print(f"✅Resultado salvo em: {config['output']['path']}")
-    
+    print(dados_resultado.head)
+
 if __name__ == "__main__":
     functions_module_ish_eco()

@@ -4,7 +4,7 @@ base_dir: "."
 
 dimensions:
   - name: ire_cs_hum
-    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/dimensao_humana.csv"
+    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/input/dimensao_humana.csv"
     indicadores:
       - name: disp_por_dem
         depends_on: bal_perc

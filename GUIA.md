@@ -32,6 +32,10 @@
 ├─  joinISH.py
 ├─  parameters.yaml
 ├─  BHO_area.gpkg
+|
+├─  output
+|   ├─ resultado.csv
+|   ├─ resultado.gpkg
 
 2. Explicação de cada arquivo programado
 O arquivo central para operação das contas como um todo é o "motorCalculo.py", que será o arquivo utilizado para gerar os dados coerentemente com o que precisa ser calculado em cada dimensão; utilizando a estrutura correta, em que cada dimensão tem sua própria pasta, esse arquivo irá executar os arquivos próprios internamente para gerar os dados necessários; ele lerá a lista de dimensões a serem calculadas de acordo com o arquivo de configuração "parameters.yaml" na mesma pasta que ele.
