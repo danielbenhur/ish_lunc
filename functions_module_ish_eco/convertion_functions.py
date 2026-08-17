@@ -501,11 +501,11 @@ def dem_ind_bacia(df, parametros=['dem_ind_scbc', 'COBACIA'], pesos=[1]):
     cobacia = df['COBACIA']
     return dem_ind_scbc.groupby(cobacia).transform('sum')
 
-def perc_scbc_ind(df, parametros=['dem_ind_scbc', 'deman_indus'], pesos=[1, 1]):
+def perc_scbc_ind(df, parametros=['dem_ind_scbc', 'dem_ind_bacia'], pesos=[1, 1]):
     # AQ - deman_agri_scbc
     # AO - deman_agri
     dem_ind_scbc = df['dem_ind_scbc']*pesos[0]
-    deman_indus = df['deman_indus']*pesos[1]
+    deman_indus = df['dem_ind_bacia']*pesos[1]
 
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
