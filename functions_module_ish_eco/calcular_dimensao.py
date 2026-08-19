@@ -2,6 +2,19 @@ import pandas as pd
 import yaml
 from convertion_functions import *
 
+def aplicar_mapeamentos_otimizado(dados_gerais, chave, mappings):
+    # Criar um dicionário com todas as novas colunas
+    novas_colunas = {}
+    
+    for col, mapping in mappings.items():
+        novas_colunas[col] = dados_gerais[chave].map(mapping[col])
+    
+    # Adicionar todas as colunas de uma vez
+    df_novo = pd.DataFrame(novas_colunas)
+    dados_gerais = pd.concat([dados_gerais, df_novo], axis=1)
+    
+    return dados_gerais
+
 def functions_module_ish_eco():
     yaml_file_path = "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/parameters.yaml"
     with open(yaml_file_path, 'r') as file:
@@ -37,8 +50,8 @@ def functions_module_ish_eco():
             # Aplica o mapping à base (sem multiplicar!)
             for col in mapping:
                 if col not in dados_gerais.columns:
-                    dados_gerais[col] = dados_gerais[chave].map(mapping[col])
-                    # print(f"  Adicionada coluna: {col}")
+                    # dados_gerais[col] = dados_gerais[chave].map(mapping[col])
+                    dados_gerais = aplicar_mapeamentos_otimizado(dados_gerais, chave, mapping)
         
         # Aplicar as funções específicas para cada dimensão
         for item in dimension['indicadores']:

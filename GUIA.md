@@ -45,3 +45,7 @@ As subpastas (neste exemplo ainda são functions_module_ish_hum e functions_modu
 Considerando a similaridade e uso comum de diferentes colunas na mesma execução entre dimensões diferentes, tem uma pasta específica chamada "dados_gerais", que irá ter um arquivo em csv nomeado "arquivo_intermediario.csv", que conterá todas as colunas; a ordem como as dimensões são chamadas é importante, sendo necessário sempre começar pela humana já que os dados dessa dimensão vão ser usadas pelas outras e para os cálculos gerais
 
 Por fim, o "joinISH.py" tem o papel de extrair os dados presentes em cada subpasta output, unir tudo em um único DataFrame e fazer uma junção com a tabela GPKG em "BHO_area.gpkg", sendo responsável por extrair os dados gerais de cada dimensão e tirar uma média de todas elas, tendo seu resultado presente na subpasta escolhida no "parameters.yaml" geral e possível averiguação do mapa no QGIS.
+
+Execução (na pasta principal): 
+python3 motorCalculo.py
+python3 joinISH.py
