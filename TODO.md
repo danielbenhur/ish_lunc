@@ -53,7 +53,7 @@ Estrutura:
 - Retirada a necessidade de linha de comando do joinISH (tudo parametrizado em parameters.yaml)
 - Fazer o JoinISH funcionar para juntar bem os arquivos
 - Criar um arquivo Python para rodar os arquivos propriamente ditos em cada pasta
+- Escrever um arquivo de texto explicando como usar o código
 
 # ATIVIDADES PARA CONCLUIR
 - Fazer o script que rode os arquivos e que faça o joinISH
-- Escrever um arquivo de texto explicando como usar o código
