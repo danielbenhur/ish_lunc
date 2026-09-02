@@ -3,19 +3,19 @@ import pandas as pd
 import geopandas as gpd
 import fiona
 
-def load_gpkg_with_fid(filename, layer):
+def load_gpkg_with_fid(filename, layer, merge_column):
     """
     Lê um GeoPackage usando fiona e inclui o FID (feature id)
-    no dicionário de propriedades como 'COBACIA'
+    no dicionário de propriedades como merge_column
     """
     features = []
     with fiona.open(filename, layer=layer) as src:
         for feat in src:
             props = dict(feat['properties'])
             try:
-                props['COBACIA'] = int(feat['id'])
+                props[merge_column] = int(feat['id'])
             except ValueError:
-                props['COBACIA'] = feat['id']
+                props[merge_column] = feat['id']
             features.append({
                 "properties": props,
                 "geometry": feat["geometry"]
@@ -49,13 +49,13 @@ def main():
         df_temp = pd.read_csv(arquivo)
         # print(df_temp.head())
         coluna_esperada = dimension['column']
-
-        df_para_merge = df_temp[['COBACIA', coluna_esperada]].copy()
+        merge_column = dimension['merge_column']
+        df_para_merge = df_temp[[merge_column, coluna_esperada]].copy()
         
         # Verifica se há duplicatas e as agrega (média)
-        if df_para_merge['COBACIA'].duplicated().any():
+        if df_para_merge[merge_column].duplicated().any():
             print(f"  ⚠️ Duplicatas encontradas para COBACIA. Calculando média...")
-            df_para_merge = df_para_merge.groupby('COBACIA', as_index=False)[coluna_esperada].mean()
+            df_para_merge = df_para_merge.groupby(merge_column, as_index=False)[coluna_esperada].mean()
         
         dataframes_dict[coluna_esperada] = df_para_merge
     
@@ -64,18 +64,18 @@ def main():
     df_final = dataframes_dict[chaves[0]]
 
     for chave in chaves[1:]:
-        df_final = pd.merge(df_final, dataframes_dict[chave], on='COBACIA', how='left')
+        df_final = pd.merge(df_final, dataframes_dict[chave], on=merge_column, how='left')
         # print(f"  ✅ Merge com '{chave}' concluído")
 
         # Verifica se houve duplicação após o merge
-        if df_final['COBACIA'].duplicated().any():
+        if df_final[merge_column].duplicated().any():
             # print(f"  ⚠️ Duplicatas detectadas após merge com {chave}. Agregando...")
             # Agrega todas as colunas que não são COBACIA pela média
-            cols_to_agg = [col for col in df_final.columns if col != 'COBACIA']
-            df_final = df_final.groupby('COBACIA', as_index=False)[cols_to_agg].mean()
+            cols_to_agg = [col for col in df_final.columns if col != merge_column]
+            df_final = df_final.groupby(merge_column, as_index=False)[cols_to_agg].mean()
     
     # Ordenar por COBACIA
-    df_final = df_final.sort_values('COBACIA').reset_index(drop=True)
+    df_final = df_final.sort_values(merge_column).reset_index(drop=True)
 
     # Calcular o cs_ish (apenas um valor por COBACIA)
     colunas_ire_cs = [col for col in df_final.columns if col.startswith('ire_cs_')]
@@ -85,10 +85,10 @@ def main():
     # Integrando o GPKG ao projeto
     gpkg_file = config['bho']['path']
     layer = config['bho']['layer']
-    gdf = load_gpkg_with_fid(gpkg_file, layer)
+    gdf = load_gpkg_with_fid(gpkg_file, layer, 'cobacia')
 
     # juntando as colunas calculadas com o mapa
-    gdf_final = gdf.merge(df_final, on='COBACIA', how='left')
+    gdf_final = gdf.merge(df_final, on=merge_column, how='left')
 
     caminho_final = config['output']
     caminho_csv = caminho_final['folder'] + '/' + caminho_final['csv_name']

@@ -9,12 +9,24 @@ bho:
 dimensions:
   - name: hum
     column: 'ire_cs_hum'
-    path: "./functions_module_ish_hum/output/ish_hum.csv"
+    merge_column: 'cobacia'
+    path: "./scenarios/dim_hum_cnr2020.csv"
   - name: eco
-    column: 'ire_cs_eco'
-    path: "./functions_module_ish_eco/output/ish_eco.csv"
-  # - name: ire_cs_amb
-    # path: "./functions_module_ish_amb/output/ish_amb.csv"
+    column: 'dimensao_economica'
+    merge_column: 'cobacia'
+    path: "./scenarios/dim_eco_cnr2020.csv"
+  - name: amb
+    column: 'dimensao_ecossistemica'
+    merge_column: 'cobacia'
+    path: "./scenarios/dim_amb_cnr2020.csv"
+  - name: res
+    column: 'dimensao_resiliencia'
+    merge_column: 'cobacia'
+    path: "./scenarios/dim_res_cnr2020.csv"
+  - name: inu
+    column: 'ire_cs_inu'
+    merge_column: 'cobacia'
+    path: "./scenarios/dim_inu_cnr2020.csv"
 
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:
