@@ -76,9 +76,9 @@ def main():
     
     # Ordenar por COBACIA
     df_final = df_final.sort_values(merge_column).reset_index(drop=True)
-
+    print(df_final)
     # Calcular o cs_ish (apenas um valor por COBACIA)
-    colunas_ire_cs = [col for col in df_final.columns if col.startswith('ire_cs_')]
+    colunas_ire_cs = [col for col in df_final.columns if col != 'cobacia']
     df_final["cs_ish"] = compute_cs_ish(df_final, colunas_ire_cs)
     print(df_final.head())
 
