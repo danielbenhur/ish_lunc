@@ -93,11 +93,7 @@ def aplicar_funcoes_dimensionais(dados_gerais, dimension):
     
     return dados_gerais
 
-def functions_module_ish_eco():
-    # # print("🚀 Iniciando processamento do módulo ISH Econômico...")
-    
-    # Carrega configuração
-    yaml_file_path = "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/parameters.yaml"
+def functions_module_ish_eco(yaml_file_path):
     with open(yaml_file_path, 'r') as file:
         config = yaml.safe_load(file)
     
@@ -278,4 +274,4 @@ def functions_module_ish_eco():
     # # print(f"\n✅ Processamento concluído com sucesso!")
 
 if __name__ == "__main__":
-    functions_module_ish_eco()
+    functions_module_ish_eco("/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/parameters.yaml")

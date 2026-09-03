@@ -2,8 +2,7 @@ import pandas as pd
 import yaml
 from convertion_functions import *
 
-def functions_module_ish_hum():
-    yaml_file_path = "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/parameters.yaml"
+def functions_module_ish_hum(yaml_file_path):
     with open(yaml_file_path, 'r') as file:
         config = yaml.safe_load(file)
     
@@ -113,4 +112,4 @@ def functions_module_ish_hum():
     # print(dados_resultado.head)
 
 if __name__ == "__main__":
-    functions_module_ish_hum()
+    functions_module_ish_hum("/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/parameters.yaml")
