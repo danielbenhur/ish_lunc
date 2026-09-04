@@ -67,16 +67,16 @@ def main():
     for chave in chaves[1:]:
         # Usando how='outer' para manter TODAS as cobacias
         df_final = pd.merge(df_final, dataframes_dict[chave], on=merge_column, how='outer')
-
+    
     # Preencher valores NaN com 0 (opcional, dependendo do seu uso)
-    df_final = df_final.fillna(0)
+    df_final['cobacia'] = df_final['cobacia'].astype(str)
+    df_final.rename(columns={"cobacia": "cocursodag"}, inplace=True)
 
     print(f"\n📊 DataFrame final com {len(df_final)} cobacias únicas")
 
     # Calcular o cs_ish (apenas um valor por COBACIA)
     colunas_ire_cs = [col for col in df_final.columns if col in columns]
     df_final["cs_ish"] = compute_cs_ish(df_final, colunas_ire_cs)
-    
     # TODO: resolver a questão do merge com gpkg
     # Integrando o GPKG ao projeto
     gpkg_file = config['bho']['path']
@@ -86,10 +86,13 @@ def main():
         # print(layers)
     layer = config['bho']['layer']
     gdf = load_gpkg_with_fid(gpkg_file, layer, 'cobacia')
-
+    gdf = gdf[['geometry', 'cocursodag']]
+    gdf['cocursodag'] = gdf['cocursodag'].astype(str)
+    print("Tipo do primeiro elemento no gdf:", type(gdf['cocursodag'].iloc[0]))
+    print("Tipo do primeiro elemento no df_final:", type(df_final['cocursodag'].iloc[0]))
     # juntando as colunas calculadas com o mapa
-    gdf_final = gdf.merge(df_final, on='cobacia', how='left')
-
+    gdf_final = gdf.merge(df_final, on='cocursodag', how='left')
+    print(gdf_final['cs_ish'].count())
     caminho_final = config['output']
     caminho_csv = caminho_final['folder'] + '/' + caminho_final['csv_name']
     caminho_gpkg = caminho_final['folder'] + '/' + caminho_final['gpkg_name']
