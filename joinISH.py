@@ -43,12 +43,14 @@ def main():
     with open(yaml_file_path, 'r') as file:
         config = yaml.safe_load(file)
 
+    columns = []
     dataframes_dict = {}
     for dimension in config['dimensions']:
         arquivo = dimension['path']
         df_temp = pd.read_csv(arquivo)
         # print(df_temp.head())
         coluna_esperada = dimension['column']
+        columns.append(coluna_esperada)
         merge_column = dimension['merge_column']
         df_para_merge = df_temp[[merge_column, coluna_esperada]].copy()
         
@@ -58,37 +60,35 @@ def main():
             df_para_merge = df_para_merge.groupby(merge_column, as_index=False)[coluna_esperada].mean()
         
         dataframes_dict[coluna_esperada] = df_para_merge
-    
-    print("\n🔗 Fazendo merge dos dataframes usando COBACIA...")
+        
     chaves = list(dataframes_dict.keys())
     df_final = dataframes_dict[chaves[0]]
 
     for chave in chaves[1:]:
-        df_final = pd.merge(df_final, dataframes_dict[chave], on=merge_column, how='left')
-        # print(f"  ✅ Merge com '{chave}' concluído")
+        # Usando how='outer' para manter TODAS as cobacias
+        df_final = pd.merge(df_final, dataframes_dict[chave], on=merge_column, how='outer')
 
-        # Verifica se houve duplicação após o merge
-        if df_final[merge_column].duplicated().any():
-            # print(f"  ⚠️ Duplicatas detectadas após merge com {chave}. Agregando...")
-            # Agrega todas as colunas que não são COBACIA pela média
-            cols_to_agg = [col for col in df_final.columns if col != merge_column]
-            df_final = df_final.groupby(merge_column, as_index=False)[cols_to_agg].mean()
-    
-    # Ordenar por COBACIA
-    df_final = df_final.sort_values(merge_column).reset_index(drop=True)
-    print(df_final)
+    # Preencher valores NaN com 0 (opcional, dependendo do seu uso)
+    df_final = df_final.fillna(0)
+
+    print(f"\n📊 DataFrame final com {len(df_final)} cobacias únicas")
+
     # Calcular o cs_ish (apenas um valor por COBACIA)
-    colunas_ire_cs = [col for col in df_final.columns if col != 'cobacia']
+    colunas_ire_cs = [col for col in df_final.columns if col in columns]
     df_final["cs_ish"] = compute_cs_ish(df_final, colunas_ire_cs)
-    print(df_final.head())
-
+    
+    # TODO: resolver a questão do merge com gpkg
     # Integrando o GPKG ao projeto
     gpkg_file = config['bho']['path']
+    # print(gpkg_file)
+    # with fiona.Env():
+        # layers = fiona.listlayers(gpkg_file)
+        # print(layers)
     layer = config['bho']['layer']
     gdf = load_gpkg_with_fid(gpkg_file, layer, 'cobacia')
 
     # juntando as colunas calculadas com o mapa
-    gdf_final = gdf.merge(df_final, on=merge_column, how='left')
+    gdf_final = gdf.merge(df_final, on='cobacia', how='left')
 
     caminho_final = config['output']
     caminho_csv = caminho_final['folder'] + '/' + caminho_final['csv_name']

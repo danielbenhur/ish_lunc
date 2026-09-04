@@ -3,8 +3,9 @@ description: "Cenário teste dados de 2020 - exemplo de uso com joinISH"
 base_dir: "."
 
 bho:
-  path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/BHO_area.gpkg"
-  layer: "bho_area"
+  path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/geoft_bho_2017_5k_area_drenagem-ES.gpkg"
+  layer: "geoft_bho_2017_5k_area_drenagemesextendido"
+  # layer: "geoft_bho_2017_5k_area_drenagem-ES"
 
 dimensions:
   - name: hum
