@@ -3,19 +3,18 @@ import pandas as pd
 import geopandas as gpd
 import fiona
 
-def load_gpkg_with_fid(filename, layer, merge_column):
+def load_gpkg_with_fid(filename, layer):
     """
-    Lê um GeoPackage usando fiona e inclui o FID (feature id)
-    no dicionário de propriedades como merge_column
+    Lê um GeoPackage usando fiona
     """
     features = []
     with fiona.open(filename, layer=layer) as src:
         for feat in src:
             props = dict(feat['properties'])
-            try:
-                props[merge_column] = int(feat['id'])
-            except ValueError:
-                props[merge_column] = feat['id']
+            # try:
+                # props[merge_column] = int(feat['id'])
+            # except ValueError:
+                # props[merge_column] = feat['id']
             features.append({
                 "properties": props,
                 "geometry": feat["geometry"]
@@ -70,9 +69,7 @@ def main():
     
     # Preencher valores NaN com 0 (opcional, dependendo do seu uso)
     df_final['cobacia'] = df_final['cobacia'].astype(str)
-    df_final.rename(columns={"cobacia": "cocursodag"}, inplace=True)
 
-    print(f"\n📊 DataFrame final com {len(df_final)} cobacias únicas")
 
     # Calcular o cs_ish (apenas um valor por COBACIA)
     colunas_ire_cs = [col for col in df_final.columns if col in columns]
@@ -80,19 +77,17 @@ def main():
     # TODO: resolver a questão do merge com gpkg
     # Integrando o GPKG ao projeto
     gpkg_file = config['bho']['path']
-    # print(gpkg_file)
-    # with fiona.Env():
-        # layers = fiona.listlayers(gpkg_file)
-        # print(layers)
     layer = config['bho']['layer']
-    gdf = load_gpkg_with_fid(gpkg_file, layer, 'cobacia')
-    gdf = gdf[['geometry', 'cocursodag']]
-    gdf['cocursodag'] = gdf['cocursodag'].astype(str)
-    print("Tipo do primeiro elemento no gdf:", type(gdf['cocursodag'].iloc[0]))
-    print("Tipo do primeiro elemento no df_final:", type(df_final['cocursodag'].iloc[0]))
+    
+    # lendo o arquivo diretamente com layer
+    gdf = load_gpkg_with_fid(gpkg_file, layer)
+    gdf = gdf[['geometry', 'cobacia']]
+
     # juntando as colunas calculadas com o mapa
-    gdf_final = gdf.merge(df_final, on='cocursodag', how='left')
-    print(gdf_final['cs_ish'].count())
+    gdf_final = gdf.merge(df_final, on='cobacia', how='left')
+    # print(gdf_final['cs_ish'].count())
+    # print(gdf_final)
+    
     caminho_final = config['output']
     caminho_csv = caminho_final['folder'] + '/' + caminho_final['csv_name']
     caminho_gpkg = caminho_final['folder'] + '/' + caminho_final['gpkg_name']
