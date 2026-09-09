@@ -20,4 +20,4 @@ for dimension in config['dimensions']:
             except Exception as e:
                 print(f"Erro inesperado ao executar {script_path}: {e}", file=sys.stderr)
         else:
-            print(f"Arquivo {script_path} não encontrado em {folder}", file=sys.stderr)
+            print(f"Arquivo {script_path} nao encontrado em {folder}", file=sys.stderr)

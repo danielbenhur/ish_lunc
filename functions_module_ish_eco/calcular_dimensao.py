@@ -73,9 +73,10 @@ def aplicar_funcoes_dimensionais(dados_gerais, dimension):
             funcao = globals()[nome_funcao]
             try:
                 # Executa a função aplicando pesos se necessário
-                if 'pesos' in item:
+                if 'pesos' in item and 'depends_on' in item:
                     pesos = item['pesos']
-                    resultado = funcao(dados_gerais, pesos=pesos)
+                    depends_on = item['depends_on']
+                    resultado = funcao(dados_gerais, parametros=depends_on, pesos=pesos)
                 else:
                     resultado = funcao(dados_gerais)
                 

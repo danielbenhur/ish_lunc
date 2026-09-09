@@ -155,15 +155,14 @@ def cs_ish_irri(df, parametros=['irri_total_risco_total', 'fator_de_risco_total'
 # =SEERRO(ÍNDICE(demanda!$D:$D;CORRESP($B2;VALOR(ESQUERDA(demanda!$A:$A;15));0));0)
 # TODO: corrigir lógica, está entregando dados errado
 # A ideia aqui é extrair uma coluna e colocar ao final para fazer os cálculos
-def deman_irri(df, parametros=['Valor que eu quero '], pesos=[1]):
+def deman_irri(df, parametros=['Valor que eu quero ', '/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/input/PAM - ES - demanda.csv'], pesos=[1]):
     # demanda!D - Valor que eu quero
     # demanda!A - COBACIA
     # B - COBACIA
-    demanda_df = pd.read_csv('/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/input/PAM - ES - demanda.csv')
-    coluna_D = 'Valor que eu quero '
+    demanda_df = pd.read_csv(parametros[1]) # endereço utilizado para encontrar arquivo necessário
+    coluna_D = parametros[0] # nome da coluna utilizada para encontrar coisa
     demanda_df['COBACIA'] = demanda_df['COBACIA'].astype('object')
     demanda_df[coluna_D] = pd.to_numeric(demanda_df[coluna_D].str.replace(',', '.'), errors='coerce')*pesos[0]
-
     return demanda_df[coluna_D]
 
 def densidade_irri(df, parametros=['area_otto', 'deman_irri'], pesos=[1, 1]):
@@ -323,12 +322,12 @@ def cs_ish_pec(df, parametros=['pec_risco_total', 'fator_de_risco_total'], pesos
 # =SEERRO(ÍNDICE(demanda!$D:$D;CORRESP($B2;VALOR(ESQUERDA(demanda!$A:$A;15));0));0)
 # TODO: corrigir lógica, está entregando dados errado
 # A ideia aqui é extrair uma coluna e colocar ao final para fazer os cálculos
-def deman_pecuaria(df, parametros=[], pesos=[1]):
+def deman_pecuaria(df, parametros=['Valor que eu quero ', '/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/input/PPM - ES - demanda.csv'], pesos=[1]):
     # demanda!D - Valor que eu quero
     # demanda!A - COBACIA
     # B - COBACIA
-    demanda_df = pd.read_csv('/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/input/PPM - ES - demanda.csv')
-    coluna_D = 'Valor que eu quero '
+    demanda_df = pd.read_csv(parametros[1])
+    coluna_D = parametros[0]
     demanda_df['COBACIA'] = demanda_df['COBACIA'].astype('object')
     demanda_df[coluna_D] = pd.to_numeric(demanda_df[coluna_D].str.replace(',', '.'), errors='coerce')
 
@@ -453,12 +452,12 @@ def ihu_cs_ish_ind(df, parametros=['ihu_nu_indriscototal', 'fator_de_risco_total
 # =SEERRO(ÍNDICE(demanda!$D:$D;CORRESP($B2;VALOR(ESQUERDA(demanda!$A:$A;15));0));0)
 # TODO: corrigir lógica, está entregando dados errado
 # A ideia aqui é extrair uma coluna e colocar ao final para fazer os cálculos
-def deman_indus(df, parametros=[], pesos=[1]):
+def deman_indus(df, parametros=['Valor que eu quero ', '/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/input/Indicador Industria - Bernardo - demanda.csv'], pesos=[1]):
     # demanda!D - Valor que eu quero
     # demanda!A - COBACIA
     # B - COBACIA
-    demanda_df = pd.read_csv('/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/input/Indicador Industria - Bernardo - demanda.csv')
-    coluna_D = 'Valor que eu quero '
+    demanda_df = pd.read_csv(parametros[1])
+    coluna_D = parametros[0]
     demanda_df['COBACIA'] = demanda_df['COBACIA'].astype('object')
     demanda_df[coluna_D] = pd.to_numeric(demanda_df[coluna_D].str.replace(',', '.'), errors='coerce')
 
