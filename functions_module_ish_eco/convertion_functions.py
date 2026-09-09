@@ -450,7 +450,6 @@ def ihu_cs_ish_ind(df, parametros=['ihu_nu_indriscototal', 'fator_de_risco_total
 # depende da tabela demanda (extra)
 # precisa de outro arquivo csv ainda
 # =SEERRO(ÍNDICE(demanda!$D:$D;CORRESP($B2;VALOR(ESQUERDA(demanda!$A:$A;15));0));0)
-# TODO: corrigir lógica, está entregando dados errado
 # A ideia aqui é extrair uma coluna e colocar ao final para fazer os cálculos
 def deman_indus(df, parametros=['Valor que eu quero ', '/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_eco/input/Indicador Industria - Bernardo - demanda.csv'], pesos=[1]):
     # demanda!D - Valor que eu quero

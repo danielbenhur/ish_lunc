@@ -3,31 +3,21 @@ description: "Cenário teste dados de 2020 - exemplo de uso com joinISH"
 base_dir: "."
 
 bho:
-  path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/geoft_bho_2017_5k_area_drenagem-ES.gpkg"
-  layer: "geoft_bho_2017_5k_area_drenagemesextendido"
+  path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/BHO_area.gpkg"
+  # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/geoft_bho_2017_5k_area_drenagem-ES.gpkg"
+  layer: cobacia
+  # layer: "geoft_bho_2017_5k_area_drenagemesextendido"
   # layer: "geoft_bho_2017_5k_area_drenagem-ES"
 
 dimensions:
   - name: hum
     column: 'ire_cs_hum'
     merge_column: 'cobacia'
-    path: "./scenarios/dim_hum_cnr2020.csv"
+    path: "./functions_module_ish_hum/output/ish_hum.csv"
   - name: eco
-    column: 'dimensao_economica'
+    column: 'ire_cs_eco'
     merge_column: 'cobacia'
-    path: "./scenarios/dim_eco_cnr2020.csv"
-  - name: amb
-    column: 'dimensao_ecossistemica'
-    merge_column: 'cobacia'
-    path: "./scenarios/dim_amb_cnr2020.csv"
-  - name: res
-    column: 'dimensao_resiliencia'
-    merge_column: 'cobacia'
-    path: "./scenarios/dim_res_cnr2020.csv"
-  - name: inu
-    column: 'ire_cs_inu'
-    merge_column: 'cobacia'
-    path: "./scenarios/dim_inu_cnr2020.csv"
+    path: "./functions_module_ish_eco/output/ish_eco.csv"
 
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:
