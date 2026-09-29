@@ -10,3 +10,5 @@ dados_calculados.csv
 comparar.py
 comparar_colunas.py
 *.csv
+comparacoes/
+*.txt

@@ -3,6 +3,63 @@ import numpy as np
 import yaml
 import sys
 
+def bal_perc_cap(df, parametros=['dem_acm_cap', 'disp_q95_cap'], pesos=[1,1]):
+    peso_dem_acm = pesos[0]
+    peso_disp_q95 = pesos[1]
+    # conversão de tipos
+    if df['dem_acm_cap'].dtype == 'object':  # object geralmente indica strings
+        dem_acm = pd.to_numeric(df['dem_acm_cap'].str.replace(',', '.'), errors='coerce')*peso_dem_acm
+    else:
+        # Se já for numérica, usa diretamente
+        dem_acm = pd.to_numeric(df['dem_acm_cap'], errors='coerce')*peso_dem_acm
+    
+    if df['disp_q95_cap'].dtype == 'object':  # object geralmente indica strings
+        disp_q95 = pd.to_numeric(df['disp_q95_cap'].str.replace(',', '.'), errors='coerce')*peso_disp_q95
+    else:
+        # Se já for numérica, usa diretamente
+        disp_q95 = pd.to_numeric(df['disp_q95_cap'], errors='coerce')*peso_disp_q95
+   
+    # fazendo a conta inteira
+    with np.errstate(divide='ignore', invalid='ignore'):
+        resultado = np.where(
+            (disp_q95 == 0) | pd.isna(disp_q95),
+            0,
+            100*dem_acm/disp_q95
+        )
+    
+    # Converte para Series para manter compatibilidade
+    resultado = np.where(np.isinf(resultado), 0, resultado)
+    return pd.Series(resultado, index=df.index) 
+
+def bal_perc_bho(df, parametros=['dem_acm_bho', 'disp_q95_bho'], pesos=[1,1]):
+    peso_dem_acm = pesos[0]
+    peso_disp_q95 = pesos[1]
+    
+    # conversão de tipos
+    if df['dem_acm_bho'].dtype == 'object':  # object geralmente indica strings
+        dem_acm = pd.to_numeric(df['dem_acm_bho'].str.replace(',', '.'), errors='coerce')*peso_dem_acm
+    else:
+        # Se já for numérica, usa diretamente
+        dem_acm = pd.to_numeric(df['dem_acm_bho'], errors='coerce')*peso_dem_acm
+    
+    if df['disp_q95_bho'].dtype == 'object':  # object geralmente indica strings
+        disp_q95 = pd.to_numeric(df['disp_q95_bho'].str.replace(',', '.'), errors='coerce')*peso_disp_q95
+    else:
+        # Se já for numérica, usa diretamente
+        disp_q95 = pd.to_numeric(df['disp_q95_bho'], errors='coerce')*peso_disp_q95
+    
+    # fazendo a conta inteira
+    with np.errstate(divide='ignore', invalid='ignore'):
+        resultado = np.where(
+            (disp_q95 == 0) | pd.isna(disp_q95),
+            0,
+            100*dem_acm/disp_q95
+        )
+    
+    # Converte para Series para manter compatibilidade
+    resultado = np.where(np.isinf(resultado), 0, resultado)
+    return pd.Series(resultado, index=df.index) 
+
 def disp_por_dem(df, parametros=['bal_perc'], pesos=[1]):
     peso_bal_perc = pesos[0]
     if df['bal_perc'].dtype == 'object':  # object geralmente indica strings
@@ -21,7 +78,7 @@ def disp_por_dem(df, parametros=['bal_perc'], pesos=[1]):
     resultado = np.where(np.isinf(resultado), 0, resultado)
     return pd.Series(resultado, index=df.index)
 
-def fator_iminente(df, parametros=['disp_por_dem'], pesos=[1/3]):
+def ft_imi(df, parametros=['disp_por_dem'], pesos=[1/3]):
     disp_por_dem = df['disp_por_dem']
     peso_disp_por_dem = pesos[0]
     return np.where(
@@ -31,23 +88,23 @@ def fator_iminente(df, parametros=['disp_por_dem'], pesos=[1/3]):
     )
 
 
-def fator_pos_deficit(df, parametros=['disp_por_dem'], pesos=[1]):
+def ft_pd(df, parametros=['disp_por_dem'], pesos=[1]):
     peso_disp_por_dem = pesos[0]
     disp_por_dem = df['disp_por_dem']*peso_disp_por_dem
     
     return disp_por_dem.apply(lambda x: 0 if x >= 1 else 1 - x)
 
-def fator_de_risco_total(df, parametros=['fator_iminente', 'fator_pos_deficit'], pesos=[1, 1]):
-    fator_iminente = df['fator_iminente']*pesos[0]
-    fator_pos_deficit = df['fator_pos_deficit']*pesos[1]
+def ft_tot(df, parametros=['ft_imi', 'ft_pd'], pesos=[1, 1]):
+    ft_imi = df['ft_imi']*pesos[0]
+    ft_pd = df['ft_pd']*pesos[1]
     
-    return fator_iminente + fator_pos_deficit
+    return ft_imi + ft_pd
 
-def ihu_nu_popriscoinerente(df, parametros=['fator_iminente', 'dmu_nu_popurbana'], pesos=[1, 1]):
-    fator_iminente = df['fator_iminente']*pesos[0] 
+def ihu_nu_popriscoinerente(df, parametros=['ft_imi', 'dmu_nu_popurbana'], pesos=[1, 1]):
+    ft_imi = df['ft_imi']*pesos[0] 
     dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')*pesos[1]
     
-    resultado = fator_iminente*dmu_nu_popurbana
+    resultado = ft_imi*dmu_nu_popurbana
 
     return resultado.round(2)
 
@@ -67,11 +124,11 @@ def ihu_pc_risco_inerente(df, parametros=['ihu_nu_popriscoinerente', 'dmu_nu_pop
     
     return resultado
 
-def ihu_nu_popriscoposdeficit(df, parametros=['fator_pos_deficit', 'dmu_nu_popurbana'], pesos=[1, 1]):
-    fator_pos_deficit = df['fator_pos_deficit']*pesos[0]
+def ihu_nu_popriscoposdeficit(df, parametros=['ft_pd', 'dmu_nu_popurbana'], pesos=[1, 1]):
+    ft_pd = df['ft_pd']*pesos[0]
     dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')*pesos[1]
 
-    resultado = fator_pos_deficit*dmu_nu_popurbana
+    resultado = ft_pd*dmu_nu_popurbana
     
     return resultado
 
@@ -88,11 +145,11 @@ def ihu_pc_riscoposdeficit(df, parametros=['ihu_nu_popriscoposdeficit', 'dmu_nu_
 
     return resultado
 
-def ihu_nu_popriscototal(df, parametros=['fator_de_risco_total', 'dmu_nu_popurbana'], pesos=[1, 1]):
-    fator_de_risco_total = df['fator_de_risco_total']*pesos[0]
+def ihu_nu_popriscototal(df, parametros=['ft_tot', 'dmu_nu_popurbana'], pesos=[1, 1]):
+    ft_tot = df['ft_tot']*pesos[0]
     dmu_nu_popurbana = pd.to_numeric(df['dmu_nu_popurbana'], errors='coerce')*pesos[1]
 
-    resultado = fator_de_risco_total*dmu_nu_popurbana
+    resultado = ft_tot*dmu_nu_popurbana
     
     return resultado
 
@@ -133,6 +190,12 @@ def densidade(df, parametros=['pop', 'area_setor'], pesos=[1, 1]):
         )
 
     return resultado
+
+def pop_urb_scbc(df, parametros=['situacao_setor', 'densidade', 'area_scbc'], pesos=[1,1,1]):
+    pass
+
+def pop_urb_bacia(df, parametros=['COBACIA', 'pop_urb_scbc'], pesos=[1,1]):
+    pass
 
 # cs_risco: busca de dados em matriz
 def cs_risco(df, parametros=['ihu_nu_popriscototal', 'ihu_pc_risco'], pesos=[1, 1]):
@@ -219,6 +282,13 @@ def perc_scbc(df, parametros=['pop_urb_scbc', 'pop_urb_bacia'], pesos=[1, 1]):
     
     return resultado
 
+def ihu_nu_popriscoinerente_scbc(df, parametros=['ft_imi', 'pop_urb_scbc'], pesos=[1,1]):
+    pass
+def ihu_nu_popriscoposdeficit_scbc(df, parametros=['ft_pd', 'pop_urb_scbc'], pesos=[1,1]):
+    pass
+def ihu_nu_popriscototal_scbc(df, parametros=['ft_tot', 'pop_urb_scbc'], pesos=[1,1]):
+    pass
+
 def ihu_cs_ish(df, parametros=['cs_cobred', 'cs_risco'], pesos=[0.7, 0.3]):
     cs_risco = df['cs_risco']
     cs_cobred = df['cs_cobred']
@@ -243,6 +313,12 @@ def ihu_rel_cobred(df, parametros=['perc_scbc', 'cs_cobred'], pesos=[1, 1]):
     cs_cobred = df['cs_cobred']*pesos[1]
     return perc_scbc*cs_cobred
 
+def ihu_nu_popriscoinerente_otto(df, parametros=['COBACIA', 'ihu_nu_popriscoinerente_scbc'], pesos=[1,1]):
+    pass
+def ihu_nu_popriscoposdeficit_otto(df, parametros=['COBACIA', 'ihu_nu_popriscoposdeficit_scbc'], pesos=[1,1]):
+    pass
+def ihu_nu_popriscototal_otto(df, parametros=['COBACIA', 'ihu_nu_popriscototal_scbc'], pesos=[1,1]):
+    pass
 def ire_hu_pop(df, parametros=['COBACIA', 'ihu_rel_pop'], pesos=[1]):
     cobacia = df['COBACIA']
     ihu_rel_pop = pd.to_numeric(df['ihu_rel_pop'], errors='coerce')*pesos[0]
