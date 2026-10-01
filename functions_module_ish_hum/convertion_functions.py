@@ -60,18 +60,18 @@ def bal_perc_bho(df, parametros=['dem_acm_bho', 'disp_q95_bho'], pesos=[1,1]):
     resultado = np.where(np.isinf(resultado), 0, resultado)
     return pd.Series(resultado, index=df.index) 
 
-def disp_por_dem(df, parametros=['bal_perc'], pesos=[1]):
+def disp_por_dem(df, parametros=['bal_perc_cap'], pesos=[1]):
     peso_bal_perc = pesos[0]
-    if df['bal_perc'].dtype == 'object':  # object geralmente indica strings
-        bal_perc = pd.to_numeric(df['bal_perc'].str.replace(',', '.'), errors='coerce')*peso_bal_perc
+    if df['bal_perc_cap'].dtype == 'object':  # object geralmente indica strings
+        bal_perc_cap = pd.to_numeric(df['bal_perc_cap'].str.replace(',', '.'), errors='coerce')*peso_bal_perc
     else:
         # Se já for numérica, usa diretamente
-        bal_perc = pd.to_numeric(df['bal_perc'], errors='coerce')*peso_bal_perc
+        bal_perc_cap = pd.to_numeric(df['bal_perc_cap'], errors='coerce')*peso_bal_perc
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
-            (bal_perc == 0) | pd.isna(bal_perc),  # condição
+            (bal_perc_cap == 0) | pd.isna(bal_perc_cap),  # condição
             0,                                     # valor se for zero ou NaN
-            100 / bal_perc                         # valor caso contrário
+            100 / bal_perc_cap                         # valor caso contrário
         )
     
     # Converte para Series para manter compatibilidade
@@ -235,7 +235,7 @@ def cs_cobred(df, parametros=['ihu_pc_cobrede'], pesos=[1]):
 def pop_urb_scbc(df, parametros=['situacao_setor', 'densidade', 'area_scbc', 'fator_analisavel'], pesos=[1, 1, 1, 3]):
     # pesos aplicados apenas naquilo que faz parte de conta
     situacao_setor = pd.to_numeric(df['situacao_setor'], errors='coerce')
-    densidade = pd.to_numeric(df['densidade'], erors='coerce')*pesos[0]
+    densidade = pd.to_numeric(df['densidade'], errors='coerce')*pesos[0]
     area_scbc = pd.to_numeric(df['area_scbc'], errors='coerce')*pesos[1]
     fator_analisavel = pesos[3] # onde colocar o valor numérico do fator_analisável quando ajustar os chamados; atualmente usa 
     return np.where(
@@ -278,7 +278,7 @@ def perc_scbc(df, parametros=['pop_urb_scbc', 'pop_urb_bacia'], pesos=[1, 1]):
 
 def ihu_nu_popriscoinerente_scbc(df, parametros=['ft_imi', 'pop_urb_scbc'], pesos=[1,1]):
     ft_imi = pd.to_numeric(df['ft_imi'], errors='coerce')*pesos[0]
-    pop_urb_scbc = pd.to_numeric(df['pop_urb_scbc'], error='coerce')*pesos[1]
+    pop_urb_scbc = pd.to_numeric(df['pop_urb_scbc'], errors='coerce')*pesos[1]
 
     return ft_imi*pop_urb_scbc
 
@@ -321,7 +321,7 @@ def ihu_rel_cobred(df, parametros=['perc_scbc', 'cs_cobred'], pesos=[1, 1]):
 def ihu_nu_popriscoinerente_otto(df, parametros=['COBACIA', 'ihu_nu_popriscoinerente_scbc'], pesos=[1,1]):
     cobacia = df['COBACIA']
     ihu_nu_popriscoinerente_scbc = df['ihu_nu_popriscoinerente_scbc']*pesos[0]
-    resultado = ihu_nu_popriscoinerente.groupby(cobacia).transform('sum')
+    resultado = ihu_nu_popriscoinerente_scbc.groupby(cobacia).transform('sum')
 
     return resultado
 
@@ -338,7 +338,7 @@ def ihu_nu_popriscototal_otto(df, parametros=['COBACIA', 'ihu_nu_popriscototal_s
     resultado = ihu_nu_popriscototal_scbc.groupby(cobacia).transform('sum')
 
     return resultado
-    
+
 def ire_hu_pop(df, parametros=['COBACIA', 'ihu_rel_pop'], pesos=[1]):
     cobacia = df['COBACIA']
     ihu_rel_pop = pd.to_numeric(df['ihu_rel_pop'], errors='coerce')*pesos[0]
