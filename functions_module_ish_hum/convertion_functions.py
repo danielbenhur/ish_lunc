@@ -191,12 +191,6 @@ def densidade(df, parametros=['pop', 'area_setor'], pesos=[1, 1]):
 
     return resultado
 
-def pop_urb_scbc(df, parametros=['situacao_setor', 'densidade', 'area_scbc'], pesos=[1,1,1]):
-    pass
-
-def pop_urb_bacia(df, parametros=['COBACIA', 'pop_urb_scbc'], pesos=[1,1]):
-    pass
-
 # cs_risco: busca de dados em matriz
 def cs_risco(df, parametros=['ihu_nu_popriscototal', 'ihu_pc_risco'], pesos=[1, 1]):
     ihu_nu_popriscototal = df['ihu_nu_popriscototal']*pesos[0]
@@ -238,12 +232,12 @@ def cs_cobred(df, parametros=['ihu_pc_cobrede'], pesos=[1]):
     labels = [0, 1, 2, 3, 4, 5, 5]  
     return pd.cut(ihu_pc_cobrede.fillna(-1), bins=bins, labels=labels, right=False, ordered=False).astype(int)
 
-def pop_urb_scbc(df, parametros=['situacao_setor', 'densidade', 'area_scbc', 'fator_analisavel'], pesos=[1, 1]):
+def pop_urb_scbc(df, parametros=['situacao_setor', 'densidade', 'area_scbc', 'fator_analisavel'], pesos=[1, 1, 1, 3]):
     # pesos aplicados apenas naquilo que faz parte de conta
     situacao_setor = pd.to_numeric(df['situacao_setor'], errors='coerce')
-    densidade = df['densidade']*pesos[0]
+    densidade = pd.to_numeric(df['densidade'], erors='coerce')*pesos[0]
     area_scbc = pd.to_numeric(df['area_scbc'], errors='coerce')*pesos[1]
-    fator_analisavel = pd.to_numeric(df['fator_analisavel'], errors='coerce')
+    fator_analisavel = pesos[3] # onde colocar o valor numérico do fator_analisável quando ajustar os chamados; atualmente usa 
     return np.where(
         situacao_setor < fator_analisavel,
         densidade*area_scbc,
@@ -283,11 +277,22 @@ def perc_scbc(df, parametros=['pop_urb_scbc', 'pop_urb_bacia'], pesos=[1, 1]):
     return resultado
 
 def ihu_nu_popriscoinerente_scbc(df, parametros=['ft_imi', 'pop_urb_scbc'], pesos=[1,1]):
-    pass
+    ft_imi = pd.to_numeric(df['ft_imi'], errors='coerce')*pesos[0]
+    pop_urb_scbc = pd.to_numeric(df['pop_urb_scbc'], error='coerce')*pesos[1]
+
+    return ft_imi*pop_urb_scbc
+
 def ihu_nu_popriscoposdeficit_scbc(df, parametros=['ft_pd', 'pop_urb_scbc'], pesos=[1,1]):
-    pass
+    ft_pd = pd.to_numeric(df['ft_pd'], errors='coerce')*pesos[0]
+    pop_urb_scbc = pd.to_numeric(df['pop_urb_scbc'], errors='coerce')*pesos[1]
+
+    return ft_pd*pop_urb_scbc
+
 def ihu_nu_popriscototal_scbc(df, parametros=['ft_tot', 'pop_urb_scbc'], pesos=[1,1]):
-    pass
+    ft_tot = pd.to_numeric(df['ft_tot'], errors='coerce')*pesos[0]
+    pop_urb_scbc = pd.to_numeric(df['pop_urb_scbc'], errors='coerce')*pesos[1]
+
+    return ft_tot*pop_urb_scbc
 
 def ihu_cs_ish(df, parametros=['cs_cobred', 'cs_risco'], pesos=[0.7, 0.3]):
     cs_risco = df['cs_risco']
@@ -314,11 +319,26 @@ def ihu_rel_cobred(df, parametros=['perc_scbc', 'cs_cobred'], pesos=[1, 1]):
     return perc_scbc*cs_cobred
 
 def ihu_nu_popriscoinerente_otto(df, parametros=['COBACIA', 'ihu_nu_popriscoinerente_scbc'], pesos=[1,1]):
-    pass
+    cobacia = df['COBACIA']
+    ihu_nu_popriscoinerente_scbc = df['ihu_nu_popriscoinerente_scbc']*pesos[0]
+    resultado = ihu_nu_popriscoinerente.groupby(cobacia).transform('sum')
+
+    return resultado
+
 def ihu_nu_popriscoposdeficit_otto(df, parametros=['COBACIA', 'ihu_nu_popriscoposdeficit_scbc'], pesos=[1,1]):
-    pass
+    cobacia = df['COBACIA']
+    ihu_nu_popriscoposdeficit_scbc = df['ihu_nu_popriscoposdeficit_scbc']*pesos[0]
+    resultado = ihu_nu_popriscoposdeficit_scbc.groupby(cobacia).transform('sum')
+
+    return resultado
+
 def ihu_nu_popriscototal_otto(df, parametros=['COBACIA', 'ihu_nu_popriscototal_scbc'], pesos=[1,1]):
-    pass
+    cobacia = df['COBACIA']
+    ihu_nu_popriscototal_scbc = df['ihu_nu_popriscototal_scbc']*pesos[0]
+    resultado = ihu_nu_popriscototal_scbc.groupby(cobacia).transform('sum')
+
+    return resultado
+    
 def ire_hu_pop(df, parametros=['COBACIA', 'ihu_rel_pop'], pesos=[1]):
     cobacia = df['COBACIA']
     ihu_rel_pop = pd.to_numeric(df['ihu_rel_pop'], errors='coerce')*pesos[0]

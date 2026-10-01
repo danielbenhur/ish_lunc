@@ -47,11 +47,11 @@ dimensions:
         depends_on: ['pop','area_setor']
         pesos: [1,1]
       - name: pop_urb_scbc
-        depends_on: ['situacao_setor', 'densidade', 'area_scbc']
-        pesos: [1,1,1]
+        depends_on: ['situacao_setor', 'densidade', 'area_scbc', 'fator_analisavel']
+        pesos: [1, 1, 1, 3]
       - name: pop_urb_bacia
         depends_on: ['COBACIA', 'pop_urb_scbc']
-        pesos: [1,1]
+        pesos: [1]
       - name: cs_risco
         depends_on: ['ihu_nu_popriscototal', 'ihu_pc_risco']
         pesos: [1,1]
