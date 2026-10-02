@@ -6,16 +6,17 @@ dimensions:
   - name: ire_cs_hum
     # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/input/dimensao_humana.csv"
     path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/input/hum_sc_otto2017_ISH-2035 - hum_sc_otto.csv"
+    # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/input/dim_hum_cnr_captIBGE2022.csv"
     indicadores:
       - name: bal_perc_cap
         depends_on: ['dem_acm_cap', 'disp_q95_cap']
         pesos: [1,1]
-      - name: bal_perc_bho
-        depends_on: ['dem_acm_bho', 'disp_q95_bho']
-        pesos: [1,1]
+      # - name: bal_perc_bho
+        # depends_on: ['dem_acm_bho', 'disp_q95_bho']
+        # pesos: [1,1]
       - name: disp_por_dem
-        depends_on: ['bal_perc']
-        pesos: [1]
+        depends_on: ['disp_q95_cap', 'dem_acm_cap']
+        pesos: [1,1]
       - name: ft_imi
         depends_on: ['disp_por_dem']
         pesos: [0.33333]
@@ -99,6 +100,7 @@ dimensions:
 # aqui fica o DataFrame geral, que congrega todos os dados usados
 # intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gerais/arquivo_intermediario_original.csv"
 intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gerais/arquivo_intermediario22-09.csv"
+# intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gerais/arquivo_intermediario02-10.csv"
 
 result:
   - name: ire_cs_hum
@@ -112,3 +114,4 @@ result:
 output:
   # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum_original.csv" 
   path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum_22-09.csv"
+  # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum_02-10.csv"
