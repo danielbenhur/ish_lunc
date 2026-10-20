@@ -8,10 +8,16 @@ def bal_perc_cap(df, parametros=['dem_acm_cap', 'disp_q95_cap'], pesos=[1,1]):
     disp_q95 = pd.to_numeric(df[parametros[1]].str.replace(',', '.'), errors='coerce')*pesos[1]
 
     with np.errstate(divide='ignore', invalid='ignore'):
-        resultado = np.where(
-            (disp_q95 == 0) | pd.isna(disp_q95),
-            0,
-            100*dem_acm/disp_q95
+        resultado = np.select(
+            [
+                (disp_q95 == 0) & (dem_acm == 0),   # I3=0 E K3=0
+                (disp_q95 == 0),                    # I3=0 (K3 != 0)
+            ],
+            [
+                0,   # classificacao!$B$42
+                999999,    # classificacao!$B$41
+            ],
+            default=100 * dem_acm / disp_q95,
         )
     
     # Converte para Series para manter compatibilidade
@@ -23,45 +29,55 @@ def bal_perc_bho(df, parametros=['dem_acm_bho', 'disp_q95_bho'], pesos=[1,1]):
     disp_q95 = pd.to_numeric(df[parametros[1]].str.replace(',', '.'), errors='coerce')*pesos[1]
 
     with np.errstate(divide='ignore', invalid='ignore'):
-        resultado = np.where(
-            (disp_q95 == 0) | pd.isna(disp_q95),
-            0,
-            100*dem_acm/disp_q95
+        resultado = np.select(
+            [
+                (disp_q95 == 0) & (dem_acm == 0),   # I3=0 E K3=0
+                (disp_q95 == 0),                    # I3=0 (K3 != 0)
+            ],
+            [
+                999999,   # classificacao!$B$42
+                0,    # classificacao!$B$41
+            ],
+            default=100 * dem_acm / disp_q95,
         )
     
     # Converte para Series para manter compatibilidade
     resultado = np.where(np.isinf(resultado), 0, resultado)
     return pd.Series(resultado, index=df.index) 
 
-def disp_por_dem(df, parametros=['disp_q95_cap', 'dem_acm_cap'], pesos=[1,1]):
-    disp_q95_cap = pd.to_numeric(df[parametros[0]].astype(str).str.replace(',', '.'), errors='coerce')*pesos[0]
-    dem_acm_cap = pd.to_numeric(df[parametros[1]].astype(str).str.replace(',', '.'), errors='coerce')*pesos[1]
+def disp_dem_cap(df, parametros=['bal_perc_cap'], pesos=[1]):
+    bal_perc_cap = pd.to_numeric(df[parametros[0]], errors='coerce')*pesos[0]
     
     with np.errstate(divide='ignore', invalid='ignore'):
-        resultado = np.where(
-            (dem_acm_cap == 0) | pd.isna(dem_acm_cap),  # condição
-            999999,                                          # valor se for zero ou NaN
-            disp_q95_cap/dem_acm_cap                    # valor caso contrário
+        resultado = np.select(
+            [
+                (bal_perc_cap == 0),
+            ],
+            [
+                999999,
+            ],
+            default= 100 / bal_perc_cap,
         )
     
     # Converte para Series para manter compatibilidade
     resultado = np.where(np.isinf(resultado), 0, resultado)
     return pd.Series(resultado, index=df.index)
 
-def ft_imi(df, parametros=['disp_por_dem'], pesos=[1/3]):
-    disp_por_dem = df[parametros[0]]
-    peso_disp_por_dem = pesos[0]
+def ft_imi(df, parametros=['disp_dem_cap'], pesos=[0.333333]):
+    disp_dem_cap = df[parametros[0]]
+    
+    peso_disp_dem_cap = pesos[0]
     return np.where(
-        disp_por_dem >=1,
-        peso_disp_por_dem*(disp_por_dem**(-2)),
-        peso_disp_por_dem*disp_por_dem
+        disp_dem_cap >=1,
+        peso_disp_dem_cap*(disp_dem_cap**(-2)),
+        peso_disp_dem_cap*disp_dem_cap
     )
 
 
-def ft_pd(df, parametros=['disp_por_dem'], pesos=[1]):
-    disp_por_dem = df[parametros[0]]*pesos[0]
+def ft_pd(df, parametros=['disp_dem_cap'], pesos=[1]):
+    disp_dem_cap = df[parametros[0]]*pesos[0]
     
-    return disp_por_dem.apply(lambda x: 0 if x >= 1 else 1 - x)
+    return disp_dem_cap.apply(lambda x: 0 if x >= 1 else 1 - x)
 
 def ft_tot(df, parametros=['ft_imi', 'ft_pd'], pesos=[1, 1]):
     ft_imi = df[parametros[0]]*pesos[0]
@@ -198,49 +214,55 @@ def cs_cobred(df, parametros=['ihu_pc_cobrede'], pesos=[1]):
     labels = [0, 1, 2, 3, 4, 5, 5]  
     return pd.cut(ihu_pc_cobrede.fillna(-1), bins=bins, labels=labels, right=False, ordered=False).astype(int)
 
-def pop_urb_scbc(df, parametros=['situacao_setor', 'densidade', 'area_scbc', 'fator_analisavel'], pesos=[1, 1, 1, 3]):
-    # pesos aplicados apenas naquilo que faz parte de conta
+def area_considerada_scbc(df, parametros=['situacao_setor', 'area_scbc', 'fator_analisavel'], pesos=[1, 3]):
     situacao_setor = pd.to_numeric(df[parametros[0]], errors='coerce')
-    densidade = pd.to_numeric(df[parametros[1]], errors='coerce')*pesos[0]
-    area_scbc = pd.to_numeric(df[parametros[2]].astype(str).str.replace(',', '.'), errors='coerce')*pesos[2]
-    fator_analisavel = pesos[3] # onde colocar o valor numérico do fator_analisável quando ajustar os chamados; atualmente usa 
+    area_scbc = pd.to_numeric(df[parametros[1]].astype(str).str.replace(',', '.'), errors='coerce')*pesos[0]
+    fator_analisavel = pesos[1]
+
     return np.where(
-        situacao_setor < fator_analisavel,
-        densidade*area_scbc,
+        situacao_setor <= fator_analisavel,
+        area_scbc,
         0
     )
 
-def pop_urb_bacia(df, parametros=['COBACIA', 'pop_urb_scbc'], pesos=[1]):
-    cobacia = df['COBACIA']
+def area_considerada_bho(df, parametros=['cobacia', 'area_considerada_scbc'], pesos = [1]):
+    cobacia = df[parametros[0]]
+    area_considerada_scbc = df[parametros[1]]*pesos[0]
+    resultado = area_considerada_scbc.groupby(cobacia).transform('sum')
+
+    return resultado
+
+def pop_urb_scbc(df, parametros=['densidade', 'area_considerada_scbc'], pesos=[1, 1]):
+    densidade = df[parametros[0]]*pesos[0]
+    area_considerada_scbc = df[parametros[1]]*pesos[1]
+
+    return densidade*area_considerada_scbc
+
+def pop_urb_bacia(df, parametros=['cobacia', 'pop_urb_scbc'], pesos=[1]):
+    cobacia = df[parametros[0]]
     pop_urb_scbc = df[parametros[1]]*pesos[0]
     resultado = pop_urb_scbc.groupby(cobacia).transform('sum')
 
     return resultado
 
 def perc_scbc(df, parametros=['pop_urb_scbc', 'pop_urb_bacia'], pesos=[1, 1]):
-    # Limpeza da primeira coluna
-    pop_urb_scbc = (df[parametros[0]]
-                    .astype(str)
-                    .str.replace(',', '.')
-                    .str.replace('#DIV/0!', 'nan')
-                    .str.replace('#N/A', 'nan')
-                    .str.strip()
-                    .pipe(pd.to_numeric, errors='coerce'))*pesos[0]
+    pop_urb_scbc = pd.to_numeric(df[parametros[0]], errors='coerce')*pesos[0]
+    pop_urb_bacia = pd.to_numeric(df[parametros[1]], errors='coerce')*pesos[1]
     
-    # Limpeza da segunda coluna
-    pop_urb_bacia = (df[parametros[1]]
-                     .astype(str)
-                     .str.replace(',', '.')
-                     .str.replace('#DIV/0!', 'nan')
-                     .str.replace('#N/A', 'nan')
-                     .str.strip()
-                     .pipe(pd.to_numeric, errors='coerce'))*pesos[1]
+    with np.errstate(divide='ignore', invalid='ignore'):
+        resultado = np.select(
+            [
+                (pop_urb_scbc == 0) & (pop_urb_bacia == 0)
+            ],
+            [
+                0,   # classificacao!$B$42
+            ],
+            default= pop_urb_scbc / pop_urb_bacia,
+        )
     
-    # Cálculo seguro
-    resultado = pop_urb_scbc / pop_urb_bacia
-    resultado = resultado.fillna(0).replace([np.inf, -np.inf], 0)
-    
-    return resultado
+    # Converte para Series para manter compatibilidade
+    resultado = np.where(np.isinf(resultado), 0, resultado)
+    return pd.Series(resultado, index=df.index) 
 
 def ihu_nu_popriscoinerente_scbc(df, parametros=['ft_imi', 'pop_urb_scbc'], pesos=[1,1]):
     ft_imi = pd.to_numeric(df[parametros[0]], errors='coerce')*pesos[0]
@@ -282,35 +304,35 @@ def ihu_rel_cobred(df, parametros=['perc_scbc', 'cs_cobred'], pesos=[1, 1]):
     cs_cobred = df[parametros[1]]*pesos[1]
     return perc_scbc*cs_cobred
 
-def ihu_nu_popriscoinerente_otto(df, parametros=['COBACIA', 'ihu_nu_popriscoinerente_scbc'], pesos=[1,1]):
-    cobacia = df['COBACIA']
+def ihu_nu_popriscoinerente_otto(df, parametros=['cobacia', 'ihu_nu_popriscoinerente_scbc'], pesos=[1,1]):
+    cobacia = df['cobacia']
     ihu_nu_popriscoinerente_scbc = df[parametros[1]]*pesos[0]
     resultado = ihu_nu_popriscoinerente_scbc.groupby(cobacia).transform('sum')
 
     return resultado
 
-def ihu_nu_popriscoposdeficit_otto(df, parametros=['COBACIA', 'ihu_nu_popriscoposdeficit_scbc'], pesos=[1,1]):
-    cobacia = df['COBACIA']
+def ihu_nu_popriscoposdeficit_otto(df, parametros=['cobacia', 'ihu_nu_popriscoposdeficit_scbc'], pesos=[1,1]):
+    cobacia = df['cobacia']
     ihu_nu_popriscoposdeficit_scbc = df[parametros[1]]*pesos[0]
     resultado = ihu_nu_popriscoposdeficit_scbc.groupby(cobacia).transform('sum')
 
     return resultado
 
-def ihu_nu_popriscototal_otto(df, parametros=['COBACIA', 'ihu_nu_popriscototal_scbc'], pesos=[1,1]):
-    cobacia = df['COBACIA']
+def ihu_nu_popriscototal_otto(df, parametros=['cobacia', 'ihu_nu_popriscototal_scbc'], pesos=[1,1]):
+    cobacia = df['cobacia']
     ihu_nu_popriscototal_scbc = df[parametros[1]]*pesos[0]
     resultado = ihu_nu_popriscototal_scbc.groupby(cobacia).transform('sum')
 
     return resultado
 
-def ire_hu_pop(df, parametros=['COBACIA', 'ihu_rel_pop'], pesos=[1]):
-    cobacia = df['COBACIA']
+def ire_hu_pop(df, parametros=['cobacia', 'ihu_rel_pop'], pesos=[1]):
+    cobacia = df['cobacia']
     ihu_rel_pop = pd.to_numeric(df[parametros[1]], errors='coerce')*pesos[0]
     
     return ihu_rel_pop.groupby(cobacia).transform('sum')
     
-def ire_hu_cobred(df, parametros=['COBACIA', 'ihu_rel_cobred'], pesos=[1]):
-    cobacia = df['COBACIA']
+def ire_hu_cobred(df, parametros=['cobacia', 'ihu_rel_cobred'], pesos=[1]):
+    cobacia = df['cobacia']
     ihu_rel_cobred = pd.to_numeric(df[parametros[1]], errors='coerce')*pesos[0]
     
     return ihu_rel_cobred.groupby(cobacia).transform('sum')

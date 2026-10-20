@@ -5,8 +5,9 @@ base_dir: "."
 dimensions:
   - name: ire_cs_hum
     # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/input/dimensao_humana.csv"
-    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/input/hum_sc_otto2017_ISH-2035 - hum_sc_otto.csv"
+    # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/input/hum_sc_otto2017_ISH-2035 - hum_sc_otto.csv"
     # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/input/dim_hum_cnr_captIBGE2022.csv"
+    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/input/hum_sc_otto2017_ISH-2035v0.0.15 - hum_sc_otto.csv"
     indicadores:
       - name: bal_perc_cap
         depends_on: ['dem_acm_cap', 'disp_q95_cap']
@@ -14,14 +15,14 @@ dimensions:
       # - name: bal_perc_bho
         # depends_on: ['dem_acm_bho', 'disp_q95_bho']
         # pesos: [1,1]
-      - name: disp_por_dem
-        depends_on: ['disp_q95_cap', 'dem_acm_cap']
-        pesos: [1,1]
+      - name: disp_dem_cap
+        depends_on: ['bal_perc_cap']
+        pesos: [1]
       - name: ft_imi
-        depends_on: ['disp_por_dem']
-        pesos: [0.33333]
+        depends_on: ['disp_dem_cap']
+        pesos: [0.333333]
       - name: ft_pd
-        depends_on: ['disp_por_dem']
+        depends_on: ['disp_dem_cap']
         pesos: [1]
       - name: ft_tot
         depends_on: ['ft_imi', 'ft_pd']
@@ -47,17 +48,23 @@ dimensions:
       - name: densidade
         depends_on: ['pop','area_setor']
         pesos: [1,1]
+      - name: area_considerada_scbc
+        depends_on: ['situacao_setor', 'area_scbc', 'fator_analisavel']
+        pesos: [1,3]
+      - name: area_considerada_bho
+        depends_on: ['cobacia', 'area_considerada_scbc'] 
+        pesos: [1]
       - name: pop_urb_scbc
-        depends_on: ['situacao_setor', 'densidade', 'area_scbc', 'fator_analisavel']
-        pesos: [1, 1, 1, 3]
+        depends_on: ['densidade', 'area_considerada_scbc']
+        pesos: [1, 1]
       - name: pop_urb_bacia
-        depends_on: ['COBACIA', 'pop_urb_scbc']
+        depends_on: ['cobacia', 'pop_urb_scbc']
         pesos: [1]
       - name: cs_risco
         depends_on: ['ihu_nu_popriscototal', 'ihu_pc_risco']
         pesos: [1,1]
       - name: cs_cobred
-        depends_on: ['ihu_pc_cobred']
+        depends_on: ['ihu_pc_cobrede']
         pesos: [1]
       - name: perc_scbc
         depends_on: ['pop_urb_scbc','pop_urb_bacia']
@@ -81,26 +88,24 @@ dimensions:
         depends_on: ['perc_scbc', 'cs_cobed']
         pesos: [1,1]
       - name: ihu_nu_popriscoinerente_otto
-        depends_on: ['COBACIA', 'ihu_nu_popriscoinerente_scbc']
+        depends_on: ['cobacia', 'ihu_nu_popriscoinerente_scbc']
         pesos: [1,1]
       - name: ihu_nu_popriscoposdeficit_otto
-        depends_on: ['COBACIA', 'ihu_nu_popriscoposdeficit_scbc']
+        depends_on: ['cobacia', 'ihu_nu_popriscoposdeficit_scbc']
         pesos: [1,1]
       - name: ihu_nu_popriscototal_otto
-        depends_on: ['COBACIA', 'ihu_nu_popriscototal_scbc']
+        depends_on: ['cobacia', 'ihu_nu_popriscototal_scbc']
         pesos: [1,1]
       - name: ire_hu_pop
-        depends_on: ['COBACIA','ihu_rel_pop']
+        depends_on: ['cobacia','ihu_rel_pop']
         pesos: [1,1]
       - name: ire_hu_cobred
-        depends_on: ['COBACIA', 'ihu_rel_cobred']
+        depends_on: ['cobacia', 'ihu_rel_cobred']
         pesos: [1,1]
     descritor: tipo_setor
 
 # aqui fica o DataFrame geral, que congrega todos os dados usados
-# intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gerais/arquivo_intermediario_original.csv"
-intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gerais/arquivo_intermediario22-09.csv"
-# intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gerais/arquivo_intermediario02-10.csv"
+intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gerais/arquivo_intermediario20-10.csv"
 
 result:
   - name: ire_cs_hum
@@ -112,6 +117,4 @@ result:
 
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:
-  # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum_original.csv" 
-  path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum_22-09.csv"
-  # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum_02-10.csv"
+  path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum_20-10.csv"

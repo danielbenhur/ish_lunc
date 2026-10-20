@@ -5,7 +5,7 @@ description: "Calculando a dimensão econômica"
 base_dir: "."
 
 # aqui fica o DataFrame geral, que congrega todos os dados usados
-intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gerais/arquivo_intermediario.csv"
+intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gerais/arquivo_intermediario22-09.csv"
 
 dimensions:
   - name: ire_cs_irri_eco
