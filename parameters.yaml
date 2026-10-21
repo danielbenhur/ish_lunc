@@ -44,7 +44,7 @@ dimensions:
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:
   folder: "./output"
-  # gpkg_name: "resultado_hum_alterado_22-09.gpkg"
-  # csv_name: "resultado_hum_alterado_22-09.csv"
-  gpkg_name: "resultado_hum_certo.gpkg"
-  csv_name: "resultado_hum_certo.csv"
+  gpkg_name: "resultado_coerente.gpkg"
+  csv_name: "resultado_hum_coerente.csv"
+  # gpkg_name: "resultado_hum_certo.gpkg"
+  # csv_name: "resultado_hum_certo.csv"
