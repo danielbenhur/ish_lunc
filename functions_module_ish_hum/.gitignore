@@ -7,7 +7,6 @@ erros.txt
 read_yaml.py
 entrada.csv
 dados_calculados.csv
-comparar.py
 comparar_colunas.py
 *.csv
 comparacoes/
