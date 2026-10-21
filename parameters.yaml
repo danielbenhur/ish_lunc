@@ -17,8 +17,8 @@ dimensions:
     # path: "./functions_module_ish_hum/output/ish_hum_22-09.csv"
     # path: "./functions_module_ish_hum/input/dim_hum_cnr_captIBGE2022.csv"
     # path: "./functions_module_ish_hum/output/ish_hum_02-10.csv"
-    # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/hum_sc_otto2017_ISH-2035v0.0.15 - hum_bacia.csv"
-    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum_20-10.csv"
+    path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/hum_sc_otto2017_ISH-2035v0.0.15 - hum_bacia.csv"
+    # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum_20-10.csv"
   - name: eco
     column: 'dimensao_economica'
     # column: 'ire_cs_eco'
@@ -44,5 +44,7 @@ dimensions:
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:
   folder: "./output"
-  gpkg_name: "resultado_hum_alterado_22-09.gpkg"
-  csv_name: "resultado_hum_alterado_22-09.csv"
+  # gpkg_name: "resultado_hum_alterado_22-09.gpkg"
+  # csv_name: "resultado_hum_alterado_22-09.csv"
+  gpkg_name: "resultado_hum_certo.gpkg"
+  csv_name: "resultado_hum_certo.csv"

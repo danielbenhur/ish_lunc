@@ -58,52 +58,7 @@ def functions_module_ish_hum(yaml_file_path):
             else:
                 print(f"  ⚠️ Função '{nome_funcao}' não encontrada!")
 
-    dados_gerais.to_csv(config['intermediario'], index=False)
-    # 🔥 SEGUNDO: Verifica se as colunas existem antes de processar
-    # print("\nColunas disponíveis após processamento:", dados_gerais.columns.tolist())
-    
-    # Processar pesos e calcular ire_cs_hum
-    pesos = {}
-    for item in config['result']:
-        if item['name'] == 'ire_cs_hum':
-            for dep in item['depends_on']:
-                pesos[dep['name']] = dep['peso']
-    
-    # Verifica se as colunas necessárias existem
-    colunas_necessarias = ['ire_hu_pop', 'ire_hu_cobred']
-    colunas_faltando = [col for col in colunas_necessarias if col not in dados_gerais.columns]
-    
-    if colunas_faltando:
-        # print(f"⚠️ Colunas faltando: {colunas_faltando}")
-        # print(f"Colunas disponíveis: {dados_gerais.columns.tolist()}")
-        # Pode optar por criar colunas com valores padrão ou interromper
-        for col in colunas_faltando:
-            # print(f"Criando coluna '{col}' com valores padrão (0)")
-            dados_gerais[col] = 0
-    
-    # Agora processa as colunas numéricas
-    for col in colunas_necessarias:
-        if col in dados_gerais.columns:
-            dados_gerais[col] = dados_gerais[col].astype(str).str.replace(',', '.')
-            dados_gerais[col] = pd.to_numeric(dados_gerais[col], errors='coerce')
-    
-    # Verifica se os pesos existem
-    if 'ire_hu_pop' not in pesos or 'ire_hu_cobred' not in pesos:
-        print(f"⚠️ Pesos não encontrados! Pesos disponíveis: {pesos}")
-        # Define pesos padrão se necessário
-        peso_ire_hu_pop = float(pesos.get('ire_hu_pop', 0.5))
-        peso_ire_hu_cobred = float(pesos.get('ire_hu_cobred', 0.5))
-    else:
-        peso_ire_hu_pop = float(pesos['ire_hu_pop'])
-        peso_ire_hu_cobred = float(pesos['ire_hu_cobred'])
-    
-    # Calcula ire_cs_hum
-    dados_gerais['ire_cs_hum'] = dados_gerais.apply(
-        lambda row: ire_cs_hum(
-            row['ire_hu_pop'], peso_ire_hu_pop,
-            row['ire_hu_cobred'], peso_ire_hu_cobred
-        ), axis=1
-    )
+    dados_gerais.to_csv(config['intermediario'], index=False)    
     
     dados_resultado = dados_gerais[['cobacia', 'ire_cs_hum']]
     dados_resultado.to_csv(config['output']['path'], index=False)

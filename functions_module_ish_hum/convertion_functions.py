@@ -87,7 +87,7 @@ def ft_tot(df, parametros=['ft_imi', 'ft_pd'], pesos=[1, 1]):
 
 def ihu_nu_popriscoinerente(df, parametros=['ft_imi', 'dmu_nu_popurbana'], pesos=[1, 1]):
     ft_imi = df[parametros[0]]*pesos[0] 
-    dmu_nu_popurbana = pd.to_numeric(df[parametros[1]], errors='coerce')*pesos[1]
+    dmu_nu_popurbana = pd.to_numeric(df[parametros[1]].str.replace('.', ''), errors='coerce')*pesos[1]
     
     resultado = ft_imi*dmu_nu_popurbana
 
@@ -95,7 +95,7 @@ def ihu_nu_popriscoinerente(df, parametros=['ft_imi', 'dmu_nu_popurbana'], pesos
 
 def ihu_pc_risco_inerente(df, parametros=['ihu_nu_popriscoinerente', 'dmu_nu_popurbana'], pesos=[1, 1]):
     ihu_nu_popriscoinerente = df[parametros[0]].fillna(0)*pesos[0]
-    dmu_nu_popurbana = pd.to_numeric(df[parametros[1]], errors='coerce').fillna(0)*pesos[1]
+    dmu_nu_popurbana = pd.to_numeric(df[parametros[1]].str.replace('.', ''), errors='coerce')*pesos[1]
 
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
@@ -108,7 +108,7 @@ def ihu_pc_risco_inerente(df, parametros=['ihu_nu_popriscoinerente', 'dmu_nu_pop
 
 def ihu_nu_popriscoposdeficit(df, parametros=['ft_pd', 'dmu_nu_popurbana'], pesos=[1, 1]):
     ft_pd = df[parametros[0]]*pesos[0]
-    dmu_nu_popurbana = pd.to_numeric(df[parametros[1]], errors='coerce')*pesos[1]
+    dmu_nu_popurbana = pd.to_numeric(df[parametros[1]].str.replace('.', ''), errors='coerce')*pesos[1]
 
     resultado = ft_pd*dmu_nu_popurbana
     
@@ -116,7 +116,7 @@ def ihu_nu_popriscoposdeficit(df, parametros=['ft_pd', 'dmu_nu_popurbana'], peso
 
 def ihu_pc_riscoposdeficit(df, parametros=['ihu_nu_popriscoposdeficit', 'dmu_nu_popurbana'], pesos=[1, 1]):
     ihu_nu_popriscoposdeficit = df[parametros[0]]*pesos[0]
-    dmu_nu_popurbana = pd.to_numeric(df[parametros[1]], errors='coerce')*pesos[1]
+    dmu_nu_popurbana = pd.to_numeric(df[parametros[1]].str.replace('.', ''), errors='coerce')*pesos[1]
 
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
@@ -129,7 +129,7 @@ def ihu_pc_riscoposdeficit(df, parametros=['ihu_nu_popriscoposdeficit', 'dmu_nu_
 
 def ihu_nu_popriscototal(df, parametros=['ft_tot', 'dmu_nu_popurbana'], pesos=[1, 1]):
     ft_tot = df[parametros[0]]*pesos[0]
-    dmu_nu_popurbana = pd.to_numeric(df[parametros[1]], errors='coerce')*pesos[1]
+    dmu_nu_popurbana = pd.to_numeric(df[parametros[1]].str.replace('.', ''), errors='coerce')*pesos[1]
 
     resultado = ft_tot*dmu_nu_popurbana
     
@@ -137,7 +137,7 @@ def ihu_nu_popriscototal(df, parametros=['ft_tot', 'dmu_nu_popurbana'], pesos=[1
 
 def ihu_pc_risco(df, parametros=['ihu_nu_popriscototal', 'dmu_nu_popurbana'], pesos=[1, 1]):
     ihu_nu_popriscototal = df[parametros[0]]*pesos[0]
-    dmu_nu_popurbana = pd.to_numeric(df[parametros[1]], errors='coerce')*pesos[1]
+    dmu_nu_popurbana = pd.to_numeric(df[parametros[1]].str.replace('.', ''), errors='coerce')*pesos[1]
 
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.where(
@@ -164,11 +164,18 @@ def densidade(df, parametros=['pop', 'area_setor'], pesos=[1, 1]):
                     .str.strip()
                     .pipe(pd.to_numeric, errors='coerce'))*pesos[1]
 
+
     with np.errstate(divide='ignore', invalid='ignore'):
-        resultado = np.where(
-            area_setor == 0,  # condição
-            0,                                       # valor se for zero ou NaN
-            pop/area_setor # valor caso contrário
+        resultado = np.select(
+            [
+                (area_setor == 0) & (pop == 0),
+                (area_setor == 0),
+            ],
+            [
+                0,
+                10000000,
+            ],
+            default= round(pop/area_setor, 3)
         )
 
     return resultado
@@ -236,7 +243,8 @@ def pop_urb_scbc(df, parametros=['densidade', 'area_considerada_scbc'], pesos=[1
     densidade = df[parametros[0]]*pesos[0]
     area_considerada_scbc = df[parametros[1]]*pesos[1]
 
-    return densidade*area_considerada_scbc
+    resultado = densidade*area_considerada_scbc
+    return resultado
 
 def pop_urb_bacia(df, parametros=['cobacia', 'pop_urb_scbc'], pesos=[1]):
     cobacia = df[parametros[0]]
@@ -246,8 +254,8 @@ def pop_urb_bacia(df, parametros=['cobacia', 'pop_urb_scbc'], pesos=[1]):
     return resultado
 
 def perc_scbc(df, parametros=['pop_urb_scbc', 'pop_urb_bacia'], pesos=[1, 1]):
-    pop_urb_scbc = pd.to_numeric(df[parametros[0]], errors='coerce')*pesos[0]
-    pop_urb_bacia = pd.to_numeric(df[parametros[1]], errors='coerce')*pesos[1]
+    pop_urb_scbc = df[parametros[0]]*pesos[0]
+    pop_urb_bacia = df[parametros[1]]*pesos[1]
     
     with np.errstate(divide='ignore', invalid='ignore'):
         resultado = np.select(
@@ -297,7 +305,9 @@ def ihu_cs_ish(df, parametros=['cs_cobred', 'cs_risco'], pesos=[0.7, 0.3]):
 def ihu_rel_pop(df, parametros=['perc_scbc', 'cs_risco'], pesos=[1, 1]):
     perc_scbc = df[parametros[0]]*pesos[0]
     cs_risco = df[parametros[1]]*pesos[1]
-    return perc_scbc*cs_risco
+    resultado = perc_scbc*cs_risco
+
+    return resultado
 
 def ihu_rel_cobred(df, parametros=['perc_scbc', 'cs_cobred'], pesos=[1, 1]):
     perc_scbc = df[parametros[0]]*pesos[0]
@@ -337,11 +347,18 @@ def ire_hu_cobred(df, parametros=['cobacia', 'ihu_rel_cobred'], pesos=[1]):
     
     return ihu_rel_cobred.groupby(cobacia).transform('sum')
 
-def ire_cs_hum(ire_hu_pop, peso_ire_hu_pop, ire_hu_cobred, peso_ire_hu_cobred):
-    impacto_hu_cobred = ire_hu_cobred*peso_ire_hu_cobred
-    impacto_hu_pop    = ire_hu_pop*peso_ire_hu_pop
+def ire_cs_hum(df, parametros=['ire_hu_cobred', 'ire_hu_pop'], pesos=[0.3, 0.7]):
+    ire_hu_cobred = df[parametros[0]]
+    ire_hu_pop  = df[parametros[1]]
     
-    if ire_hu_cobred < ire_hu_pop:
-        return impacto_hu_cobred + impacto_hu_pop
-    else:
-        return ire_hu_pop
+    with np.errstate(divide='ignore', invalid='ignore'):
+        resultado = np.select(
+            [
+                ire_hu_cobred > ire_hu_pop,
+            ],
+            [
+                ire_hu_pop,
+            ],
+            default = ire_hu_cobred*pesos[0] + ire_hu_pop*pesos[1]
+        )
+    return resultado
