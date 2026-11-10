@@ -47,14 +47,16 @@ def functions_module_ish_hum(yaml_file_path):
             # print(f"Aplicando função: {nome_funcao}")
             if nome_funcao in globals() and callable(globals()[nome_funcao]):
                 funcao = globals()[nome_funcao]
-                # entregando a coluna aos dados finais
-                # aplicando peso diferentes do padrão já pré-estabelecido na função
-                if 'pesos' in item:
-                    pesos = item['pesos']
-                    dados_gerais[nome_funcao] = funcao(dados_gerais, pesos=pesos)
-                else:
-                    dados_gerais[nome_funcao] = funcao(dados_gerais)
-                # print(f"  ✅ Coluna criada: {nome_funcao}")
+                # aplicando os pesos como parâmetros de cada função
+                pesos = item['pesos']
+                
+                # estabelecendo valores para trabalhos hipotéticos
+                value = None
+                if 'value' in item:
+                    value = item['value']
+
+                dados_gerais[nome_funcao] = funcao(dados_gerais, pesos=pesos, value=value)
+
             else:
                 print(f"  ⚠️ Função '{nome_funcao}' não encontrada!")
 

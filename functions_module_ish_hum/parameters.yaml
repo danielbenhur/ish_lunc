@@ -9,12 +9,12 @@ dimensions:
     # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/input/dim_hum_cnr_captIBGE2022.csv"
     path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/input/hum_sc_otto2017_ISH-2035v0.0.15 - hum_sc_otto.csv"
     indicadores:
+      - name: disp_q95_cap_2 # criado para testes
+        depends_on: ['disp_q95_cap']
+        pesos: [1]
       - name: bal_perc_cap
-        depends_on: ['dem_acm_cap', 'disp_q95_cap']
+        depends_on: ['dem_acm_cap', 'disp_q95_cap_2']
         pesos: [1,1]
-      # - name: bal_perc_bho
-        # depends_on: ['dem_acm_bho', 'disp_q95_bho']
-        # pesos: [1,1]
       - name: disp_dem_cap
         depends_on: ['bal_perc_cap']
         pesos: [1]
@@ -66,6 +66,7 @@ dimensions:
       - name: cs_cobred
         depends_on: ['ihu_pc_cobrede']
         pesos: [1]
+        # value: 5
       - name: perc_scbc
         depends_on: ['pop_urb_scbc','pop_urb_bacia']
         pesos: [1,1]
@@ -85,7 +86,7 @@ dimensions:
         depends_on: ['perc_scbc', 'cs_risco']
         pesos: [1,1]
       - name: ihu_rel_cobred
-        depends_on: ['perc_scbc', 'cs_cobed']
+        depends_on: ['perc_scbc', 'cs_cobred']
         pesos: [1,1]
       - name: ihu_nu_popriscoinerente_otto
         depends_on: ['cobacia', 'ihu_nu_popriscoinerente_scbc']
@@ -108,8 +109,11 @@ dimensions:
     descritor: tipo_setor
 
 # aqui fica o DataFrame geral, que congrega todos os dados usados
-intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gerais/arquivo_intermediario20-10.csv"
+# intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gerais/arquivo_intermediario_cs_cobred=5.csv"
+intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gerais/arquivo_intermediario_vv_alterado.csv"
+
 
 # Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:
-  path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum_20-10.csv"
+  # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum_cs_cobred=5.csv"
+  path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum_vv_alterado.csv"
