@@ -106,13 +106,10 @@ python3 joinISH.py
 3. [Formatos de saída](#formatos-de-saída) 
 - Pastas output em cada pasta de domínio
 - Saída de arquivo intermediário (com todos os dados) na pasta dados_gerais
-- Oasta getal de output para recebimento do mapa com as colunas especificadas no respectivo parameters.yaml
+- Pasta getal de output para recebimento do mapa com as colunas especificadas no respectivo parameters.yaml
 
 4. [Como rodar os scripts (Exemplos)](#como-rodar-os-scripts-exemplos)  
-TODO: Fazer um script que observe as duas coisas, saiba onde tem coerência e rode o joinISH ao final 
-python3 motorCalculo.py
-python3 joinISH.py
-sh <INSERIR SCRIPT>
+python3 motorCalculo.py - script já roda o necessário sozinho, com verificação e joinISH ao final dele
 
 5. [Interpretação da camada de saída do joinISH](#interpretação-da-camada-de-saída-do-joinish)
 - Arquivo com o mapa completo e o conjunto de colunas de diferentes fontes
@@ -125,5 +122,6 @@ sh <INSERIR SCRIPT>
 - Deixar as dimensões todas no mesmo formato e alterando apenas o nome de alguns arquivo
 - Colocar as fontes de dados em um lugar que o usuário pode se lembrar depois
 - Não criar colunas novas nos arquivos de fonte 
+- Formate as tabelas para se adequarem ao formato exigido com os devidos nomes das fontes colocadas no arquivo .yaml de parâmetros
 
 10. [Exemplos de estrutura da pasta final](#exemplos-de-estrutura-da-pasta-final)  

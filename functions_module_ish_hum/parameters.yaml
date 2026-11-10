@@ -6,108 +6,156 @@ dimensions:
   - name: ire_cs_hum
     path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/input/hum_sc_otto2017_ISH-2035v0.0.15 - hum_sc_otto.csv"
     indicadores:
-      - name: disp_q95_cap_2 # criado para testes
+      # ============================================================
+      # value (novo): sobrescreve os INPUTS, não a saída.
+      #   - escalar / Series  -> aplica a TODOS os parâmetros
+      #   - lista             -> casa posicionalmente com depends_on
+      #                          (None = usa a coluna original)
+      #   - dict {param: val} -> sobrescreve só os nomeados
+      # Exemplos:
+      #   value: 0                              # todos os params = 0
+      #   value: [100, None]                    # só o 1º param = 100
+      #   value: {dem_acm_cap: 500}             # só o nomeado
+      # ============================================================
+
+      - name: disp_q95_cap_2
         depends_on: ['disp_q95_cap']
         pesos: [1]
+        # value: {disp_q95_cap: 0}     # força disp_q95_cap = 0
+
       - name: bal_perc_cap
         depends_on: ['dem_acm_cap', 'disp_q95_cap_2']
         pesos: [1,1]
+        # value: [100, None]           # dem_acm_cap = 100, disp_q95_cap_2 da coluna
+        # value: {dem_acm_cap: 500}    # só sobrescreve dem_acm_cap
+
       - name: disp_dem_cap
         depends_on: ['bal_perc_cap']
         pesos: [1]
+
       - name: ft_imi
         depends_on: ['disp_dem_cap']
         pesos: [0.333333]
+
       - name: ft_pd
         depends_on: ['disp_dem_cap']
         pesos: [1]
+
       - name: ft_tot
         depends_on: ['ft_imi', 'ft_pd']
         pesos: [1,1]
+
       - name: ihu_nu_popriscoinerente
         depends_on: ['ft_imi','dmu_nu_popurbana']
         pesos: [1,1]
+
       - name: ihu_pc_risco_inerente
         depends_on: ['ihu_nu_popriscoinerente','dmu_nu_popurbana']
         pesos: [1,1]
+
       - name: ihu_nu_popriscoposdeficit
         depends_on: ['ft_pd','dmu_nu_popurbana']
         pesos: [1,1]
+
       - name: ihu_pc_riscoposdeficit
         depends_on: ['ihu_nu_popriscoposdeficit', 'dmu_nu_popurbana']
         pesos: [1,1]
+
       - name: ihu_nu_popriscototal
         depends_on: ['ft_tot', 'dmu_nu_popurbana']
         pesos: [1,1]
+
       - name: ihu_pc_risco
         depends_on: ['ihu_nu_popriscototal', 'dmu_nu_popurbana']
         pesos: [1,1]
+
       - name: densidade
         depends_on: ['pop','area_setor']
         pesos: [1,1]
+
       - name: area_considerada_scbc
         depends_on: ['situacao_setor', 'area_scbc', 'fator_analisavel']
         pesos: [1,3]
+
       - name: area_considerada_bho
-        depends_on: ['cobacia', 'area_considerada_scbc'] 
+        depends_on: ['cobacia', 'area_considerada_scbc']
         pesos: [1]
+
       - name: pop_urb_scbc
         depends_on: ['densidade', 'area_considerada_scbc']
         pesos: [1, 1]
+
       - name: pop_urb_bacia
         depends_on: ['cobacia', 'pop_urb_scbc']
         pesos: [1]
+
       - name: cs_risco
         depends_on: ['ihu_nu_popriscototal', 'ihu_pc_risco']
         pesos: [1,1]
+
       - name: cs_cobred
         depends_on: ['ihu_pc_cobrede']
         pesos: [1]
-        # value: 5
+        # value: 5                      # antes devolvia 5 como saída; agora
+                                        # aplicaria 5 em ihu_pc_cobrede.
+                                        # Se quiser o comportamento antigo (saída fixa),
+                                        # use: value: {__saida__: 5}  (ver nota abaixo)
+
       - name: perc_scbc
         depends_on: ['pop_urb_scbc','pop_urb_bacia']
         pesos: [1,1]
+
       - name: ihu_nu_popriscoinerente_scbc
         depends_on: ['ft_imi', 'pop_urb_scbc']
         pesos: [1,1]
+
       - name: ihu_nu_popriscoposdeficit_scbc
         depends_on: ['ft_pd', 'pop_urb_scbc']
         pesos: [1,1]
+
       - name: ihu_nu_popriscototal_scbc
         depends_on: ['ft_tot', 'pop_urb_scbc']
         pesos: [1,1]
+
       - name: ihu_cs_ish
         depends_on: ['cs_risco', 'cs_cobred']
         pesos: [0.7,0.3]
+        # value: {cs_cobred: 5}
+
       - name: ihu_rel_pop
         depends_on: ['perc_scbc', 'cs_risco']
         pesos: [1,1]
+
       - name: ihu_rel_cobred
         depends_on: ['perc_scbc', 'cs_cobred']
         pesos: [1,1]
+
       - name: ihu_nu_popriscoinerente_otto
         depends_on: ['cobacia', 'ihu_nu_popriscoinerente_scbc']
         pesos: [1,1]
+
       - name: ihu_nu_popriscoposdeficit_otto
         depends_on: ['cobacia', 'ihu_nu_popriscoposdeficit_scbc']
         pesos: [1,1]
+
       - name: ihu_nu_popriscototal_otto
         depends_on: ['cobacia', 'ihu_nu_popriscototal_scbc']
         pesos: [1,1]
+
       - name: ire_hu_pop
         depends_on: ['cobacia','ihu_rel_pop']
         pesos: [1,1]
+
       - name: ire_hu_cobred
         depends_on: ['cobacia', 'ihu_rel_cobred']
         pesos: [1,1]
+
       - name: ire_cs_hum
         depends_on: ['ire_hu_cobred', 'ire_hu_pop']
         pesos: [0.3, 0.7]
     descritor: tipo_setor
 
-# aqui fica o DataFrame geral, que congrega todos os dados usados
 intermediario: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/dados_gerais/arquivo_intermediario_vv_alterado.csv"
 
-# Saída: pode opcionalmente sobrescrever pasta output/gpkg final
 output:
   path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum_vv_alterado.csv"
