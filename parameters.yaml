@@ -3,24 +3,18 @@ description: "Cenário teste dados de 2020 - exemplo de uso com joinISH"
 base_dir: "."
 
 bho:
-  # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/BHO_area.gpkg"
   path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/geoft_bho_2017_5k_area_drenagem-ES.gpkg"
-  # layer: cobacia
   layer: "geoft_bho_2017_5k_area_drenagemesextendido"
-  # layer: "geoft_bho_2017_5k_area_drenagem-ES"
 
 dimensions:
   - name: hum
     column: 'ire_cs_hum'
     merge_column: 'cobacia'
-    # path: "./functions_module_ish_hum/output/ish_hum.csv"
     path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum_vv_alterado.csv"
-    # path: "/home/luca_profissional/Desktop/BolsaLabgest/ish_lunc/functions_module_ish_hum/output/ish_hum_cs_cobred=5.csv"
+  
   - name: eco
     column: 'dimensao_economica'
-    # column: 'ire_cs_eco'
     merge_column: 'cobacia'
-    # path: "./functions_module_ish_eco/output/ish_eco.csv"
     path: "./scenarios/dim_eco_cnr2020.csv"
 
   - name: amb
