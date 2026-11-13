@@ -1,6 +1,6 @@
 # ISH_LUNC - README
 
-Este repositório contém scripts com finalidade principal de calcular o **Índice de Segurança Hídrica LabGest-UFES/Neades-CPID (ISH_LUNC)** por ottobacias e agregar/visualizar esses resultados em unidades de apresentação (municípios, estados, regiões etc.). O projeto engloba como padrão as funções na dimensão humana, presentes na pasta functions_module_ish_hum; depois dos cálculos puxados pelo motorCalculo.py, usa-se o joinISH.py para gerar um gpkg para formar os mapas verificáveis em GIS.
+Este repositório contém scripts com finalidade principal de calcular o **Índice de Segurança Hídrica LabGest-UFES/Neades-CPID (ISH_LUNC)** por ottobacias e agregar/visualizar esses resultados em unidades de apresentação (municípios, estados, regiões etc.). O projeto engloba como padrão as funções na dimensão humana, presentes na pasta functions_module_ish_hum; depois da aplicação das funções nos dados de entrada, usa-se um código para unificar os dados apresentáveis: o joinISH; com isso, o código junta os arquivos em um geopackage (.gpkg) e é possível visualizar o mapa final com as dimensões presentes. O script motorCalculo.py roda o código em cada pasta de dimensão e o joinISH ao final.
 
 ![Fluxograma do ISH-LUNC](./ISH-LUNC_fluxograma.svg)
 
@@ -10,7 +10,7 @@ Este repositório contém scripts com finalidade principal de calcular o **Índi
 ```
 ISH_LUNC/
 ├─ joinISH.py                   # script que junta csv's calculados em um arquivo .gpkg para funcionalidade de mapa em GIS
-├─ motorCalculo.py              # script que roda os códigos internos das pastas de dimensões para calcular os componentes de ISH
+├─ motorCalculo.py              # script que faz as contas em cada dimensão específica e depois roda o joinISH.py
 ├─ requirements.txt             # pacotes requeridos no projeto
 ├─ dados_gerais/                # pasta com dados comuns a todas as dimensões (dataframe completo gerado pela função humana armazenado em arquivo .csv)
 ├─ output/                      # pasta onde ficam os resultados de joinISH.py
@@ -67,17 +67,16 @@ ISH_LUNC/
 |   ├─ resultado.gpkg
 
 2. Explicação de cada arquivo programado
-O arquivo central para operação das contas como um todo é o "motorCalculo.py", que será o arquivo utilizado para gerar os dados coerentemente com o que precisa ser calculado em cada dimensão; utilizando a estrutura correta, em que cada dimensão tem sua própria pasta, esse arquivo irá executar os arquivos próprios internamente para gerar os dados necessários; ele lerá a lista de dimensões a serem calculadas de acordo com o arquivo de configuração "parameters.yaml" na mesma pasta que ele.
+O arquivo central para operação das contas como um todo estão em cada pasta de dimensão; cada subpasta que começa em "functions_module_ish_" deve ter as entradas definitivas de como a dimensão deve ser trabalhada; a partir de uma planilha formatada, o usuário consegue fazer as contas com o script "calcular_dimensao.py", que vai usar as funções da biblioteca de funções específicas de cada dimensão para chegar em alguma conclusão. Para escolher as funções que serão usadas, tem um arquivo "parameters.yaml", que tem detalhado como cada coluna de uma tabela será trabalhada (seja com pesos específicos, valores setados e os parâmetros de cada função utilizada na biblioteca; as colunas originais que eram feitas em Excel agora são funções próprias do código).
 
-As subpastas (neste exemplo ainda são functions_module_ish_hum e functions_module_ish_eco), referentes a cada dimensão do modelo terão duas subpastas próprias: input e output; input é onde estão os arquivos csv que serão usados para calcular os dados e output onde está o resultado final da execução do arquivo "calcular_dimensao.py", que usa o arquivo de configuração próprio da mesma subpasta chamado "parameters.yaml". A biblioteca de funções para esse arquivo executado é "convertion_functions.py", onde está a lógica central de cada função que anteriormente era calculada em Excel. A elaboração dessas funções deve ter o nome especificado e igual tanto na biblioteca como no arquivo de configuração. A adequação de pesos ocorre no arquivo de configuração, cabendo ao usuário decidir como os pesos serão utilizados. A escolha de valores de pesos deve ter a mesma ordem das colunas que estão sendo trabalhadas em cada função.
+No momento, apenas a dimensão humana está pronta nesse propósito, mas o formato pode ser usado para as outras dimensões também.
 
-Considerando a similaridade e uso comum de diferentes colunas na mesma execução entre dimensões diferentes, tem uma pasta específica chamada "dados_gerais", que irá ter um arquivo em csv nomeado "arquivo_intermediario.csv", que conterá todas as colunas; a ordem como as dimensões são chamadas é importante, sendo necessário sempre começar pela humana já que os dados dessa dimensão vão ser usadas pelas outras e para os cálculos gerais
+O joinISH junta os resultados de todas as "calcular_dimensao.py" das subpastas anteriores; isso é uma convenção: o dado visto no script joinISH pode estar em qualquer lugar do computador, desde que selecionado na formatação devida e em alguma pasta indicada pelo "parameters.yaml" da pasta geral. Cada dimensão tem um campo específico nesse arquivo de configuração e a partir disso o usuário decide de onde vai ser extraída a coluna de cada dimensão para a conta final do mapa. Isso, no entanto, não significa que a padronização não é relevante: às vezes a escolha do lugar da pasta pode não ser um ponto de atenção do usuário e mesmo refazendo as contas ele pode esquecer do local onde seus resultados estão indo. Por isso, é bom colocar a padronização em cada dimensão do arquivo resultado das contas (mesmo que ele seja entrada do joinISH).
 
-Por fim, o "joinISH.py" tem o papel de extrair os dados presentes em cada subpasta output, unir tudo em um único DataFrame e fazer uma junção com a tabela GPKG em "BHO_area.gpkg", sendo responsável por extrair os dados gerais de cada dimensão e tirar uma média de todas elas, tendo seu resultado presente na subpasta escolhida no "parameters.yaml" geral e possível averiguação do mapa no QGIS.
+Por fim, o script motorCalculo.py roda cada dimensão e junta com a execução do joinISH; tudo pode ser rodado sozinho (as dimensões individualmente e o joinISH separadamente), mas o motorCalculo.py junta as duas coisas para melhorar o fluxo de simulações.
 
 Execução (na pasta principal): 
 python3 motorCalculo.py
-python3 joinISH.py
 
 ## Índice
 1. [Pré-requisitos](#pré-requisitos)  
