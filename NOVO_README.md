@@ -108,14 +108,20 @@ python3 motorCalculo.py
 - Pasta getal de output para recebimento do mapa com as colunas especificadas no respectivo parameters.yaml
 
 4. [Como rodar os scripts (Exemplos)](#como-rodar-os-scripts-exemplos)  
-python3 motorCalculo.py - script já roda o necessário sozinho, com verificação e joinISH ao final dele
+- Para configurações gerais:
+python3 motorCalculo.py
+
+- Para configurações dimensionais específicas:
+python3 ./functions_module_ish_hum/calcular_dimensao.py
 
 5. [Interpretação da camada de saída do joinISH](#interpretação-da-camada-de-saída-do-joinish)
 - Arquivo com o mapa completo e o conjunto de colunas de diferentes fontes
 
 6. [Exemplo prático (numérico)](#exemplo-prático-numérico)
 7. [Logs e interpretação rápida](#logs-e-interpretação-rápida)  
-8. [Validação rápida (scripts úteis)](#validação-rápida-scripts-úteis)  
+
+8. [Validação rápida (scripts úteis)](#validação-rápida-scripts-úteis)
+- Uso do script "comparar.py", presente em cada subpasta, para verificação se o padrão sugerido existe
 
 9. [Boas práticas e recomendações](#boas-práticas-e-recomendações)  
 - Deixar as dimensões todas no mesmo formato e alterando apenas o nome de alguns arquivo
@@ -124,3 +130,15 @@ python3 motorCalculo.py - script já roda o necessário sozinho, com verificaç�
 - Formate as tabelas para se adequarem ao formato exigido com os devidos nomes das fontes colocadas no arquivo .yaml de parâmetros
 
 10. [Exemplos de estrutura da pasta final](#exemplos-de-estrutura-da-pasta-final)  
+# interpretação geral (faz sentido estarem na mesma pasta)
+- motorCalculo.py
+- parameters.yaml
+- input/
+   - mapa_padrao.gpkg
+- output/
+   - mapa_gerado.csv
+   - mapa_gerado.gpkg
+
+# pastas das dimensões (são inputs do resultado final, mas precisam de inputs próprios)
+- functions_module_ish_hum/*
+- functions_module_ish_eco/*
