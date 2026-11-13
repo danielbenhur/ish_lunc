@@ -30,7 +30,7 @@ ISH_LUNC/
 ---
 ## **Guia de Uso**
 1. Estrutura de Pastas para funcionamento
-
+```
 ├─  dados_gerais
 |   ├─ arquivo_intermediario.csv
 |
@@ -65,7 +65,7 @@ ISH_LUNC/
 ├─  output
 |   ├─ resultado.csv
 |   ├─ resultado.gpkg
-
+```
 2. Explicação de cada arquivo programado
 O arquivo central para operação das contas como um todo estão em cada pasta de dimensão; cada subpasta que começa em "functions_module_ish_" deve ter as entradas definitivas de como a dimensão deve ser trabalhada; a partir de uma planilha formatada, o usuário consegue fazer as contas com o script "calcular_dimensao.py", que vai usar as funções da biblioteca de funções específicas de cada dimensão para chegar em alguma conclusão. Para escolher as funções que serão usadas, tem um arquivo "parameters.yaml", que tem detalhado como cada coluna de uma tabela será trabalhada (seja com pesos específicos, valores setados e os parâmetros de cada função utilizada na biblioteca; as colunas originais que eram feitas em Excel agora são funções próprias do código).
 
